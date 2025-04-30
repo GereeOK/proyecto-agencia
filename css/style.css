@@ -1,0 +1,319 @@
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body{
+    background-color: #efeaeac8;
+    font-family: sans-serif;
+    line-height: 1.6;
+    padding-top: 60px;
+}
+
+.navbar {
+    background-color: rgba(0, 0 , 0 , 0.7);
+    padding: 15px 0;
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    gap: 2em;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s ease; 
+}
+
+/* animación para al pararse encima de las secciones cambie de color */
+.navbar a:hover { 
+    color: #ffd700;
+}
+
+.hero{
+    background-image: url(../img/avion.png);
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    color: white;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.hero h1{
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 5px #000;
+}
+
+.hero p{
+    font-size: 1rem;
+    max-width: 700px;
+    margin: 0 auto 2rem auto;
+    text-shadow: 1px 1px 3px #000;
+}
+
+.hero a{
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background-color: #ffd700;
+    color: black;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.hero a:hover{
+    background-color: #e6c200;
+}
+
+header nav{
+    background-color: rgba(0, 0, 0, 0.6);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.cards-container{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    padding: 2rem 1rem;
+}
+
+.card{
+    background: #fff;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0px 2px 10px rgba(0, 0 , 0 , 0.1);
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s; 
+}
+
+.card:hover {
+    transform: translateY(-0.3125rem);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.card h3{
+    margin: 1rem;
+    font-size: 1.25rem;
+}
+
+.card p{
+    margin: 0 1rem 1.5rem;
+    color: #333;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.card img{
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    margin-bottom: 0.5rem;
+}
+
+.service {
+    padding: 4rem 1rem;
+    background: #f9f9f9;
+}
+
+.service p {
+    max-width: 800px;
+    margin: 0 auto 2rem auto;
+    text-align: center;
+    color: #555;
+}
+
+.service h2{
+    font-size: 2.5rem;
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    position: relative;
+    display: inline-block;
+    color: #333;
+}
+
+.service h2::after {
+    content: "";
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    width: 80px;
+    height: 4px;
+    background-color: #ffd700;
+    transform: translateX(-50%);
+    border-radius: 2px;
+}
+
+/* Sección NOSOTROS */
+.about {
+    background: #fff;
+    padding: 5rem 1rem;
+}
+.about-container {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+}
+.about-image img {
+    width: 100%;
+    max-width: 500px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+.about-image img:hover {
+    transform: scale(1.03);
+}
+.about-text h2 {
+    font-size: 2.75rem;
+    margin-bottom: 1rem;
+    color: var(--color-secundario);
+}
+.about-text p {
+    font-size: 1rem;
+    line-height: 1.8;
+} 
+
+/* FORMULARIO DE  CONTACTO */ 
+.contact h2{
+    font-size: 2.5rem;
+    text-align: center;
+    position: relative;
+    display: inline-block;
+    color: #333;
+}
+.contact-wrapper {
+    max-width: 600px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.7);
+}
+
+/* Aseguramos que labels estén arriba y con espacio */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--color-secundario);
+}
+
+/* Inputs y textarea a todo ancho, con borde sutil */
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: var(--color-primario);
+    box-shadow: 0 0 8px rgba(255,215,0,0.3);
+    outline: none;
+}
+  /* Botón centrado y con estilo moderno */
+.contact-form button {
+    display: block;
+    width: 100%;
+    padding: 0.85rem;
+    background: var(--color-primario);
+    color: #000;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+}
+.contact-form button:hover {
+    background: #e6c200;
+    transform: translateY(-2px);
+}
+
+/* FOOTER */ 
+
+footer {
+    background: var(--color-secundario);
+    color: #000;
+    padding: 3rem 1rem;
+    text-align: center;
+}
+footer p {
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+  /* Redes en línea con espacio y efecto hover */
+footer .social {
+    display: flex;
+    justify-content: center;
+    gap: 1.25rem;
+}
+footer .social img {
+    width: 32px;
+    height: 32px;
+    filter: invert(1);
+    transition: transform 0.3s, filter 0.3s;
+}
+footer .social a:hover img {
+    transform: scale(1.1);
+    filter: none; /* vuelve al color original del SVG */
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero h1 {
+    font-size: 2.5rem;
+    }
+    .hero p {
+    font-size: 1rem;
+    }
+}
+
+/* Para pantallas más pequeñas, bajamos a 2 columnas y luego 1 */
+@media (max-width: 900px) {
+    .cards-container {
+    grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 600px) {
+    .cards-container {
+    grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .about-container { gap: 1.5rem; }
+    .about-text h2, .contact h2 { font-size: 2.25rem; }
+    .cards-container { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 2.75rem; }
+}
