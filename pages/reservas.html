@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../css/style.css" />
+    <title>Reserva | Baires Essence</title>
+</head>
+<body>
+<header>
+    <!-- Copia aquí tu <nav> para mantener la navegación -->
+    </header>
+
+    <main>
+    <section id="login">
+        <!-- Aquí irá el botón “Ingresar con Google” -->
+    </section>
+
+    <section id="form-reserva" style="display:none;">
+        <h1>Completa tu Reserva</h1>
+        <form id="reserva-form">
+        <label>
+            Fecha:
+            <input type="date" name="fecha" required />
+        </label>
+        <label>
+            Nº de pasajeros:
+            <input type="number" name="pasajeros" min="1" required />
+        </label>
+        <!-- añade aquí los campos que necesites -->
+        <button type="submit">Enviar reserva</button>
+        </form>
+    </section>
+    </main>
+
+    <footer>
+    @2025 Baires Essence. Todos los derechos reservados.
+    </footer>
+
+    <!-- Firebase + tu main.js -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script>
+    
+    // 1) Configuración de Firebase
+        const firebaseConfig = {
+        apiKey: "AIzaSyAkjTubMcIKbXkVZ6QDzd-2y8DyExa2VrE",
+        authDomain: "baires-essence.firebaseapp.com",
+        projectId: "baires-essence",
+        databaseURL: "https://baires-essence-default-rtdb.firebaseio.com",
+        storageBucket: "baires-essence.firebasestorage.app",
+        messagingSenderId: "211864182519",
+        appId: "1:211864182519:web:086785d6d0969ee643fdf2",
+        measurementId: "G-6WHV3BEPQ3"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db   = firebase.firestore();
+
+    // 2) Función de login con Google
+    const loginBtn = document.createElement('button');
+    loginBtn.textContent = 'Ingresar con Google';
+    loginBtn.addEventListener('click', () => {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        auth.signInWithPopup(provider);
+    });
+    document.querySelector('#login').appendChild(loginBtn);
+
+    // 3) Mostrar el form sólo si está logueado
+    auth.onAuthStateChanged(user => {
+        if (user) {
+        document.querySelector('#login').style.display       = 'none';
+        document.querySelector('#form-reserva').style.display = 'block';
+        }
+    });
+
+    // 4) Envío de la reserva a Firestore
+    document.querySelector('#reserva-form').addEventListener('submit', e => {
+        e.preventDefault();
+        const data = {
+        fecha:       e.target.fecha.value,
+        pasajeros:  +e.target.pasajeros.value,
+        userEmail:  auth.currentUser.email,
+        timestamp:  firebase.firestore.FieldValue.serverTimestamp()
+        };
+        db.collection('reservas').add(data)
+        .then(() => alert('Reserva enviada con éxito'))
+        .catch(err => console.error(err));
+    });
+    </script>
+</body>
+</html>

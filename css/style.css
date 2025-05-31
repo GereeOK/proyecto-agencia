@@ -88,6 +88,9 @@ header nav{
     z-index: 1000;
 }
 
+.hidden { display: none !important; }
+
+
 .cards-container{
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -331,6 +334,38 @@ footer .social a:hover img {
     transform: scale(1.1);
     filter: none; /* vuelve al color original del SVG */
 }
+
+/* Oculta elementos con la clase .hidden */
+.hidden {
+    display: none !important;
+}
+  /* Estilos generales para los botones de login/logout */
+    #login-btn,
+    #logout-btn {
+    background-color: #ff4b5c;    /* rojo suave */
+    color: #fff;                   /* texto blanco */
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-left: 1rem;            /* separa un poco del nav */
+    }
+    /* Hover */
+    #login-btn:hover,
+    #logout-btn:hover {
+    background-color: #e33f50;
+}
+    /* Active / Focus */
+    #login-btn:active,
+    #logout-btn:active,
+    #login-btn:focus,
+    #logout-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(227, 63, 80, 0.5); 
+}
+
 
 /* Responsive */
 @media (max-width: 768px) {

@@ -23,6 +23,8 @@
                 <li><a href="#servicios">Servicios</a></li>
                 <li><a href="#contacto">Contacto</a></li>
                 <li><a href="#mis-reservas">Mis Reservas</a></li>
+                <li><button id="login-btn">Iniciar con Google</button></li>
+                <li><button id="logout-btn" class="hidden">Cerrar sesión</button></li>                 
             </ul>
         </nav>
     </header>
@@ -56,46 +58,46 @@
                 <!-- Contenedor general de las cards-->
                 <div class="cards-container">
                 <!-- Cada articulo es una tarjeta-->
-                    <article class="card">
+                    <article class="card" data-service-id="traslados-aeroportuarios">
                     <img src="./img/img_ezeiza.jpg" alt="Descripción servicio de traslados aeroportuarios" loading="lazy">
                     <h3>Traslados Aeroportuarios</h3>
                     <p>Servicio puerta-a-puerta en vehículos de alta gama desde y hacia Ezeiza, Aeroparque o la conexión entre ambos. Chofer profesional, seguimiento de vuelo en tiempo real y cero estrés: aterrizarás en Buenos Aires con la frente despejada.</p>
                     <button class="btn-reservar">Reservar</button>
                     </article>  
 
-                    <article class="card">
+                    <article class="card" data-service-id="City Tours">
                     <img src="" alt="Descripción servicio 2" loading="lazy">
                     <h3>City Tours Esenciales</h3>
                     <p>Recorre lo imprescindible de BA en 4 u 8 horas: Plaza de Mayo, Caminito, Puerto Madero y más. Guía bilingüe, transporte climatizado y snack de cortesía.</p>
-                    <button class="btn-reservar">Reservar</button>
+                    <button class="btn-reservar" href="pages/reservas.html">Reservar</button>
                     </article>
 
-                    <article class="card">
+                    <article class="card" data-service-id="City Tours Temáticos">
                     <img src="./img/img_citytour.jpg" alt="Descripción servicio 3" loading="lazy">
                     <h3>City Tours Temáticos</h3>
                     <p>Experiencias con sabor local: opción con almuerzo gourmet en barrios top, paseo por el Cementerio de la Recoleta lleno de leyendas o backstage del Teatro Colón.</p>
-                    <button class="btn-reservar">Reservar</button>
+                    <button class="btn-reservar" href="pages/reservas.html">Reservar</button>
                     </article>
 
-                    <article class="card">
+                    <article class="card" data-service-id="Delta & Estancias">
                     <img src="./img/img_tigre.jpg" alt="Descripción servicio 4" loading="lazy">
                     <h3>Delta & Estancias</h3>
                     <p>Navegación por el Delta del Tigre + escapada a estancias El Ombú o La Bamba (130 km de BA). Cabalgatas, gastronomía criolla y opción de guía bilingüe.</p>
-                    <button class="btn-reservar">Reservar</button>
+                    <button class="btn-reservar" href="pages/reservas.html">Reservar</button>
                     </article>
 
-                    <article class="card card-tango-show">
+                    <article class="card card-tango-show" data-service-id="Gourmet & Tango">
                     <img src="./img/img_tango_show.jpg" alt="Descripción servicio 5" loading="lazy">
                     <h3>Gourmet & Tango</h3>
                     <p>Cena de autor seguida de un show de tango de 4 horas en tablaos selectos o almuerzos/cenas en Palermo, Recoleta, San Telmo o Puerto Madero. Menús de alta cocina local para paladares exigentes… y pies que bailan solos.</p>
-                    <button class="btn-reservar">Reservar</button>
+                    <button class="btn-reservar" href="pages/reservas.html">Reservar</button>
                     </article>
 
-                    <article class="card">
+                    <article class="card" data-service-id="Eventos & Servicios a Medida">
                     <img src="" alt="Descripción servicio 6" loading="lazy">
                     <h3>Eventos & Servicios a Medida</h3>
                     <p>Chofer y vehículo disponibles por hora para recitales, estadios o itinerarios espontáneos. Flexibilidad total, atención VIP y cero imprevistos. Porque tu agenda no espera… y nosotros tampoco.</p>
-                    <button class="btn-reservar">Reservar</button>
+                    <button class="btn-reservar" href="pages/reservas.html">Reservar</button>
                     </article>
                 </div>      
         </section>
@@ -133,10 +135,14 @@
 <script>
   // Aquí pegas tu configuración tal como te la dio la consola de Firebase:
 const firebaseConfig = {
-    apiKey: "TU_API_KEY",
-    authDomain: "TU_PROYECTO.firebaseapp.com",
-    projectId: "TU_PROYECTO",
-    // …el resto de campos…
+    apiKey: "AIzaSyAkjTubMcIKbXkVZ6QDzd-2y8DyExa2VrE",
+    authDomain: "baires-essence.firebaseapp.com",
+    projectId: "baires-essence",
+    databaseURL: "https://baires-essence-default-rtdb.firebaseio.com",
+    storageBucket: "baires-essence.firebasestorage.app",
+    messagingSenderId: "211864182519",
+    appId: "1:211864182519:web:086785d6d0969ee643fdf2",
+    measurementId: "G-6WHV3BEPQ3"
 };
   // Inicializas Firebase
 firebase.initializeApp(firebaseConfig);
@@ -147,7 +153,5 @@ window.db   = firebase.firestore();
 
 <!-- Luego tu propio código -->
 <script src="main.js" defer></script>
-
-<script src="main.js"></script>
 </body>
 </html>
