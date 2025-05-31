@@ -1,130 +1,144 @@
 // main.js
 
-// 0) SLIDER HERO (tu código existente)
-const hero = document.querySelector('.hero');
-const slides = [
-  './img/avion.png',
-  './img/buenosaires1.jpg',
-  './img/buenosaires2.jpg',
-  './img/tango.jpg'
-];
-let current = 0;
-function nextSlide() {
-  hero.style.backgroundImage = `url(${slides[current]})`;
-  current = (current + 1) % slides.length;
-}
-nextSlide();
-setInterval(nextSlide, 5000);
-
-// 1) REFERENCIAS A FIREBASE (ya expuestas en window.auth y window.db)
+// ────────────────────────────────────────────────────
+// 1) Alias de Firebase (declarados en tu index.html)
+// ────────────────────────────────────────────────────
 const auth = window.auth;
 const db   = window.db;
 
-// 2) LOGIN / LOGOUT EN EL NAV
-const nav            = document.querySelector('nav ul.navbar');
-const loginBtn       = document.querySelector('#login-btn');
-const logoutBtn      = document.querySelector('#logout-btn');
-const reservasNavItem= document.querySelector('a[href="#mis-reservas"]');
+// ────────────────────────────────────────────────────
+// 2) Referencias al NAV – login/logout/reservas
+// ────────────────────────────────────────────────────
+const nav           = document.querySelector('nav ul.navbar');
+const loginBtn      = document.getElementById('login-btn');
+const logoutBtn     = document.getElementById('logout-btn');
+const reservasLink  = document.querySelector('a[href="#mis-reservas"]');
 
-// Observador de estado
+// Estado inicial: solo muestro “Iniciar con Google”
+loginBtn.hidden     = false;
+logoutBtn.hidden    = true;
+if (reservasLink) reservasLink.hidden = true;
+
+// ────────────────────────────────────────────────────
+// 3) Observador de estado de autenticación
+// ────────────────────────────────────────────────────
 auth.onAuthStateChanged(user => {
   if (user) {
-    loginBtn?.classList.add('hidden');
-    logoutBtn?.classList.remove('hidden');
-    reservasNavItem?.classList.remove('hidden');
+    // Usuario logueado
+    loginBtn.hidden     = true;
+    logoutBtn.hidden    = false;
+    if (reservasLink) reservasLink.hidden = false;
 
-    // añade nombre en nav si no existe
-    if (!document.querySelector('#nav-user')) {
+    // Añade nombre de usuario al NAV si no existe
+    if (!document.getElementById('nav-user')) {
       const li = document.createElement('li');
       li.id = 'nav-user';
       li.textContent = user.displayName;
-      nav.append(li);
+      nav.appendChild(li);
     }
   } else {
-    loginBtn?.classList.remove('hidden');
-    logoutBtn?.classList.add('hidden');
-    reservasNavItem?.classList.add('hidden');
-    document.querySelector('#nav-user')?.remove();
-  }
+    // Usuario desconectado
+    loginBtn.hidden     = false;
+    logoutBtn.hidden    = true;
+    if (reservasLink) reservasLink.hidden = true;
 
-  // 3) Carga o limpia "Mis Reservas" cada vez que cambia user
-  cargarMisReservas(user);
+    // Elimina el nombre de usuario si está
+    document.getElementById('nav-user')?.remove();
+  }
 });
 
-// Botones de login/logout
-loginBtn?.addEventListener('click', () =>
+// ────────────────────────────────────────────────────
+// 4) Login / Logout con Google
+// ────────────────────────────────────────────────────
+loginBtn.addEventListener('click', () => {
   auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
-      .catch(_ => alert('No pudimos iniciar sesión.'))
-);
+      .catch(err => {
+        console.error('Error login:', err);
+        alert('No pudimos iniciar sesión.');
+      });
+});
 
-logoutBtn?.addEventListener('click', () =>
+logoutBtn.addEventListener('click', () => {
   auth.signOut()
-);
+      .catch(err => {
+        console.error('Error logout:', err);
+        alert('Error cerrando sesión.');
+      });
+});
 
-// 4) FUNCION PARA LEER Y PINTAR "MIS RESERVAS"
-async function cargarMisReservas(user) {
-  const cont = document.getElementById('mis-reservas');
-  if (!cont) return;
+// ────────────────────────────────────────────────────
+// 5) Botones “Reservar” → forzar login y redirigir
+// ────────────────────────────────────────────────────
+document.querySelectorAll('.btn-reservar').forEach(btn => {
+  btn.addEventListener('click', async e => {
+    e.preventDefault();
 
-  cont.innerHTML = '';             // limpio todo
-
-  if (!user) {
-    cont.innerHTML = `<p>Inicia sesión para ver tus reservas.</p>`;
-    return;
-  }
-
-  cont.innerHTML = '<h2>Mis Reservas</h2><p>Cargando…</p>';
-  try {
-    const snap = await db.collection('reservations')
-      .where('uid','==',user.uid)
-      .orderBy('timestamp','desc')
-      .get();
-
-    if (snap.empty) {
-      cont.innerHTML = '<h2>Mis Reservas</h2><p>No tienes reservas aún.</p>';
-      return;
-    }
-
-    cont.innerHTML = '<h2>Mis Reservas</h2>';
-    snap.forEach(doc => {
-      const r = doc.data();
-      const d = r.timestamp?.toDate
-        ? r.timestamp.toDate()
-        : new Date(r.timestamp.seconds * 1000);
-      const div = document.createElement('div');
-      div.classList.add('reserva-item');
-      div.textContent = `${r.service} — ${d.toLocaleString()}`;
-      cont.appendChild(div);
-    });
-  } catch (e) {
-    console.error(e);
-    cont.innerHTML = '<p>Error al cargar reservas.</p>';
-  }
-}
-
-// 5) HANDLER DE "RESERVAR" POR CADA CARD
-document.querySelectorAll('.card button').forEach(btn => {
-  btn.addEventListener('click', async () => {
     let user = auth.currentUser;
     if (!user) {
-      // forzamos login primero
+      // Si no está logueado, forzamos el popup
       try {
-        await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
-        user = auth.currentUser;
+        const result = await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+        user = result.user;
       } catch {
         return alert('Necesitas iniciar sesión para reservar.');
       }
     }
-    // tras login, guardamos la reserva
+
+    // Redirijo con el parámetro service
     const serviceId = btn.closest('.card').dataset.serviceId;
-    await db.collection('reservations').add({
-      uid: user.uid,
-      service: serviceId,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    alert('¡Reserva realizada con éxito!');
-    // y recargamos la lista
-    cargarMisReservas(user);
+    window.location.href = `pages/reservas.html?service=${encodeURIComponent(serviceId)}`;
   });
 });
+
+// ────────────────────────────────────────────────────
+// 6) Formulario de Contacto → validación + Firestore
+// ────────────────────────────────────────────────────
+const contactForm = document.querySelector('.contact-form');
+console.log('Contacto: from encontrado?', !!contactForm);
+if (contactForm) {
+  // Creo mensaje de éxito oculto
+  const successMsg = document.createElement('div');
+  successMsg.className    = 'success-message';
+  successMsg.textContent  = '¡Gracias! Tu mensaje fue enviado.';
+  successMsg.style.display = 'none';
+  contactForm.parentNode.insertBefore(successMsg, contactForm.nextSibling);
+
+  contactForm.addEventListener('submit', async e => {
+    e.preventDefault();
+
+    // Recojo y valido campos
+    const name    = e.target.name.value.trim();
+    const email   = e.target.email.value.trim();
+    const message = e.target.message.value.trim();
+    if (!name || !email || !message) {
+      return alert('Por favor completa todos los campos.');
+    }
+
+    try {
+      // Guardo en Firestore
+      await db.collection('messages').add({
+        name,
+        email,
+        message,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      // Muestro mensaje de éxito y limpio form
+      successMsg.style.display = 'block';
+      contactForm.reset();
+      setTimeout(() => successMsg.style.display = 'none', 5000);
+    } catch (err) {
+      console.error('Error enviando mensaje:', err);
+      alert('Hubo un problema al enviar tu mensaje. Intenta de nuevo.');
+    }
+  });
+} else {
+  console.warn('No se encontró .contact-form en el DOM');
+}
+
+
+
+
+
+
+
 

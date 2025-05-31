@@ -1,275 +1,324 @@
-*{
-    padding: 0;
+/* ----------------------------------
+1. Reset & Global
+---------------------------------- */
+* {
     margin: 0;
+    padding: 0;
     box-sizing: border-box;
 }
-
 html {
     scroll-behavior: smooth;
 }
-
-body{
-    background-color: #efeaeac8;
-    font-family: sans-serif;
+body {
+    background-color: #efeaea;
+    font-family: Arial, sans-serif;
     line-height: 1.6;
-    padding-top: 60px;
+    padding-top: 60px; /* reserve space for fixed header */
+    color: #333;
+}
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
 }
 
-.navbar {
-    background-color: rgba(0, 0 , 0 , 0.7);
-    padding: 15px 0;
-    display: flex;
-    justify-content: center;
-    list-style: none;
-    gap: 2em;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-.navbar a {
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
-    transition: 0.3s ease; 
-}
-
-/* animación para al pararse encima de las secciones cambie de color */
-.navbar a:hover { 
-    color: #ffd700;
-}
-
-.hero{
-    background-image: url(../img/avion.png);
-    background-size: cover;
-    background-position: center;
-    height: 100vh;
-    color: white;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 2rem;
-}
-
-.hero h1{
-    font-size: 3.5rem;
-    margin-bottom: 1rem;
-    text-shadow: 2px 2px 5px #000;
-}
-
-.hero p{
-    font-size: 1rem;
-    max-width: 700px;
-    margin: 0 auto 2rem auto;
-    text-shadow: 1px 1px 3px #000;
-}
-
-.hero a{
-    display: inline-block;
-    padding: 0.75rem 1.5rem;
-    background-color: #ffd700;
-    color: black;
-    text-decoration: none;
-    border-radius: 5px;
-    font-weight: bold;
-    transition: background-color 0.3s;
-}
-
-.hero a:hover{
-    background-color: #e6c200;
-}
-
-header nav{
-    background-color: rgba(0, 0, 0, 0.6);
+/* ----------------------------------
+    2. Header & Navigation
+   ---------------------------------- */
+header {
+    background: #111;
     position: fixed;
     top: 0;
     width: 100%;
     z-index: 1000;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    height: 50px;                    /* más delgado */
 }
 
-.hidden { display: none !important; }
-
-
-.cards-container{
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-    padding: 2rem 1rem;
+header .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    padding: 0 1rem;
 }
 
-.card{
+/* Nav centrado verticalmente */
+header nav {
+    flex: 1;
+}
+
+.navbar {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    list-style: none;
+    justify-content: flex-start;
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Que el botón de login/logout quede al final */
+.navbar li:nth-last-child(-n+2) {
+    margin-left: auto;
+}
+
+/* Links y botones más finos y uniformes */
+.navbar a,
+.navbar button {
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 400;
+    padding: 0.4rem 0.75rem;
+    border-radius: 4px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.navbar a:hover,
+.navbar button:hover {
+    color: #ffd700;
+}
+
+#nav-user {
+    display: none !important;
+}
+
+
+/* Botones Google estilizados */
+#login-btn,
+#logout-btn {
+    background-color: #ff4365;
+}
+
+/* Asegura espacio bajo el header */
+body {
+    padding-top: 50px;
+}
+
+
+
+/* ----------------------------------
+    3. Hero Section
+   ---------------------------------- */
+.hero {
+    background: url('../img/img_obelisco-argentina.jpg') center/cover no-repeat;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: #fff;
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0px 2px 10px rgba(0, 0 , 0 , 0.1);
-    overflow: hidden;
-    transition: transform 0.3s, box-shadow 0.3s; 
+    justify-content: center;
+    text-align: center;
+    padding: 2rem 1rem;
+    color: #fff;
 }
-
-.card:hover {
-    transform: translateY(-0.3125rem);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-}
-
-.card h3{
-    margin: 1rem;
-    font-size: 1.25rem;
-    text-align: left;
-}
-
-.card p{
-    text-align: left;
-    margin: 0 1rem 1.5rem;
-    color: #333;
-    font-size: 0.95rem;
-    line-height: 1.4;
-}
-
-.card img{
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
-    margin-bottom: 0.5rem;
-}
-
-.card-tango-show img{
-    object-position: cover;
-    object-position: 50% 25%;
-}
-
-/* Estilos base para el botón de reservar */
-.btn-reservar {
-    display: inline-block;
-    padding: 0.6rem 1.2rem;
-    background-color: #0d6efd;           /* azul primario */
-    color: #fff;                          /* texto blanco */
-    font-size: 1rem;
-    font-weight: 600;
-    border: none;
-    border-radius: 0.5rem;                /* esquinas redondeadas */
-    cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.2s ease;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    
-}
-
-  /* Hover / focus */
-.btn-reservar:hover,
-.btn-reservar:focus {
-    background-color: #0b5ed7;            /* tono más oscuro al pasar por encima */
-    transform: translateY(-2px);          /* ligero “elevado” */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-  /* Estado activo (al hacer clic) */
-.btn-reservar:active {
-    background-color: #0a58ca;
-    transform: translateY(0);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-}
-
-.service {
-    padding: 4rem 1rem;
-    background: #f9f9f9;
-}
-
-.service p {
+.hero h1 {
+    font-size: 4rem;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.7);
     max-width: 800px;
-    margin: 0 auto 2rem auto;
-    text-align: center;
-    color: #555;
 }
-
-.service h2{
-    font-size: 2.5rem;
-    text-align: center;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    position: relative;
-    display: inline-block;
-    color: #333;
+.hero p {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    max-width: 800px;
+    margin: 0 auto 2rem;
 }
-
-.service h2::after {
-    content: "";
-    position: absolute;
-    bottom: -8px;
-    left: 50%;
-    width: 80px;
-    height: 4px;
+.hero a {
     background-color: #ffd700;
-    transform: translateX(-50%);
-    border-radius: 2px;
+    color: #000;
+    padding: 0.75rem 2rem;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+.hero a:hover {
+    background-color: #e6c200;
 }
 
-/* Sección NOSOTROS */
+/* ----------------------------------
+    4. About Section
+   ---------------------------------- */
 .about {
     background: #fff;
-    padding: 5rem 1rem;
+    padding: 6rem 1rem;
 }
 .about-container {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    flex-wrap: wrap;
     align-items: center;
     gap: 3rem;
     max-width: 1200px;
     margin: 0 auto;
-    flex-wrap: wrap;
 }
 .about-image img {
     width: 100%;
+    display: block;
     max-width: 500px;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease;
+    object-fit: cover;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    transition: transform 0.4s ease;
 }
 .about-image img:hover {
-    transform: scale(1.03);
+    transform: scale(1.05);
+}
+.about-text {
+    flex: 1;
+    min-width: 300px;
+    text-align: left;
 }
 .about-text h2 {
     font-size: 2.75rem;
+    font-weight: 600;
     margin-bottom: 1rem;
-    color: var(--color-secundario);
+    color: #222;
 }
 .about-text p {
-    font-size: 1rem;
+    font-size: 1.125rem;
     line-height: 1.8;
-} 
+    color: #555;
+}
 
-/* FORMULARIO DE  CONTACTO */ 
-.contact h2{
-    font-size: 2.5rem;
+/* Un pequeño subrayado decorativo bajo el título */
+.about-text h2::after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #ffd700;
+    margin-top: 0.5rem;
+    border-radius: 2px;
+}
+
+/* Ajustes responsive */
+@media (max-width: 768px) {
+    .about {
+    padding: 4rem 1rem;
+    }
+    .about-text h2 {
+    font-size: 2.25rem;
+    }
+    .about-text p {
+    font-size: 1rem;
+    }
+}
+
+/* ----------------------------------
+    5. Services Section
+   ---------------------------------- */
+.service {
+    background: #f9f7f4;
+    padding: 4rem 1rem;
+}
+.service h2 {
     text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
     position: relative;
-    display: inline-block;
+}
+.service h2::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: #ffd700;
+    border-radius: 2px;
+}
+.service-intro {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 2rem;
+    color: #555;
+    font-size: 1.1rem;
+}
+.cards-container {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    max-width: 1200px;
+    margin: 0 auto;
+}
+.card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+.card img {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+}
+.card h3 {
+    margin: 1rem;
+    font-size: 1.3rem;
+}
+.card p {
+    flex: 1;
+    margin: 0 1rem 1rem;
+    color: #555;
+    line-height: 1.5;
+}
+.btn-reservar {
+    margin: 0 1rem 1rem;
+    padding: 0.75rem;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.btn-reservar:hover {
+    background: #0056b3;
+}
+
+/* ----------------------------------
+    6. Contact Form
+   ---------------------------------- */
+.contact {
+    background: #fff;
+    padding: 2.5rem;
+    max-width: 700px;
+    margin: 4rem auto 6rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.01);
+}
+.contact h2 {
+    text-align: center;
+    font-size: 2.25rem;
+    margin-bottom: 1.5rem;
     color: #333;
 }
-.contact-wrapper {
-    max-width: 600px;
-    margin: 0 auto;
-    background: #fff;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.7);
-}
-
-/* Aseguramos que labels estén arriba y con espacio */
-.form-group {
-    margin-bottom: 1.5rem;
-}
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
+.contact-form {
     font-weight: 600;
-    color: var(--color-secundario);
+    margin-bottom: 0.5rem;
+    color: #444;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
-
-/* Inputs y textarea a todo ancho, con borde sutil */
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
 .form-group input,
 .form-group textarea {
     width: 100%;
@@ -281,117 +330,99 @@ header nav{
 }
 .form-group input:focus,
 .form-group textarea:focus {
-    border-color: var(--color-primario);
-    box-shadow: 0 0 8px rgba(255,215,0,0.3);
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0,123,255, 0.2);
     outline: none;
 }
-  /* Botón centrado y con estilo moderno */
 .contact-form button {
-    display: block;
+    padding: 0.85rem;
+    background: #0066cc;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+.contact-form button:hover {
+    background: #005bb5;
+}
+
+.contact-form button[type="submit"] {
     width: 100%;
     padding: 0.85rem;
-    background: var(--color-primario);
-    color: #000;
+    background: #007bff;
+    color: #fff;
     font-weight: 600;
     border: none;
     border-radius: 6px;
     cursor: pointer;
     transition: background 0.3s, transform 0.2s;
 }
-.contact-form button:hover {
-    background: #e6c200;
+
+.contact-form button[type="submit"]:hover {
+    background: #0056b3;
     transform: translateY(-2px);
 }
 
+/* Mensaje de éxito */
+.contact .success-message {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #e6ffed;
+    border: 1px solid #66d17a;
+    border-radius: 6px;
+    color: #266c3b;
+    text-align: center;
+    display: none;
+}
 
-
-/* FOOTER */ 
-
-footer {
-    background: var(--color-secundario);
-    color: #000;
-    padding: 3rem 1rem;
+/* ----------------------------------
+        7. Footer
+   ---------------------------------- */
+.site-footer {
+    background: #222;
+    color: #ddd;
+    padding: 2rem 1rem;
     text-align: center;
 }
-footer p {
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
-}
-
-  /* Redes en línea con espacio y efecto hover */
-footer .social {
+.footer-content {
     display: flex;
-    justify-content: center;
-    gap: 1.25rem;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
 }
-footer .social img {
-    width: 32px;
-    height: 32px;
-    filter: invert(1);
-    transition: transform 0.3s, filter 0.3s;
-}
-footer .social a:hover img {
-    transform: scale(1.1);
-    filter: none; /* vuelve al color original del SVG */
-}
-
-/* Oculta elementos con la clase .hidden */
-.hidden {
-    display: none !important;
-}
-  /* Estilos generales para los botones de login/logout */
-    #login-btn,
-    #logout-btn {
-    background-color: #ff4b5c;    /* rojo suave */
-    color: #fff;                   /* texto blanco */
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 0.25rem;
+.footer-content p {
     font-size: 0.9rem;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    margin-left: 1rem;            /* separa un poco del nav */
-    }
-    /* Hover */
-    #login-btn:hover,
-    #logout-btn:hover {
-    background-color: #e33f50;
 }
-    /* Active / Focus */
-    #login-btn:active,
-    #logout-btn:active,
-    #login-btn:focus,
-    #logout-btn:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(227, 63, 80, 0.5); 
+.socials {
+    display: flex;
+    gap: 1rem;
+}
+.socials a {
+    color: #ddd;
+    font-size: 1.2rem;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+.socials a:hover {
+    color: #007bff;
 }
 
-
-/* Responsive */
-@media (max-width: 768px) {
-    .hero h1 {
-    font-size: 2.5rem;
-    }
-    .hero p {
-    font-size: 1rem;
-    }
-}
-
-/* Para pantallas más pequeñas, bajamos a 2 columnas y luego 1 */
+/* ----------------------------------
+    8. Responsive Breakpoints
+   ---------------------------------- */
 @media (max-width: 900px) {
-    .cards-container {
-    grid-template-columns: repeat(2, 1fr);
-    }
+    .cards-container { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 600px) {
-    .cards-container {
-    grid-template-columns: 1fr;
-    }
+    header .container { justify-content: center; }
+    .navbar li:nth-last-child(-n+2) { margin-left: 0; }
+    .about-container { flex-direction: column; }
+    .cards-container { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+    .hero h1 { font-size: 2.5rem; }
+    .hero p { font-size: 1rem; }
 }
 
-@media (max-width: 768px) {
-    .about-container { gap: 1.5rem; }
-    .about-text h2, .contact h2 { font-size: 2.25rem; }
-    .cards-container { grid-template-columns: 1fr; }
-    .hero h1 { font-size: 2.75rem; }
-}

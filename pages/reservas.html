@@ -3,91 +3,94 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="../css/style.css" />
+    <meta name="description" content="Reserva de servicios turísticos con Baires Essence" />
     <title>Reserva | Baires Essence</title>
+    <link rel="stylesheet" href="../css/style.css" />
 </head>
 <body>
-<header>
-    <!-- Copia aquí tu <nav> para mantener la navegación -->
+    <!-- Header / Navbar -->
+    <header>
+    <div class="container"></div>
+    <nav aria-label="Navegación Principal">
+        <ul class="navbar">
+            <li><a href="../index.html#inicio">Inicio</a></li>
+            <li><a href="../index.html#nosotros">Nosotros</a></li>
+            <li><a href="../index.html#servicios">Servicios</a></li>
+            <li><a href="../index.html#contacto">Contacto</a></li>
+            <li><a href="#mis-reservas">Mis Reservas</a></li>
+            <li><button id="login-btn">Iniciar con Google</button></li>
+            <li><button id="logout-btn" class="hidden">Cerrar sesión</button></li>
+        </ul>
+    </nav>
     </header>
 
-    <main>
-    <section id="login">
-        <!-- Aquí irá el botón “Ingresar con Google” -->
+    <!-- Contenido principal de la página de reservas -->
+    <main class="reservas-page">
+
+    <!-- Columna izquierda: tarjeta del servicio seleccionado -->
+    <aside id="selected-services">
+        <h2>Servicios Seleccionados</h2>
+        <!-- Aquí inyecta el JS la tarjeta .card -->
+    </aside>
+
+    <!-- Columna derecha: formulario de reserva -->
+    <section id="form-reserva">
+        <h1>Completa tu Reserva</h1>
+        <form id="booking-form">
+        <div class="form-group">
+            <label for="checkin">Fecha de inicio</label>
+            <input type="date" id="checkin" name="checkin" required />
+        </div>
+        <div class="form-group">
+            <label for="checkout">Fecha de fin</label>
+            <input type="date" id="checkout" name="checkout" required />
+        </div>
+        <div class="form-group">
+            <label for="fullname">Nombre completo</label>
+            <input type="text" id="fullname" name="fullname" placeholder="Tu nombre" required />
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="tu@ejemplo.com" required />
+        </div>
+        <button type="submit" class="btn-reservar">Enviar reserva</button>
+    </form>
+    <div id="booking-success" class="success-message" style="display:none">
+        ¡Reserva confirmada! Pronto recibirás un correo de confirmación.
+    </div>
     </section>
 
-    <section id="form-reserva" style="display:none;">
-        <h1>Completa tu Reserva</h1>
-        <form id="reserva-form">
-        <label>
-            Fecha:
-            <input type="date" name="fecha" required />
-        </label>
-        <label>
-            Nº de pasajeros:
-            <input type="number" name="pasajeros" min="1" required />
-        </label>
-        <!-- añade aquí los campos que necesites -->
-        <button type="submit">Enviar reserva</button>
-        </form>
-    </section>
     </main>
 
-    <footer>
-    @2025 Baires Essence. Todos los derechos reservados.
+    <!-- Footer -->
+    <footer class="site-footer">
+    <div class="footer-content">
+        <p>&copy; 2025 Baires Essence. Todos los derechos reservados.</p>
+    </div>
     </footer>
 
-    <!-- Firebase + tu main.js -->
+    <!-- Firebase UMD (compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script>
-    
-    // 1) Configuración de Firebase
-        const firebaseConfig = {
-        apiKey: "AIzaSyAkjTubMcIKbXkVZ6QDzd-2y8DyExa2VrE",
-        authDomain: "baires-essence.firebaseapp.com",
-        projectId: "baires-essence",
-        databaseURL: "https://baires-essence-default-rtdb.firebaseio.com",
-        storageBucket: "baires-essence.firebasestorage.app",
-        messagingSenderId: "211864182519",
-        appId: "1:211864182519:web:086785d6d0969ee643fdf2",
-        measurementId: "G-6WHV3BEPQ3"
+    // Configuración de Firebase (ajusta tus credenciales)
+    const firebaseConfig = {
+    apiKey: "TU_API_KEY",
+    authDomain: "baires-essence.firebaseapp.com",
+    projectId: "baires-essence",
+    databaseURL: "https://baires-essence-default-rtdb.firebaseio.com",
+    storageBucket: "baires-essence.appspot.com",
+    messagingSenderId: "211864182519",
+    appId: "1:211864182519:web:086785d6d0969ee643fdf2",
+    measurementId: "G-6WHV3BEPQ3"
     };
     firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db   = firebase.firestore();
-
-    // 2) Función de login con Google
-    const loginBtn = document.createElement('button');
-    loginBtn.textContent = 'Ingresar con Google';
-    loginBtn.addEventListener('click', () => {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider);
-    });
-    document.querySelector('#login').appendChild(loginBtn);
-
-    // 3) Mostrar el form sólo si está logueado
-    auth.onAuthStateChanged(user => {
-        if (user) {
-        document.querySelector('#login').style.display       = 'none';
-        document.querySelector('#form-reserva').style.display = 'block';
-        }
-    });
-
-    // 4) Envío de la reserva a Firestore
-    document.querySelector('#reserva-form').addEventListener('submit', e => {
-        e.preventDefault();
-        const data = {
-        fecha:       e.target.fecha.value,
-        pasajeros:  +e.target.pasajeros.value,
-        userEmail:  auth.currentUser.email,
-        timestamp:  firebase.firestore.FieldValue.serverTimestamp()
-        };
-        db.collection('reservas').add(data)
-        .then(() => alert('Reserva enviada con éxito'))
-        .catch(err => console.error(err));
-    });
+    window.auth = firebase.auth();
+    window.db   = firebase.firestore();
     </script>
+
+    <!-- Tu script principal -->
+    <script src="../main.js" defer></script>
 </body>
 </html>
