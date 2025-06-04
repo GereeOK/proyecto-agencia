@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/GereeOK/proyecto-agencia/issues"
   },
-  "homepage": "https://github.com/GereeOK/proyecto-agencia#readme"
+  "homepage": "https://github.com/GereeOK/proyecto-agencia#readme",
+  "dependencies": {
+    "firebase": "^11.8.1"
+  }
 }

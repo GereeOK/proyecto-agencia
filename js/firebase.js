@@ -1,8 +1,4 @@
-// firebase.js
-import firebase from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js";
-import "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js";
-import "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js";
-
+// firebase.js (sin import, usa objetos globales ya cargados desde el <script>)
 const firebaseConfig = {
   apiKey: "TU_API_KEY",
   authDomain: "baires-essence.firebaseapp.com",
@@ -13,12 +9,12 @@ const firebaseConfig = {
   measurementId: "G-6WHV3BEPQ3"
 };
 
-// Inicializar Firebase una sola vez
-const app = !firebase.apps.length
-  ? firebase.initializeApp(firebaseConfig)
-  : firebase.app();
+// Inicializar Firebase si no está inicializado
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-export { app, auth, db };
+// Exportar globalmente para que esté disponible en otros archivos
+window.firebase = firebase;
+window.auth = firebase.auth();
+window.db = firebase.firestore();

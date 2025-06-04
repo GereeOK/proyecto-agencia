@@ -52,13 +52,46 @@ auth.onAuthStateChanged(user => {
   }
 });
 
-// Login con Google
-loginBtn.addEventListener('click', () => {
-  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
-      .catch(err => {
-        console.error('Error login:', err);
-        alert('No pudimos iniciar sesión.');
-      });
+const modal = document.getElementById("login-modal");
+const openBtn = document.getElementById("open-login-modal");
+const closeBtn = document.getElementById("close-login-modal");
+const loginForm = document.getElementById("login-form");
+const googleLoginBtn = document.getElementById("google-login-btn");
+
+// Mostrar modal
+openBtn.addEventListener("click", () => modal.classList.remove("hidden"));
+
+// Cerrar modal
+closeBtn.addEventListener("click", () => modal.classList.add("hidden"));
+
+// Iniciar sesión con correo y contraseña
+loginForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  firebase.auth().signInWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      modal.classList.add("hidden");
+      alert("¡Bienvenido!");
+      // Redirigir según rol aquí si querés
+    })
+    .catch((error) => {
+      alert("Error: " + error.message);
+    });
+});
+
+// Iniciar sesión con Google
+googleLoginBtn.addEventListener("click", () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  firebase.auth().signInWithPopup(provider)
+    .then((result) => {
+      modal.classList.add("hidden");
+      alert("¡Sesión iniciada con Google!");
+    })
+    .catch((error) => {
+      alert("Error: " + error.message);
+    });
 });
 
 // Logout
