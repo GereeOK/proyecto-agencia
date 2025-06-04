@@ -12,12 +12,28 @@ const db   = window.db;
 const nav           = document.querySelector('nav ul.navbar');
 const loginBtn      = document.getElementById('login-btn');
 const logoutBtn     = document.getElementById('logout-btn');
-const reservasLink  = document.querySelector('a[href="#mis-reservas"]');
+const reservasLink  = document.getElementById('mis-reservas-link');
 
 // Estado inicial: solo muestro “Iniciar con Google”
 loginBtn.hidden     = false;
 logoutBtn.hidden    = true;
 if (reservasLink) reservasLink.hidden = true;
+
+function hasBooking(user) {
+  if (!user) return false;
+  return localStorage.getItem(`hasBooking_${user.uid}`) === 'true';
+}
+
+function hasDraft(user) {
+  if (!user) return false;
+  return !!localStorage.getItem(`reservaDraft_${user.uid}`);
+}
+
+function updateReservasLink(user) {
+  if (!reservasLink) return;
+  const visible = !!(user && (hasDraft(user) || hasBooking(user)));
+  reservasLink.hidden = !visible;
+}
 
 // ────────────────────────────────────────────────────
 // 3) Observador de estado de autenticación
@@ -27,7 +43,7 @@ auth.onAuthStateChanged(user => {
     // Usuario logueado
     loginBtn.hidden     = true;
     logoutBtn.hidden    = false;
-    if (reservasLink) reservasLink.hidden = false;
+    updateReservasLink(user);
 
     // Añade nombre de usuario al NAV si no existe
     if (!document.getElementById('nav-user')) {
@@ -40,7 +56,7 @@ auth.onAuthStateChanged(user => {
     // Usuario desconectado
     loginBtn.hidden     = false;
     logoutBtn.hidden    = true;
-    if (reservasLink) reservasLink.hidden = true;
+    updateReservasLink(null); 
 
     // Elimina el nombre de usuario si está
     document.getElementById('nav-user')?.remove();
@@ -220,6 +236,49 @@ if (selectedContainer && bookingForm && servicesBoxes) {
 
   renderSelected();
 
+    function loadDraft() {
+    const user = auth.currentUser;
+    if (!user) return;
+    const draftStr = localStorage.getItem(`reservaDraft_${user.uid}`);
+    if (!draftStr) return;
+    try {
+      const draft = JSON.parse(draftStr);
+      bookingForm.checkin.value = draft.checkin || '';
+      bookingForm.checkout.value = draft.checkout || '';
+      bookingForm.fullname.value = draft.fullname || '';
+      bookingForm.email.value = draft.email || '';
+      servicesBoxes.querySelectorAll('input').forEach(input => {
+        const checked = draft.services?.includes(input.value);
+        input.checked = checked;
+        input.parentElement.classList.toggle('selected', checked);
+      });
+      renderSelected();
+    } catch (e) {
+      console.error('Error cargando borrador', e);
+    }
+  }
+
+  function saveDraft() {
+    const user = auth.currentUser;
+    if (!user) return;
+    const data = {
+      services: Array.from(servicesBoxes.querySelectorAll('input:checked')).map(i => i.value),
+      checkin: bookingForm.checkin.value,
+      checkout: bookingForm.checkout.value,
+      fullname: bookingForm.fullname.value,
+      email: bookingForm.email.value
+    };
+    localStorage.setItem(`reservaDraft_${user.uid}`, JSON.stringify(data));
+    updateReservasLink(user);
+  }
+
+  auth.onAuthStateChanged(loadDraft);
+  loadDraft();
+
+  bookingForm.addEventListener('input', saveDraft);
+  servicesBoxes.addEventListener('change', saveDraft);
+  window.addEventListener('beforeunload', saveDraft);
+
   bookingForm.addEventListener('submit', async e => {
     e.preventDefault();
 
@@ -239,6 +298,12 @@ if (selectedContainer && bookingForm && servicesBoxes) {
       await db.collection('bookings').add(data);
       document.getElementById('booking-success').style.display = 'block';
       bookingForm.reset();
+      const user = auth.currentUser;
+      if (user) {
+        localStorage.removeItem(`reservaDraft_${user.uid}`);
+        localStorage.setItem(`hasBooking_${user.uid}`, 'true');
+        updateReservasLink(user);
+      }
     } catch (err) {
       console.error('Error guardando reserva:', err);
       alert('Hubo un problema al registrar la reserva.');

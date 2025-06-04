@@ -269,6 +269,44 @@ header nav .navbar #logout-btn {
 }
 
 /* ----------------------------------
+5b. Testimonials Section
+---------------------------------- */
+.testimonials {
+  background: #f9f7f4;
+  padding: 4rem 1rem;
+}
+.testimonials h2 {
+  text-align: center;
+  font-size: 2.25rem;
+  margin-bottom: 2rem;
+}
+.testimonials .testimonials-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+}
+.testimonials .testimonials-container .testimonial {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  max-width: 320px;
+  text-align: center;
+}
+.testimonials .testimonials-container .testimonial img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 1rem;
+}
+.testimonials .testimonials-container .testimonial h4 {
+  margin-top: 0.5rem;
+  color: #333;
+}
+
+/* ----------------------------------
 6. Contact Form
 ---------------------------------- */
 .contact {
