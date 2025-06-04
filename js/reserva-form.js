@@ -1,4 +1,7 @@
 // reserva-form.js
+import { auth, db } from './firebase.js';
+import firebase from 'firebase/compat/app';
+
 
 const selectedContainer = document.getElementById('selected-services');
 const bookingForm = document.getElementById('booking-form');

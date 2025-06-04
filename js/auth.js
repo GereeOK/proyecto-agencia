@@ -1,4 +1,7 @@
 // auth.js
+import { auth } from './firebase.js';
+import firebase from 'firebase/compat/app';
+
 
 const nav = document.querySelector('nav ul.navbar');
 const loginBtn = document.getElementById('login-btn');

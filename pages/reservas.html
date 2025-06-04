@@ -1,101 +1,72 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Reserva de servicios turísticos con Baires Essence" />
-    <title>Reserva | Baires Essence</title>
-    <link rel="stylesheet" href="../css/style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Reserva de servicios turísticos con Baires Essence" />
+  <title>Reserva | Baires Essence</title>
+  <link rel="stylesheet" href="../css/style.css" />
 </head>
 <body>
-    <!-- Header / Navbar -->
-    <header>
+  <header>
     <div class="container">
-    <nav aria-label="Navegación Principal">
+      <nav aria-label="Navegación Principal">
         <ul class="navbar">
-            <li><a href="../index.html#inicio">Inicio</a></li>
-            <li><a href="../index.html#nosotros">Nosotros</a></li>
-            <li><a href="../index.html#servicios">Servicios</a></li>
-            <li><a href="../index.html#contacto">Contacto</a></li>
-            <li><a href="../pages/reservas.html" id="mis-reservas-link">Mis Reservas</a></li>
-            <li><button id="login-btn">Iniciar sesión</button></li>
-            <li><button id="logout-btn" class="hidden">Cerrar sesión</button></li>
+          <li><a href="../index.html#inicio">Inicio</a></li>
+          <li><a href="../index.html#nosotros">Nosotros</a></li>
+          <li><a href="../index.html#servicios">Servicios</a></li>
+          <li><a href="../index.html#contacto">Contacto</a></li>
+          <li><a href="../pages/reservas.html" id="mis-reservas-link">Mis Reservas</a></li>
+          <li><button id="login-btn">Iniciar sesión</button></li>
+          <li><button id="logout-btn" class="hidden">Cerrar sesión</button></li>
         </ul>
-    </nav>
+      </nav>
     </div>
-    </header>
+  </header>
 
-    <!-- Contenido principal de la página de reservas -->
-    <main class="reservas-page">
-
-    <!-- Columna izquierda: tarjeta del servicio seleccionado -->
+  <main class="reservas-page">
     <aside id="selected-services">
-        <h2>Servicios Seleccionados</h2>
-        <!-- Aquí inyecta el JS la tarjeta .card -->
+      <h2>Servicios Seleccionados</h2>
     </aside>
 
-    <!-- Columna derecha: formulario de reserva -->
     <section id="form-reserva">
-        <h1>Completa tu Reserva</h1>
-        <form id="booking-form">
-            <div class="form-group">
-                <label for="checkin">Fecha de inicio</label>
-                <input type="date" id="checkin" name="checkin" required />
-            </div>
-            <div class="form-group">
-                <label for="checkout">Fecha de fin</label>
-                <input type="date" id="checkout" name="checkout" required />
-            </div>
-            <div class="form-group">
-                <label for="fullname">Nombre completo</label>
-                <input type="text" id="fullname" name="fullname" placeholder="Tu nombre" required />
-            </div>
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="tu@ejemplo.com" required />
-            </div>
-            <div class="form-group">
-                <label for="services-boxes">Agregar servicios</label>
-                <div id="services-boxes" class="service-options"></div>
-            </div>
-            <button type="submit" class="btn-reservar">Enviar reserva</button>
-        </form>
-        <div id="booking-success" class="success-message" style="display:none">
-            ¡Reserva confirmada! Pronto recibirás un correo de confirmación.
+      <h1>Completa tu Reserva</h1>
+      <form id="booking-form">
+        <div class="form-group">
+          <label for="checkin">Fecha de inicio</label>
+          <input type="date" id="checkin" name="checkin" required />
         </div>
+        <div class="form-group">
+          <label for="checkout">Fecha de fin</label>
+          <input type="date" id="checkout" name="checkout" required />
+        </div>
+        <div class="form-group">
+          <label for="fullname">Nombre completo</label>
+          <input type="text" id="fullname" name="fullname" placeholder="Tu nombre" required />
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="tu@ejemplo.com" required />
+        </div>
+        <div class="form-group">
+          <label for="services-boxes">Agregar servicios</label>
+          <div id="services-boxes" class="service-options"></div>
+        </div>
+        <button type="submit" class="btn-reservar">Enviar reserva</button>
+      </form>
+      <div id="booking-success" class="success-message" style="display:none">
+        ¡Reserva confirmada! Pronto recibirás un correo de confirmación.
+      </div>
     </section>
+  </main>
 
-    </main>
-
-    <!-- Footer -->
-    <footer class="site-footer">
+  <footer class="site-footer">
     <div class="footer-content">
-        <p>&copy; 2025 Baires Essence. Todos los derechos reservados.</p>
+      <p>&copy; 2025 Baires Essence. Todos los derechos reservados.</p>
     </div>
-    </footer>
+  </footer>
 
-    <!-- Firebase UMD (compat) -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script>
-    // Configuración de Firebase (ajusta tus credenciales)
-    const firebaseConfig = {
-    apiKey: "TU_API_KEY",
-    authDomain: "baires-essence.firebaseapp.com",
-    projectId: "baires-essence",
-    databaseURL: "https://baires-essence-default-rtdb.firebaseio.com",
-    storageBucket: "baires-essence.appspot.com",
-    messagingSenderId: "211864182519",
-    appId: "1:211864182519:web:086785d6d0969ee643fdf2",
-    measurementId: "G-6WHV3BEPQ3"
-    };
-    firebase.initializeApp(firebaseConfig);
-    window.auth = firebase.auth();
-    window.db   = firebase.firestore();
-    </script>
-
-    <!-- Tu script principal -->
-    <script type="module" src="../js/main.js"></script>
+  <!-- Scripts -->
+  <script type="module" src="../js/main.js"></script>
 </body>
 </html>
