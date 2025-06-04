@@ -135,8 +135,116 @@ if (contactForm) {
   console.warn('No se encontró .contact-form en el DOM');
 }
 
+// ────────────────────────────────────────────────────
+// 7) Página de reservas – mostrar servicio y guardar datos
+// ────────────────────────────────────────────────────
+const selectedContainer = document.getElementById('selected-services');
+const bookingForm = document.getElementById('booking-form');
+const servicesBoxes = document.getElementById('services-boxes');
 
+if (selectedContainer && bookingForm && servicesBoxes) {
+  const params = new URLSearchParams(window.location.search);
+  const defaultServiceId = params.get('service');
 
+  // Catálogo estático de servicios
+  const services = {
+    'traslados-aeroportuarios': {
+      title: 'Traslados Aeroportuarios',
+      img: '../img/img_ezeiza.jpg',
+      desc: 'Servicio puerta-a-puerta desde y hacia los aeropuertos.'
+    },
+    'City Tours': {
+      title: 'City Tours Esenciales',
+      img: '../img/img_caminito-boca.jpg',
+      desc: 'Recorre lo imprescindible de Buenos Aires en pocas horas.'
+    },
+    'City Tours Temáticos': {
+      title: 'City Tours Temáticos',
+      img: '../img/img_citytour.jpg',
+      desc: 'Experiencias con sabor local por los barrios más emblemáticos.'
+    },
+    'Delta & Estancias': {
+      title: 'Delta & Estancias',
+      img: '../img/img_tigre.jpg',
+      desc: 'Navegación por el Delta del Tigre y escapada a estancias.'
+    },
+    'Gourmet & Tango': {
+      title: 'Gourmet & Tango',
+      img: '../img/img_tango_show.jpg',
+      desc: 'Cena gourmet seguida de un show de tango inolvidable.'
+    },
+    'Eventos & Servicios a Medida': {
+      title: 'Eventos & Servicios a Medida',
+      img: '../img/avion.png',
+      desc: 'Chofer y vehículo disponibles por hora para tus eventos.'
+    }
+  };
+
+  // Crear casillas de verificación
+  Object.entries(services).forEach(([id, info]) => {
+    const label = document.createElement('label');
+    label.className = 'service-option';
+    label.innerHTML = `<input type="checkbox" value="${id}"><span>${info.title}</span>`;
+    const input = label.querySelector('input');
+    if (id === defaultServiceId) {
+      input.checked = true;
+      label.classList.add('selected');
+    }
+    input.addEventListener('change', () => {
+      label.classList.toggle('selected', input.checked);
+      renderSelected();
+    });
+    servicesBoxes.appendChild(label);
+  });
+
+  function renderSelected() {
+    selectedContainer.innerHTML = '<h2>Servicios Seleccionados</h2>';
+    const ids = Array.from(servicesBoxes.querySelectorAll('input:checked')).map(i => i.value);
+    if (!ids.length) {
+      selectedContainer.innerHTML += '<p>No has seleccionado servicios.</p>';
+      return;
+    }
+    ids.forEach(id => {
+      const svc = services[id];
+      if (!svc) return;
+      const card = document.createElement('article');
+      card.className = 'card';
+      card.innerHTML = `
+        <img src="${svc.img}" alt="${svc.title}">
+        <h3>${svc.title}</h3>
+        <p>${svc.desc}</p>
+      `;
+      selectedContainer.appendChild(card);
+    });
+  }
+
+  renderSelected();
+
+  bookingForm.addEventListener('submit', async e => {
+    e.preventDefault();
+
+    const selectedIds = Array.from(servicesBoxes.querySelectorAll('input:checked')).map(i => i.value);
+
+    const data = {
+      services: selectedIds,
+      checkin: bookingForm.checkin.value,
+      checkout: bookingForm.checkout.value,
+      fullname: bookingForm.fullname.value.trim(),
+      email: bookingForm.email.value.trim(),
+      userId: auth.currentUser ? auth.currentUser.uid : null,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    try {
+      await db.collection('bookings').add(data);
+      document.getElementById('booking-success').style.display = 'block';
+      bookingForm.reset();
+    } catch (err) {
+      console.error('Error guardando reserva:', err);
+      alert('Hubo un problema al registrar la reserva.');
+    }
+  });
+}
 
 
 

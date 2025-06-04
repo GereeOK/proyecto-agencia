@@ -320,20 +320,60 @@ body {
     flex-direction: column;
 }
 .form-group input,
-.form-group textarea {
+.form-group textarea,
+#services-select {
     width: 100%;
     padding: 0.75rem;
     border: 1px solid #ccc;
     border-radius: 6px;
+    height: 8px;
     font-size: 1rem;
     transition: border-color 0.3s, box-shadow 0.3s;
 }
+
+.form-group textarea { height: 8rem;}
 .form-group input:focus,
-.form-group textarea:focus {
+.form-group textarea:focus,
+#services-select:focus {
     border-color: #007bff;
     box-shadow: 0 0 0 3px rgba(0,123,255, 0.2);
     outline: none;
 }
+/* Selector moderno para servicios */
+.service-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem;
+}
+.service-option {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+}
+.service-option input {
+    display: none;
+}
+.service-option span {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    background: #f0f0f0;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.service-option.selected span,
+.service-option input:checked + span {
+    background: #007bff;
+    border-color: #007bff;
+    color: #fff;
+}
+
+#booking-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+#booking-form button { grid-column: 1 / -1; }
 .contact-form button {
     padding: 0.85rem;
     background: #0066cc;
@@ -367,6 +407,45 @@ body {
 
 /* Mensaje de éxito */
 .contact .success-message {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #e6ffed;
+    border: 1px solid #66d17a;
+    border-radius: 6px;
+    color: #266c3b;
+    text-align: center;
+    display: none;
+}
+/* ----------------------------------
+    6b. Reserva Page
+   ---------------------------------- */
+.reservas-page {
+    display: flex;
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 4rem auto;
+    padding: 0 1rem;
+}
+
+#selected-services,
+#form-reserva {
+    flex: 1;
+    background: linear-gradient(135deg, #f9f9f9, #ffffff);
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+#selected-services h2 {
+    margin-bottom: 1rem;
+}
+
+#selected-services .card img {
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+}
+
+#booking-success {
     margin-top: 1rem;
     padding: 1rem;
     background: #e6ffed;
@@ -420,6 +499,7 @@ body {
     .navbar li:nth-last-child(-n+2) { margin-left: 0; }
     .about-container { flex-direction: column; }
     .cards-container { grid-template-columns: 1fr; }
+    .reservas-page { flex-direction: column; }
 }
 @media (max-width: 480px) {
     .hero h1 { font-size: 2.5rem; }
