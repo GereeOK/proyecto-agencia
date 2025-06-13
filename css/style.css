@@ -19,9 +19,8 @@ html {
 }
 body {
     background: linear-gradient(180deg, var(--primary-bg), var(--secondary-bg));
-    font-family: 'Orbitron', Arial, sans-serif;
+    font-family: 'Poppins', Arial, sans-serif;
     line-height: 1.6;
-    padding-top: 60px; /* reserve space for fixed header */
     color: var(--text-color);
 }
 .container {
@@ -108,13 +107,26 @@ nav-toggle {
 #logout-btn {
     background-color: var(--highlight-color);
 }
-
+/* Google Translate dropdown styling */
+#google_translate_element {
+    margin-left: 1rem;
+}
+#google_translate_element .goog-te-combo {
+    background: #006769;
+    color: #fff;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+.goog-te-banner-frame.skiptranslate {
+    display: none !important;
+}
 /* Asegura espacio bajo el header */
 body {
-    padding-top: 50px;
+    top: 0 !important;
+    padding-top: 60px;
 }
-
-
 
 /* ----------------------------------
     3. Hero Section
@@ -160,7 +172,7 @@ body {
 }
 .hero a {
     background-color: var(--accent-color);
-    color: #000;
+    color: #fff;
     padding: 0.75rem 2rem;
     border-radius: 5px;
     font-weight: bold;
