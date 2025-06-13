@@ -18,15 +18,17 @@
 <body>
     <header> 
         <div class="container">
+        <button id="menu-toggle" class="menu-toggle" aria-label="Menú" aria-expanded="false">&#9776;</button>
         <nav aria-label="Navegación Principal">
             <ul class="navbar">
-                <li><a href="#inicio">Inicio</a></li>
-                <li><a href="#nosotros">Nosotros</a></li>
-                <li><a href="#servicios">Servicios</a></li>
-                <li><a href="#contacto">Contacto</a></li>
+                <li><a href="#inicio" data-i18n="nav_inicio">Inicio</a></li>
+                <li><a href="#nosotros" data-i18n="nav_nosotros">Nosotros</a></li>
+                <li><a href="#servicios" data-i18n="nav_servicios">Servicios</a></li>
+                <li><a href="#contacto" data-i18n="nav_contacto">Contacto</a></li>
                 <li><a href="pages/reservas.html" id="mis-reservas-link">Mis Reservas</a></li> 
-                <li><button id="login-btn">Iniciar con Google</button></li>
-                <li><button id="logout-btn" class="hidden">Cerrar sesión</button></li>                 
+                <li><button id="login-btn" data-i18n="login">Iniciar con Google</button></li>
+                <li><button id="logout-btn" class="hidden" data-i18n="logout">Cerrar sesión</button></li>
+                <li><select id="language-select"><option value="es">ES</option><option value="en">EN</option></select></li>                 
             </ul>
         </nav>
         </div>
@@ -34,9 +36,9 @@
     
     <main>
         <section class="hero" id="inicio">
-            <h1>BAIRES ESSENCE</h1>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Totam et ducimus accusamus laboriosam sint, iure voluptatem provident beatae reprehenderit nostrum quaerat tempore maxime fugiat eos ab! Repudiandae nobis autem obcaecati!</p>
-            <a href="#servicios">Ver más</a>
+            <h1 data-i18n="hero_title">BAIRES ESSENCE</h1>
+            <p data-i18n="hero_text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Totam et ducimus accusamus laboriosam sint, iure voluptatem provident beatae reprehenderit nostrum quaerat tempore maxime fugiat eos ab! Repudiandae nobis autem obcaecati!</p>
+            <a href="#servicios" data-i18n="see_more">Ver más</a>
         </section>
 
         <section class="about" id="nosotros">
@@ -45,8 +47,8 @@
                 <img src="./img/equipo.jpg" alt="Equipo de Baires Essence">
                 </div>
                 <div class="about-text">
-                <h2>Nosotros</h2>
-                <p>En <strong>Baires Essence</strong> somos un equipo apasionado por mostrar lo mejor de Buenos Aires.
+                <h2 data-i18n="about_title">Nosotros</h2>
+                <p data-i18n="about_text">En <strong>Baires Essence</strong> somos un equipo apasionado por mostrar lo mejor de Buenos Aires.
                 Con años de experiencia en turismo, diseñamos experiencias a medida: desde traslados VIP en aeropuertos
                 hasta inolvidables city-tours y estancias en la provincia. ¡Te acompañamos en cada paso de tu viaje! </p>
                 </div>
@@ -54,8 +56,8 @@
         </section>
         
         <section class="service" id="servicios">
-            <h2>Servicios</h2>
-            <p class="service-intro">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Nisi ratione officiis cupiditate ea vitae vero pariatur porro soluta inventore ab corrupti, delectus dolor optio fuga explicabo assumenda deserunt. Eligendi, ut?</p>
+            <h2 data-i18n="services_title">Servicios</h2>
+            <p class="service-intro" data-i18n="services_intro">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Nisi ratione officiis cupiditate ea vitae vero pariatur porro soluta inventore ab corrupti, delectus dolor optio fuga explicabo assumenda deserunt. Eligendi, ut?</p>
                 <!-- Contenedor general de las cards-->
                 <div class="cards-container">
                 <!-- Cada articulo es una tarjeta-->
@@ -125,7 +127,7 @@
     </main>
 
     <section class="contact" id="contacto">
-        <h2>Formulario de Contacto</h2>
+        <h2 data-i18n="contact_title">Formulario de Contacto</h2>
         <form class="contact-form" action="#" method="POST">
         <div class="form-group">
         <label for="name"></label>
@@ -139,7 +141,7 @@
     <label for="message"></label>
     <textarea id="message" name="message" rows="5" placeholder="Escribe tu consulta..." required></textarea>
     </div>
-        <button type="submit">Enviar Mensaje</button>
+        <button type="submit" data-i18n="send_message">Enviar Mensaje</button>
     </form>
 </section>
 

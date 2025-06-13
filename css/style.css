@@ -44,6 +44,15 @@ header .container {
     padding: 0 1rem;
 }
 
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
 /* Nav centrado verticalmente */
 header nav {
     flex: 1;
@@ -534,7 +543,19 @@ body {
     .cards-container { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 600px) {
-    header .container { justify-content: center; }
+    header .container { justify-content: space-between; }
+    .menu-toggle { display: block; }
+    .navbar {
+        display: none;
+        position: absolute;
+        top: 3rem;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        background: #111;
+        padding: 1rem;
+    }
+    .navbar.open { display: flex; }
     .navbar li:nth-last-child(-n+2) { margin-left: 0; }
     .about-container { flex-direction: column; }
     .cards-container { grid-template-columns: 1fr; }
