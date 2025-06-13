@@ -11,15 +11,17 @@
     <!-- Header / Navbar -->
     <header>
     <div class="container">
+    <button id="menu-toggle" class="menu-toggle" aria-label="Menú" aria-expanded="false">&#9776;</button>
     <nav aria-label="Navegación Principal">
         <ul class="navbar">
-            <li><a href="../index.html#inicio">Inicio</a></li>
-            <li><a href="../index.html#nosotros">Nosotros</a></li>
-            <li><a href="../index.html#servicios">Servicios</a></li>
-            <li><a href="../index.html#contacto">Contacto</a></li>
+            <li><a href="../index.html#inicio" data-i18n="nav_inicio">Inicio</a></li>
+            <li><a href="../index.html#nosotros" data-i18n="nav_nosotros">Nosotros</a></li>
+            <li><a href="../index.html#servicios" data-i18n="nav_servicios">Servicios</a></li>
+            <li><a href="../index.html#contacto" data-i18n="nav_contacto">Contacto</a></li>
             <li><a href="../pages/reservas.html" id="mis-reservas-link">Mis Reservas</a></li>
-            <li><button id="login-btn">Iniciar sesión</button></li>
-            <li><button id="logout-btn" class="hidden">Cerrar sesión</button></li>
+            <li><button id="login-btn" data-i18n="login">Iniciar sesión</button></li>
+            <li><select id="language-select"><option value="es">ES</option><option value="en">EN</option></select></li>
+            <li><button id="logout-btn" class="hidden" data-i18n="logout">Cerrar sesión</button></li>
         </ul>
     </nav>
     </div>
@@ -30,13 +32,13 @@
 
     <!-- Columna izquierda: tarjeta del servicio seleccionado -->
     <aside id="selected-services">
-        <h2>Servicios Seleccionados</h2>
+        <h2 data-i18n="selected_services">Servicios Seleccionados</h2>
         <!-- Aquí inyecta el JS la tarjeta .card -->
     </aside>
 
     <!-- Columna derecha: formulario de reserva -->
     <section id="form-reserva">
-        <h1>Completa tu Reserva</h1>
+        <h1 data-i18n="booking_title">Completa tu Reserva</h1>
         <form id="booking-form">
         <div class="form-group">
             <label for="checkin">Fecha de inicio</label>
@@ -59,15 +61,16 @@
             <div id="services-boxes" class="service-options"></div>
         </div> 
         </div>
-        <button type="submit" class="btn-reservar">Enviar reserva</button>
+        <button type="submit" class="btn-reservar" data-i18n="send_booking">Enviar reserva</button>
     </form>
     <div id="booking-success" class="success-message" style="display:none">
-        ¡Reserva confirmada! Pronto recibirás un correo de confirmación.
+        <span data-i18n="booking_success">¡Reserva confirmada! Pronto recibirás un correo de confirmación.</span>
     </div>
     </section>
 
     </main>
 
+    <div id="payment-container"></div>
     <!-- Footer -->
     <footer class="site-footer">
     <div class="footer-content">
@@ -101,6 +104,8 @@
         </a>
 
     <!-- Tu script principal -->
+    <script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID"></script>
+    <script src="https://cdn.emailjs.com/sdk/2.3.2/email.min.js"></script>
     <script src="../main.js" defer></script>
 </body>
 </html>

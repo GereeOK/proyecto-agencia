@@ -53,6 +53,15 @@ header {
         padding: 0 1rem;
     }
 
+    .menu-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
     /* Nav centrado verticalmente y ocupando todo el espacio restante */
     nav {
         flex: 1;
@@ -493,13 +502,24 @@ header {
 @media (max-width: 600px) {
     header {
         .container {
-            justify-content: center;
+            justify-content: space-between;
         }
-    }
-
-    .navbar {
-        li:nth-last-child(-n + 2) {
-            margin-left: 0;
+        .menu-toggle { display: block; }
+        nav {
+            .navbar {
+                display: none;
+                position: absolute;
+                top: 3rem;
+                left: 0;
+                right: 0;
+                flex-direction: column;
+                background: #111;
+                padding: 1rem;
+                li:nth-last-child(-n + 2) {
+                    margin-left: 0;
+                }
+                &.open { display: flex; }
+            }
         }
     }
 

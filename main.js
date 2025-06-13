@@ -13,7 +13,88 @@ const nav           = document.querySelector('nav ul.navbar');
 const loginBtn      = document.getElementById('login-btn');
 const logoutBtn     = document.getElementById('logout-btn');
 const reservasLink  = document.getElementById('mis-reservas-link');
+const menuToggle    = document.getElementById('menu-toggle');
 
+const languageSelect = document.getElementById('language-select');
+const translations = {
+  es: {
+    nav_inicio: "Inicio",
+    nav_nosotros: "Nosotros",
+    nav_servicios: "Servicios",
+    nav_contacto: "Contacto",
+    login: "Iniciar con Google",
+    logout: "Cerrar sesi\xC3\xB3n",
+    hero_title: "BAIRES ESSENCE",
+    hero_text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Totam et ducimus accusamus laboriosam sint, iure voluptatem provident beatae reprehenderit nostrum quaerat tempore maxime fugiat eos ab! Repudiandae nobis autem obcaecati!",
+    see_more: "Ver m\xC3\xA1s",
+    about_title: "Nosotros",
+    about_text: "En <strong>Baires Essence</strong> somos un equipo apasionado por mostrar lo mejor de Buenos Aires. Con a\xC3\xB1os de experiencia en turismo, dise\xC3\xB1amos experiencias a medida: desde traslados VIP en aeropuertos hasta inolvidables city-tours y estancias en la provincia. \xC2\xA1Te acompa\xC3\xB1amos en cada paso de tu viaje!",
+    services_title: "Servicios",
+    services_intro: "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Nisi ratione officiis cupiditate ea vitae vero pariatur porro soluta inventore ab corrupti, delectus dolor optio fuga explicabo assumenda deserunt. Eligendi, ut?",
+    contact_title: "Formulario de Contacto",
+    send_message: "Enviar Mensaje"
+    booking_title: 'Completa tu Reserva',
+    selected_services: 'Servicios Seleccionados',
+    send_booking: 'Enviar reserva',
+    booking_success: '¡Reserva confirmada! Pronto recibirás un correo de confirmación.'
+  },
+  en: {
+    nav_inicio: "Home",
+    nav_nosotros: "About Us",
+    nav_servicios: "Services",
+    nav_contacto: "Contact",
+    login: "Sign in with Google",
+    logout: "Sign out",
+    hero_title: "BAIRES ESSENCE",
+    hero_text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Totam et ducimus accusamus laboriosam sint, iure voluptatem provident beatae reprehenderit nostrum quaerat tempore maxime fugiat eos ab! Repudiandae nobis autem obcaecati!",
+    see_more: "See more",
+    about_title: "About Us",
+    about_text: "At <strong>Baires Essence</strong> we are a team passionate about showing the best of Buenos Aires. With years of experience in tourism, we design tailor-made experiences: from VIP airport transfers to unforgettable city tours and estancias in the province. We accompany you in every step of your trip!",
+    services_title: "Services",
+    services_intro: "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Nisi ratione officiis cupiditate ea vitae vero pariatur porro soluta inventore ab corrupti, delectus dolor optio fuga explicabo assumenda deserunt. Eligendi, ut?",
+    contact_title: "Contact Form",
+    send_message: "Send Message"
+    booking_title: "Complete your Booking",
+    selected_services: "Selected Services",
+    send_booking: "Submit booking",
+    booking_success: "Booking confirmed! You will receive an email soon."
+  }
+};
+
+function applyTranslations(lang) {
+  document.documentElement.lang = lang;
+  const dict = translations[lang];
+  if (!dict) return;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const text = dict[key];
+    if (!text) return;
+    if (el.placeholder !== undefined && el.tagName === 'INPUT') {
+      el.placeholder = text;
+    } else {
+      el.innerHTML = text;
+    }
+  });
+}
+
+if (languageSelect) {
+  const saved = localStorage.getItem('language') || 'es';
+  languageSelect.value = saved;
+  applyTranslations(saved);
+  languageSelect.addEventListener('change', () => {
+    const lang = languageSelect.value;
+    localStorage.setItem('language', lang);
+    applyTranslations(lang);
+  });
+}
+
+if (menuToggle && nav) {
+  menuToggle.addEventListener('click', () => {
+    const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+    menuToggle.setAttribute('aria-expanded', String(!expanded));
+    nav.classList.toggle('open');
+  });
+}
 // Estado inicial: solo muestro “Iniciar con Google”
 loginBtn.hidden     = false;
 logoutBtn.hidden    = true;
@@ -34,6 +115,34 @@ function updateReservasLink(user) {
   const visible = !!(user && (hasDraft(user) || hasBooking(user)));
   reservasLink.hidden = !visible;
 }
+function sendConfirmationEmail(success) {
+  if (!window.emailjs) return;
+  const templateParams = {
+    to_email: bookingForm.email.value,
+    status: success ? 'success' : 'failure'
+  };
+  emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams, 'YOUR_PUBLIC_KEY');
+}
+
+function initPayment(total) {
+  if (!window.paypal) return;
+  paypal.Buttons({
+    createOrder: (data, actions) => {
+      return actions.order.create({ purchase_units: [{ amount: { value: total.toString() } }] });
+    },
+    onApprove: (data, actions) => {
+      return actions.order.capture().then(details => {
+        sendConfirmationEmail(true);
+        document.getElementById('payment-container').innerHTML = '<p>Pago completado</p>';
+      });
+    },
+    onError: err => {
+      console.error('Pago fallido', err);
+      sendConfirmationEmail(false);
+      document.getElementById('payment-container').innerHTML = '<p>Error en el pago</p>';
+    }
+  }).render('#payment-container');
+}
 
 // ────────────────────────────────────────────────────
 // 3) Observador de estado de autenticación
@@ -44,6 +153,7 @@ auth.onAuthStateChanged(user => {
     loginBtn.hidden     = true;
     logoutBtn.hidden    = false;
     updateReservasLink(user);
+      initPayment(100);
 
     // Añade nombre de usuario al NAV si no existe
     if (!document.getElementById('nav-user')) {
@@ -270,6 +380,7 @@ if (selectedContainer && bookingForm && servicesBoxes) {
     };
     localStorage.setItem(`reservaDraft_${user.uid}`, JSON.stringify(data));
     updateReservasLink(user);
+      initPayment(100);
   }
 
   auth.onAuthStateChanged(loadDraft);
@@ -303,6 +414,7 @@ if (selectedContainer && bookingForm && servicesBoxes) {
         localStorage.removeItem(`reservaDraft_${user.uid}`);
         localStorage.setItem(`hasBooking_${user.uid}`, 'true');
         updateReservasLink(user);
+      initPayment(100);
       }
     } catch (err) {
       console.error('Error guardando reserva:', err);
