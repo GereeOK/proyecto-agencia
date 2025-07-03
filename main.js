@@ -191,7 +191,7 @@ if (selectedContainer && bookingForm && servicesBoxes) {
     },
     'Eventos & Servicios a Medida': {
       title: 'Eventos & Servicios a Medida',
-      img: '../img/avion.png',
+      img: '../img/chofer.jpg',
       desc: 'Chofer y vehículo disponibles por hora para tus eventos.'
     }
   };
