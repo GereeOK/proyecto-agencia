@@ -51,13 +51,10 @@ const Login = () => {
   // Espera a que el contexto tenga datos del usuario y lo redirige según rol
   useEffect(() => {
     if (pendingRedirect && user) {
-      if (user.role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/reservas");
-      }
+      navigate(user.role === "admin" ? "/admin" : "/reservas");
     }
   }, [pendingRedirect, user, navigate]);
+
 
   return (
     <div className="flex flex-col min-h-screen">

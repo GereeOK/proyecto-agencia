@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 import Footer from "../components/footer";
+import Dashboard from "./Dashboard";
 
 const AdminLayout = () => {
   const { user, logout } = useAuth();
@@ -49,8 +50,8 @@ const AdminLayout = () => {
         <aside className="w-64 bg-gray-100 p-4 border-r border-gray-300">
           <h2 className="text-xl font-bold mb-4 text-gray-700">Admin</h2>
           <nav className="flex flex-col space-y-2">
-            <Link to="/admin/dashboard" className="hover:text-indigo-600">Inicio</Link>
-            <Link to="/admin/usuarios" className="hover:text-indigo-600">Usuarios</Link>
+            <Link to="/admin" className="hover:text-indigo-600">Inicio</Link>
+            <Link to="#" className="hover:text-indigo-600">Usuarios</Link>
             <Link to="/admin/servicios" className="hover:text-indigo-600">Servicios</Link>
             <Link to="/admin/reservas" className="hover:text-indigo-600">Reservas</Link>
             <Link to="/admin/consultas" className="hover:text-indigo-600">Consultas</Link>
@@ -59,7 +60,7 @@ const AdminLayout = () => {
 
         {/* Contenido dinámico */}
         <main className="flex-1 p-6 bg-gray-50">
-          <Outlet />
+          <Dashboard />
         </main>
       </div>
 

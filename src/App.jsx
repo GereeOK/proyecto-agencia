@@ -7,6 +7,7 @@ import MisReservas from './pages/mis-reservas';
 import ProtectedRoute from './routes/ProtectedRoute';
 import PublicRoute from './routes/PublicRoute';
 import Dashboard from "./admin/Dashboard";
+import AdminLayout from './admin/AdminLayout';
 
 const App = () => {
   return (
@@ -53,7 +54,7 @@ const App = () => {
         path="/admin"
         element={
           <ProtectedRoute>
-            <Dashboard />
+            <AdminLayout />
           </ProtectedRoute>
         }
       />

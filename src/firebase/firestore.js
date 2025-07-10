@@ -53,7 +53,7 @@ export const fetchReservasByUser = async (userEmail) => {
 
 import { deleteDoc, updateDoc } from "firebase/firestore";
 
-// ...
+// editar y borrar reservas
 
 export const deleteReserva = async (reservaId) => {
   await deleteDoc(doc(db, "reservas", reservaId));
@@ -65,4 +65,10 @@ export const updateReserva = async (reserva) => {
     ...rest,
     timestamp: serverTimestamp(),
   });
+};
+
+//trae todos los usuarios
+export const fetchUsuarios = async () => {
+  const snapshot = await getDocs(collection(db, "users"));
+  return snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() }));
 };

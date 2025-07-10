@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
 
             userData = {
               ...userData,
-              displayName: userData.displayName || firestoreData.fullname || "",
+              displayName: firestoreData.fullname || currentUser.displayName || "",
               role: firestoreData.role || "user",
             };
           }
