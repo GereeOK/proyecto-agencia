@@ -1,40 +1,40 @@
 import React, { useState, useEffect } from "react";
-import { fetchUsuarios } from "../firebase/firestore";
+import { fetchServicios } from "../firebase/firestore";
 
-const UsuariosTable = () => {
-  const [usuarios, setUsuarios] = useState([]);
+const Servicios = () => {
+  const [servicios, setServicios] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const cargarUsuarios = async () => {
+    const cargarServicios = async () => {
       try {
-        const data = await fetchUsuarios();
-        setUsuarios(data);
+        const data = await fetchServicios();
+        setServicios(data);
       } catch (error) {
-        console.error("Error cargando usuarios:", error);
+        console.error("Error cargando servicios:", error);
       } finally {
         setLoading(false);
       }
     };
-    cargarUsuarios();
+    cargarServicios();
   }, []);
 
-  const editarUsuario = (email) => {
-    alert("Editar usuario: " + email);
+  const editarServicio = (id) => {
+    alert("Editar servicio con ID: " + id);
   };
 
-  const eliminarUsuario = (email) => {
-    if (window.confirm(`¿Seguro que querés eliminar al usuario con email ${email}?`)) {
-      alert("Usuario eliminado: " + email);
+  const eliminarServicio = (id) => {
+    if (window.confirm(`¿Seguro que querés eliminar el servicio con ID ${id}?`)) {
+      alert("Servicio eliminado: " + id);
     }
   };
 
-  const nuevoUsuario = () => {
-    alert("Abrir formulario para crear un nuevo usuario");
+  const nuevoServicio = () => {
+    alert("Abrir formulario para agregar nuevo servicio");
   };
 
   if (loading) {
-    return <p className="text-center py-10">Cargando usuarios...</p>;
+    return <p className="text-center py-10">Cargando servicios...</p>;
   }
 
   return (
@@ -42,10 +42,10 @@ const UsuariosTable = () => {
       <div className="container px-4 py-8 mx-auto">
         <div className="flex flex-col text-center w-full mb-8">
           <h1 className="text-3xl font-semibold text-gray-900 mb-2">
-            Usuarios
+            Servicios
           </h1>
           <p className="text-gray-600 text-base">
-            Listado de usuarios con opciones para editar o eliminar.
+            Lista de servicios turísticos cargados por los administradores.
           </p>
         </div>
 
@@ -54,13 +54,13 @@ const UsuariosTable = () => {
             <thead>
               <tr>
                 <th className="px-4 py-2 bg-gray-100 text-sm font-medium text-gray-900 rounded-tl rounded-bl">
-                  Nombre
+                  Título
                 </th>
                 <th className="px-4 py-2 bg-gray-100 text-sm font-medium text-gray-900">
-                  Email
+                  Descripción
                 </th>
                 <th className="px-4 py-2 bg-gray-100 text-sm font-medium text-gray-900">
-                  Rol
+                  Imagen
                 </th>
                 <th className="px-4 py-2 bg-gray-100 text-sm font-medium text-gray-900 rounded-tr rounded-br text-center">
                   Acciones
@@ -68,29 +68,31 @@ const UsuariosTable = () => {
               </tr>
             </thead>
             <tbody>
-              {usuarios.length === 0 && (
+              {servicios.length === 0 && (
                 <tr>
                   <td colSpan={4} className="text-center py-4">
-                    No hay usuarios registrados
+                    No hay servicios cargados
                   </td>
                 </tr>
               )}
-              {usuarios.map(({ uid, email, role }) => (
-                <tr key={uid} className="border-t">
-                  <td className="px-4 py-2">{email.split("@")[0]}</td>
-                  <td className="px-4 py-2">{email}</td>
-                  <td className="px-4 py-2 capitalize">{role}</td>
+              {servicios.map(({ id, title, description, image }) => (
+                <tr key={id} className="border-t">
+                  <td className="px-4 py-2 font-medium text-gray-800">{title}</td>
+                  <td className="px-4 py-2 text-sm">{description}</td>
+                  <td className="px-4 py-2">
+                    <img src={image} alt={title} className="w-24 h-16 object-cover rounded" />
+                  </td>
                   <td className="px-4 py-2">
                     <div className="flex justify-center space-x-2">
                       <button
                         className="bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-1 rounded"
-                        onClick={() => editarUsuario(email)}
+                        onClick={() => editarServicio(id)}
                       >
                         Editar
                       </button>
                       <button
                         className="bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded"
-                        onClick={() => eliminarUsuario(email)}
+                        onClick={() => eliminarServicio(id)}
                       >
                         Eliminar
                       </button>
@@ -105,9 +107,9 @@ const UsuariosTable = () => {
         <div className="flex justify-end mt-6">
           <button
             className="text-white bg-green-500 hover:bg-green-600 py-2 px-5 rounded"
-            onClick={nuevoUsuario}
+            onClick={nuevoServicio}
           >
-            Agregar Usuario
+            Agregar Servicio
           </button>
         </div>
       </div>
@@ -115,4 +117,4 @@ const UsuariosTable = () => {
   );
 };
 
-export default UsuariosTable;
+export default Servicios;

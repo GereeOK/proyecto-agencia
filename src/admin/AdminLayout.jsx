@@ -51,7 +51,7 @@ const AdminLayout = () => {
           <h2 className="text-xl font-bold mb-4 text-gray-700">Admin</h2>
           <nav className="flex flex-col space-y-2">
             <Link to="/admin" className="hover:text-indigo-600">Inicio</Link>
-            <Link to="#" className="hover:text-indigo-600">Usuarios</Link>
+            <Link to="/admin/usuarios" className="hover:text-indigo-600">Usuarios</Link>
             <Link to="/admin/servicios" className="hover:text-indigo-600">Servicios</Link>
             <Link to="/admin/reservas" className="hover:text-indigo-600">Reservas</Link>
             <Link to="/admin/consultas" className="hover:text-indigo-600">Consultas</Link>
@@ -60,7 +60,7 @@ const AdminLayout = () => {
 
         {/* Contenido dinámico */}
         <main className="flex-1 p-6 bg-gray-50">
-          <Dashboard />
+          <Outlet />
         </main>
       </div>
 

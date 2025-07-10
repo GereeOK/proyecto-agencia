@@ -72,3 +72,15 @@ export const fetchUsuarios = async () => {
   const snapshot = await getDocs(collection(db, "users"));
   return snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() }));
 };
+
+//trae todos los servicios
+export const fetchReservas = async () => {
+  const snapshot = await getDocs(collection(db, "reservas"));
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+};
+
+//trae todas las consultas
+export const fetchConsultas = async () => {
+  const snapshot = await getDocs(collection(db, "messages"));
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+};
