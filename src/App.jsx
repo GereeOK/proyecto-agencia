@@ -6,6 +6,7 @@ import Reservas from './pages/reservas';
 import MisReservas from './pages/mis-reservas';
 import ProtectedRoute from './routes/ProtectedRoute';
 import PublicRoute from './routes/PublicRoute';
+import Dashboard from "./admin/Dashboard";
 
 const App = () => {
   return (
@@ -44,6 +45,15 @@ const App = () => {
         element={
           <ProtectedRoute>
             <MisReservas />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
           </ProtectedRoute>
         }
       />

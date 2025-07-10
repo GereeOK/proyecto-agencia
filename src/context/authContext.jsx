@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { 
-  getAuth, 
-  signInWithEmailAndPassword, 
-  signInWithPopup, 
-  GoogleAuthProvider, 
-  signOut, 
-  onAuthStateChanged 
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+  onAuthStateChanged,
 } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { app } from "../firebase/config";
@@ -25,28 +25,36 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        // Traer datos desde Firestore para completar user si hace falta
         try {
           const userDocRef = doc(db, "users", currentUser.uid);
           const userDocSnap = await getDoc(userDocRef);
 
-          let userData = { ...currentUser };
+          let userData = {
+            uid: currentUser.uid,
+            email: currentUser.email,
+            displayName: currentUser.displayName || "",
+            role: "user", // valor por defecto
+          };
 
           if (userDocSnap.exists()) {
             const firestoreData = userDocSnap.data();
-            // Si displayName no existe en auth, usar fullname de Firestore
-            if (!currentUser.displayName && firestoreData.fullname) {
-              userData = {
-                ...currentUser,
-                displayName: firestoreData.fullname,
-              };
-            }
+
+            userData = {
+              ...userData,
+              displayName: userData.displayName || firestoreData.fullname || "",
+              role: firestoreData.role || "user",
+            };
           }
 
           setUser(userData);
         } catch (error) {
           console.error("Error al obtener datos de usuario Firestore:", error);
-          setUser(currentUser); // fallback: solo user auth
+          setUser({
+            uid: currentUser.uid,
+            email: currentUser.email,
+            displayName: currentUser.displayName || "",
+            role: "user",
+          });
         }
       } else {
         setUser(null);

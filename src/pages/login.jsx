@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
@@ -8,19 +8,22 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
+  const [pendingRedirect, setPendingRedirect] = useState(false);
 
-  const { login, loginWithGoogle } = useAuth();
+  const navigate = useNavigate();
+  const { login, loginWithGoogle, user } = useAuth();
 
   const handleLogin = async () => {
     if (!email || !password) {
       setError("Por favor completá todos los campos.");
       return;
     }
+
     try {
+      setPendingRedirect(true); // señal para esperar el efecto
       await login(email, password);
-      navigate("/reservas");
     } catch (err) {
+      setPendingRedirect(false);
       switch (err.code) {
         case "auth/user-not-found":
         case "auth/wrong-password":
@@ -37,12 +40,24 @@ const Login = () => {
 
   const handleGoogleLogin = async () => {
     try {
+      setPendingRedirect(true);
       await loginWithGoogle();
-      navigate("/reservas");
     } catch (err) {
+      setPendingRedirect(false);
       setError("No se pudo iniciar sesión con Google.");
     }
   };
+
+  // Espera a que el contexto tenga datos del usuario y lo redirige según rol
+  useEffect(() => {
+    if (pendingRedirect && user) {
+      if (user.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/reservas");
+      }
+    }
+  }, [pendingRedirect, user, navigate]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -60,10 +75,7 @@ const Login = () => {
               </p>
               <div className="flex w-full md:justify-start justify-center items-end space-x-4">
                 <div className="relative md:w-1/2 w-full">
-                  <label
-                    htmlFor="email"
-                    className="leading-7 text-sm text-gray-600"
-                  >
+                  <label htmlFor="email" className="leading-7 text-sm text-gray-600">
                     Email
                   </label>
                   <input
@@ -75,10 +87,7 @@ const Login = () => {
                   />
                 </div>
                 <div className="relative md:w-1/2 w-full">
-                  <label
-                    htmlFor="password"
-                    className="leading-7 text-sm text-gray-600"
-                  >
+                  <label htmlFor="password" className="leading-7 text-sm text-gray-600">
                     Contraseña
                   </label>
                   <input
@@ -102,10 +111,8 @@ const Login = () => {
               <p className="text-sm mt-4 text-gray-500 mb-8 w-full">
                 ¿No tenés cuenta? Registrate desde
                 <Link to="/register" className="text-indigo-500 hover:underline">
-                  {" "}
-                  acá
-                </Link>
-                .
+                  {" "}acá
+                </Link>.
               </p>
 
               <button
