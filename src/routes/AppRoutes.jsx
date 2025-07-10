@@ -15,6 +15,8 @@ import Usuarios from '../admin/Usuarios';
 import ReservasAdmin from '../admin/Reservas';
 import Consultas from '../admin/Consultas';
 
+import HomeSeller from '../seller/HomeSeller';
+
 const AppRoutes = () => {
   return (
     <Routes>
@@ -53,6 +55,16 @@ const AppRoutes = () => {
             <MisReservas />
           </ProtectedRoute>
         }
+      />
+
+      {/*Rutas protegidas de seller */}
+      <Route
+      path='/seller'
+      element={
+          <ProtectedRoute>
+            <HomeSeller/>
+          </ProtectedRoute>
+      }
       />
 
       {/* Rutas protegidas de administrador */}
