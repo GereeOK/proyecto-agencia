@@ -7,18 +7,20 @@ import {
   getDocs, 
   query,
   where,
-  serverTimestamp 
+  serverTimestamp,
+  deleteDoc,
+  updateDoc
 } from "firebase/firestore";
 import { app } from "./config";
 
 const db = getFirestore(app);
 
-// Guardar un usuario con su uid y email (y rol "user")
+// 1. Guardar un usuario con su uid y email (y rol "user")
 export const saveUser = (uid, email) => {
   return setDoc(doc(db, "users", uid), { email, role: "user" });
 };
 
-// Guardar una reserva en la colección "reservas"
+// 2. Guardar una reserva en la colección "reservas"
 export const saveReserva = (reserva) => {
   return addDoc(collection(db, "reservas"), {
     ...reserva,
@@ -26,16 +28,25 @@ export const saveReserva = (reserva) => {
   });
 };
 
-// Traer todos los documentos de la colección "servicios"
-export const fetchServicios = async () => {
-  const snapshot = await getDocs(collection(db, "servicios"));
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+// 3. Crear un nuevo servicio
+export const createServicio = async (servicio) => {
+  // 'servicio' debe ser un objeto con { title, description, image, sellerId, ... }
+  const ref = await addDoc(collection(db, "servicios"), {
+    ...servicio,
+    timestamp: serverTimestamp(),
+  });
+  return ref.id;
 };
 
-// Enviar una consulta a la colección "messages"
+// 4. Traer todos los documentos de la colección "servicios"
+export const fetchServicios = async () => {
+  const snapshot = await getDocs(collection(db, "servicios"));
+  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+};
+
+// 5. Enviar una consulta a la colección "messages"
 export const sendConsulta = async ({ name, email, message }) => {
-  const consultasRef = collection(db, "messages");
-  await addDoc(consultasRef, {
+  await addDoc(collection(db, "messages"), {
     name,
     email,
     message,
@@ -43,22 +54,30 @@ export const sendConsulta = async ({ name, email, message }) => {
   });
 };
 
-// Traer reservas asociadas a un usuario (por ejemplo, por email)
+// 6. Traer reservas asociadas a un usuario (por ejemplo, por email)
 export const fetchReservasByUser = async (userEmail) => {
   const reservasRef = collection(db, "reservas");
   const q = query(reservasRef, where("email", "==", userEmail));
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 };
 
-import { deleteDoc, updateDoc } from "firebase/firestore";
-
-// editar y borrar reservas
-
-export const deleteReserva = async (reservaId) => {
-  await deleteDoc(doc(db, "reservas", reservaId));
+// 7. Actualizar un servicio existente
+export const updateServicio = async (id, cambios) => {
+  const ref = doc(db, "servicios", id);
+  await updateDoc(ref, {
+    ...cambios,
+    timestamp: serverTimestamp(),
+  });
 };
 
+// 8. Borrar un servicio
+export const deleteServicio = async (id) => {
+  const ref = doc(db, "servicios", id);
+  await deleteDoc(ref);
+};
+
+// 9. Editar y borrar reservas
 export const updateReserva = async (reserva) => {
   const { id, ...rest } = reserva;
   await updateDoc(doc(db, "reservas", id), {
@@ -66,29 +85,32 @@ export const updateReserva = async (reserva) => {
     timestamp: serverTimestamp(),
   });
 };
+export const deleteReserva = async (reservaId) => {
+  await deleteDoc(doc(db, "reservas", reservaId));
+};
 
-//trae todos los usuarios
+// 10. Traer todos los usuarios
 export const fetchUsuarios = async () => {
   const snapshot = await getDocs(collection(db, "users"));
-  return snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() }));
+  return snapshot.docs.map(d => ({ uid: d.id, ...d.data() }));
 };
 
-//trae todos los servicios
+// 11. Traer todas las reservas (admin)
 export const fetchReservas = async () => {
   const snapshot = await getDocs(collection(db, "reservas"));
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 };
 
-//trae todas las consultas
+// 12. Traer todas las consultas
 export const fetchConsultas = async () => {
   const snapshot = await getDocs(collection(db, "messages"));
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 };
 
-//trae los servicios por id de seller
+// 13. Traer los servicios por id de seller
 export const fetchServiciosBySeller = async (sellerId) => {
   const serviciosRef = collection(db, "servicios");
   const q = query(serviciosRef, where("sellerId", "==", sellerId));
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 };

@@ -1,4 +1,5 @@
 // src/routes/AppRoutes.jsx
+
 import { Routes, Route } from 'react-router-dom';
 import Home from '../pages/Home';
 import Login from '../pages/login';
@@ -8,14 +9,22 @@ import MisReservas from '../pages/mis-reservas';
 import ProtectedRoute from './ProtectedRoute';
 import PublicRoute from './PublicRoute';
 
+// Admin
 import AdminLayout from '../admin/AdminLayout';
 import Dashboard from '../admin/Dashboard';
-import Servicios from '../admin/Servicios';
+import ServiciosAdmin from '../admin/Servicios';
 import Usuarios from '../admin/Usuarios';
 import ReservasAdmin from '../admin/Reservas';
 import Consultas from '../admin/Consultas';
 
+// Seller
+import SellerLayout from '../seller/SellerLayout';
 import HomeSeller from '../seller/HomeSeller';
+import CrearServicio from '../seller/CrearServicio';
+import PerfilSeller from '../seller/PerfilSeller';
+
+// Públicos
+import Servicios from '../pages/Servicios';
 
 const AppRoutes = () => {
   return (
@@ -38,6 +47,7 @@ const AppRoutes = () => {
           </PublicRoute>
         }
       />
+      <Route path="/servicios" element={<Servicios />} />
 
       {/* Rutas protegidas de usuario */}
       <Route
@@ -57,15 +67,19 @@ const AppRoutes = () => {
         }
       />
 
-      {/*Rutas protegidas de seller */}
+      {/* Rutas protegidas de seller */}
       <Route
-      path='/seller'
-      element={
+        path="/seller"
+        element={
           <ProtectedRoute>
-            <HomeSeller/>
+            <SellerLayout />
           </ProtectedRoute>
-      }
-      />
+        }
+      >
+        <Route index element={<HomeSeller />} />
+        <Route path="nuevo-servicio" element={<CrearServicio />} />
+        <Route path="perfil" element={<PerfilSeller />} />
+      </Route>
 
       {/* Rutas protegidas de administrador */}
       <Route
@@ -76,9 +90,8 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       >
-        {/* Estas se renderizan dentro del <Outlet /> de AdminLayout */}
         <Route index element={<Dashboard />} />
-        <Route path="servicios" element={<Servicios />} />
+        <Route path="servicios" element={<ServiciosAdmin />} />
         <Route path="usuarios" element={<Usuarios />} />
         <Route path="reservas" element={<ReservasAdmin />} />
         <Route path="consultas" element={<Consultas />} />

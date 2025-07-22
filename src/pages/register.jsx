@@ -1,6 +1,7 @@
 import Navbar from '../components/navbar';
 import Footer from '../components/footer';
-import { useRegister } from '../hooks/useRegister';  // Asumiendo que lo guardaste en src/hooks/useRegister.js
+import { useRegister } from '../hooks/useRegister';
+import { useState } from 'react';
 
 const Register = () => {
   const {
@@ -14,6 +15,14 @@ const Register = () => {
     success,
     register,
   } = useRegister();
+
+  const [isSeller, setIsSeller] = useState(false);
+  const [agencia, setAgencia] = useState('');
+  const [logoAgencia, setLogoAgencia] = useState('');
+
+  const handleRegister = () => {
+    register({ isSeller, agencia, logoAgencia });
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -33,9 +42,21 @@ const Register = () => {
               <h1 className="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900">
                 Crear una cuenta
               </h1>
-              <p className="mb-8 leading-relaxed">
+              <p className="mb-4 leading-relaxed">
                 Registrate para descubrir y reservar experiencias únicas en Buenos Aires.
               </p>
+
+              <div className="mb-4 flex gap-4 items-center">
+                <label className="text-gray-700 text-sm font-medium">Tipo de cuenta:</label>
+                <select
+                  value={isSeller ? 'seller' : 'user'}
+                  onChange={(e) => setIsSeller(e.target.value === 'seller')}
+                  className="border rounded px-2 py-1 text-sm"
+                >
+                  <option value="user">Usuario</option>
+                  <option value="seller">Empresa / Agencia</option>
+                </select>
+              </div>
 
               <div className="flex w-full md:justify-start justify-start items-end gap-4 flex-wrap">
                 <div className="relative md:w-1/3 w-full">
@@ -73,8 +94,35 @@ const Register = () => {
                 </div>
               </div>
 
+              {isSeller && (
+                <div className="flex w-full flex-wrap gap-4 mt-6">
+                  <div className="relative md:w-1/2 w-full">
+                    <label htmlFor="agencia" className="leading-7 text-sm text-gray-600">Nombre de la Agencia</label>
+                    <input
+                      type="text"
+                      id="agencia"
+                      value={agencia}
+                      onChange={(e) => setAgencia(e.target.value)}
+                      className="w-full bg-gray-100 rounded border border-gray-300 focus:ring-2 focus:ring-indigo-200 focus:bg-transparent focus:border-indigo-500 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                      required={isSeller}
+                    />
+                  </div>
+                  <div className="relative md:w-1/2 w-full">
+                    <label htmlFor="logoAgencia" className="leading-7 text-sm text-gray-600">Logo (opcional)</label>
+                    <input
+                      type="text"
+                      id="logoAgencia"
+                      value={logoAgencia}
+                      onChange={(e) => setLogoAgencia(e.target.value)}
+                      placeholder="URL de la imagen"
+                      className="w-full bg-gray-100 rounded border border-gray-300 focus:ring-2 focus:ring-indigo-200 focus:bg-transparent focus:border-indigo-500 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                    />
+                  </div>
+                </div>
+              )}
+
               <button
-                onClick={register}
+                onClick={handleRegister}
                 className="mt-6 inline-flex text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg"
               >
                 Registrarse

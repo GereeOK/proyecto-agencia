@@ -33,7 +33,9 @@ export const AuthProvider = ({ children }) => {
             uid: currentUser.uid,
             email: currentUser.email,
             displayName: currentUser.displayName || "",
-            role: "user", // valor por defecto
+            role: "user",          // valor por defecto
+            agencia: null,         // para sellers
+            logo: null             // para sellers
           };
 
           if (userDocSnap.exists()) {
@@ -43,22 +45,27 @@ export const AuthProvider = ({ children }) => {
               ...userData,
               displayName: firestoreData.fullname || currentUser.displayName || "",
               role: firestoreData.role || "user",
+              agencia: firestoreData.agencia || null,
+              logo: firestoreData.logo || null
             };
           }
 
           setUser(userData);
         } catch (error) {
-          console.error("Error al obtener datos de usuario Firestore:", error);
+          console.error("Error al obtener datos del usuario:", error);
           setUser({
             uid: currentUser.uid,
             email: currentUser.email,
             displayName: currentUser.displayName || "",
             role: "user",
+            agencia: null,
+            logo: null
           });
         }
       } else {
         setUser(null);
       }
+
       setLoading(false);
     });
 

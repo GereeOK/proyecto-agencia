@@ -96,6 +96,24 @@ const Header = () => {
               Mis Reservas
             </Link>
 
+            {user.role === "seller" && (
+              <Link
+                to="/seller"
+                className="bg-indigo-500 hover:bg-indigo-600 text-white border-0 py-1 px-3 rounded text-sm"
+              >
+                Panel de Servicios
+              </Link>
+            )}
+
+            {user.role === "admin" && (
+              <Link
+                to="/admin"
+                className="bg-indigo-500 hover:bg-indigo-600 text-white border-0 py-1 px-3 rounded text-sm"
+              >
+                Panel Admin
+              </Link>
+            )}
+
             <div className="relative">
               <button
                 onClick={() => setShowDropdown(!showDropdown)}
