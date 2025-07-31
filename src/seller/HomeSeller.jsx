@@ -24,7 +24,7 @@ const HomeSeller = () => {
     setLoading(true);
     try {
       const data = await fetchServiciosByCompany(user.companyId);
-      console.log("Servicios cargados:", data);  // <--- Ver esto en consola
+      //console.log("Servicios cargados:", data);  // <--- Ver esto en consola
       setServicios(data);
     } catch (err) {
       console.error("Error cargando servicios:", err);
