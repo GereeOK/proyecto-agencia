@@ -8,6 +8,7 @@ import Reservas from '../pages/reservas';
 import MisReservas from '../pages/mis-reservas';
 import ProtectedRoute from './ProtectedRoute';
 import PublicRoute from './PublicRoute';
+import Perfil from "../pages/perfil";
 
 // Admin
 import AdminLayout from '../admin/AdminLayout';
@@ -18,10 +19,7 @@ import ReservasAdmin from '../admin/Reservas';
 import Consultas from '../admin/Consultas';
 
 // Seller
-import SellerLayout from '../seller/SellerLayout';
 import HomeSeller from '../seller/HomeSeller';
-import CrearServicio from '../seller/CrearServicio';
-import PerfilSeller from '../seller/PerfilSeller';
 
 // Públicos
 import Servicios from '../pages/Servicios';
@@ -66,19 +64,25 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/perfil"
+        element={
+          <ProtectedRoute>
+            <Perfil />
+          </ProtectedRoute>
+        }
+      />
+      
 
       {/* Rutas protegidas de seller */}
       <Route
         path="/seller"
         element={
           <ProtectedRoute>
-            <SellerLayout />
+            <HomeSeller/>
           </ProtectedRoute>
         }
       >
-        <Route index element={<HomeSeller />} />
-        <Route path="nuevo-servicio" element={<CrearServicio />} />
-        <Route path="perfil" element={<PerfilSeller />} />
       </Route>
 
       {/* Rutas protegidas de administrador */}
