@@ -107,10 +107,11 @@ export const fetchConsultas = async () => {
   return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 };
 
-// 13. Traer los servicios por id de seller
-export const fetchServiciosBySeller = async (sellerId) => {
+// 13. Traer los servicios por companyId
+export const fetchServiciosByCompany = async (companyId) => {
   const serviciosRef = collection(db, "servicios");
-  const q = query(serviciosRef, where("sellerId", "==", sellerId));
+  const q = query(serviciosRef, where("companyId", "==", companyId));
   const snapshot = await getDocs(q);
   return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 };
+

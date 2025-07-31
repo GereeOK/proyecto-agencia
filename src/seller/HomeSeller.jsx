@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/authContext";
-import { fetchServiciosBySeller, deleteServicio } from "../firebase/firestore";
+import { fetchServiciosByCompany, deleteServicio } from "../firebase/firestore"; // ← cambiamos este import
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
 import { useNavigate } from "react-router-dom";
@@ -12,9 +12,9 @@ const HomeSeller = () => {
   const navigate = useNavigate();
 
   const cargarServicios = async () => {
-    if (!user) return;
+    if (!user || !user.companyId) return; // ← validamos que tenga companyId
     try {
-      const data = await fetchServiciosBySeller(user.uid);
+      const data = await fetchServiciosByCompany(user.companyId); // ← usamos companyId
       setServicios(data);
     } catch (err) {
       console.error("Error cargando servicios:", err);

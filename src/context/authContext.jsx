@@ -33,9 +33,9 @@ export const AuthProvider = ({ children }) => {
             uid: currentUser.uid,
             email: currentUser.email,
             displayName: currentUser.displayName || "",
-            role: "user",          // valor por defecto
-            agencia: null,         // para sellers
-            logo: null             // para sellers
+            role: "user", // default
+            companyId: null,
+            logo: null,
           };
 
           if (userDocSnap.exists()) {
@@ -45,8 +45,8 @@ export const AuthProvider = ({ children }) => {
               ...userData,
               displayName: firestoreData.fullname || currentUser.displayName || "",
               role: firestoreData.role || "user",
-              agencia: firestoreData.agencia || null,
-              logo: firestoreData.logo || null
+              companyId: firestoreData.companyId || null,
+              logo: firestoreData.logo || null,
             };
           }
 
@@ -58,8 +58,8 @@ export const AuthProvider = ({ children }) => {
             email: currentUser.email,
             displayName: currentUser.displayName || "",
             role: "user",
-            agencia: null,
-            logo: null
+            companyId: null,
+            logo: null,
           });
         }
       } else {
@@ -86,7 +86,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{ user, login, loginWithGoogle, logout, loading }}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };
