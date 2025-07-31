@@ -4,7 +4,13 @@ import {
   createUserWithEmailAndPassword,
   updateProfile
 } from 'firebase/auth';
-import { getFirestore, setDoc, doc } from 'firebase/firestore';
+import {
+  getFirestore,
+  setDoc,
+  doc,
+  collection,
+  addDoc
+} from 'firebase/firestore';
 import { app } from '../firebase/config';
 
 const auth = getAuth(app);
@@ -19,6 +25,7 @@ export const useRegister = () => {
 
   const register = async ({ isSeller, agencia, logoAgencia }) => {
     try {
+      // Crear usuario en Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
@@ -26,29 +33,25 @@ export const useRegister = () => {
         displayName: fullname,
       });
 
-      const role = isSeller ? "seller" : "user";
-
-      const userData = {
-        email: user.email,
-        fullname,
-        role,
-      };
+      let companyId = null;
 
       if (isSeller) {
-        userData.agencia = agencia;
-        userData.logoAgencia = logoAgencia;
-      }
-
-      // Crear el documento en la colección "users"
-      await setDoc(doc(db, "users", user.uid), userData);
-
-      // Si es seller, también crear en "companies"
-      if (isSeller) {
-        await setDoc(doc(db, "companies", user.uid), {
+        // Crear documento nuevo en companies, con ID auto generado
+        const companyRef = await addDoc(collection(db, "companies"), {
           name: agencia,
           logo: logoAgencia
         });
+
+        companyId = companyRef.id;
       }
+
+      // Crear documento en users, con companyId si es seller
+      await setDoc(doc(db, "users", user.uid), {
+        email: user.email,
+        fullname,
+        role: isSeller ? "seller" : "user",
+        companyId: companyId ? companyId : null
+      });
 
       setSuccess("Usuario registrado exitosamente.");
       setError(null);

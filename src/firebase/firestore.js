@@ -1,10 +1,10 @@
-import { 
-  getFirestore, 
-  collection, 
-  addDoc, 
-  setDoc, 
-  doc, 
-  getDocs, 
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  setDoc,
+  doc,
+  getDocs,
   query,
   where,
   serverTimestamp,
@@ -113,5 +113,40 @@ export const fetchServiciosByCompany = async (companyId) => {
   const q = query(serviciosRef, where("companyId", "==", companyId));
   const snapshot = await getDocs(q);
   return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+};
+
+// 14. Traer los datos de las empresas (sin usar getDoc, igual que las otras funciones)
+export const getCompanyByUser = async (companyId) => {
+  if (!companyId) return null;
+
+  try {
+    const companiesRef = collection(db, "companies");
+    const q = query(companiesRef, where("__name__", "==", companyId));
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      const doc = querySnapshot.docs[0];
+      return doc.data();
+    }
+    return null;
+  } catch (error) {
+    console.error("Error fetching company data:", error);
+    return null;
+  }
+};
+
+// 15. Actualizar la empresa (nombre y/o logo)
+export const updateCompany = async (companyId, updates) => {
+  if (!companyId || !updates) return;
+
+  try {
+    const companyRef = doc(db, "companies", companyId);
+    await updateDoc(companyRef, {
+      ...updates,
+      timestamp: serverTimestamp(),
+    });
+  } catch (error) {
+    console.error("Error actualizando la empresa:", error);
+    throw error;
+  }
 };
 
