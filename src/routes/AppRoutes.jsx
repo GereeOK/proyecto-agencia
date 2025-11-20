@@ -1,5 +1,3 @@
-// src/routes/AppRoutes.jsx
-
 import { Routes, Route } from 'react-router-dom';
 import Home from '../pages/Home';
 import Login from '../pages/login';
@@ -9,6 +7,7 @@ import MisReservas from '../pages/mis-reservas';
 import ProtectedRoute from './ProtectedRoute';
 import PublicRoute from './PublicRoute';
 import Perfil from "../pages/perfil";
+import ReservaExitosa from '../pages/reserva-exitosa';
 
 // Admin
 import AdminLayout from '../admin/AdminLayout';
@@ -72,14 +71,21 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-      
+      <Route
+        path="/reserva-exitosa"
+        element={
+          <ProtectedRoute>
+            <ReservaExitosa />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Rutas protegidas de seller */}
       <Route
         path="/seller"
         element={
           <ProtectedRoute>
-            <HomeSeller/>
+            <HomeSeller />
           </ProtectedRoute>
         }
       >
