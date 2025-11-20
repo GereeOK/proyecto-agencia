@@ -32,14 +32,26 @@ const AdminLayout = () => {
             </button>
             {showDropdown && (
               <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-50">
+
+                {/* Volver al inicio */}
+                <Link
+                  to="/"
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:text-indigo-600"
+                >
+                  Volver al inicio
+                </Link>
+
+                {/* Cerrar sesión */}
                 <button
                   onClick={handleLogout}
                   className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:text-red-600"
                 >
                   Cerrar sesión
                 </button>
+
               </div>
             )}
+
           </div>
         </div>
       </header>
