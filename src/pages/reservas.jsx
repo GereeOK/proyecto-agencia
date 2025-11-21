@@ -20,6 +20,8 @@ const ReservasPage = () => {
   const initialFormData = {
     fullname: user.displayName || "",
     email: user.email || "",
+    checkin: "",
+    checkout: "",
   };
 
   const {
@@ -31,6 +33,30 @@ const ReservasPage = () => {
     loading,
     error,
   } = useReservaForm(servicios, initialFormData);
+
+  // ------------------------------------------------------------
+  // 🔥 Función que filtra servicios según fecha de validez
+  // ------------------------------------------------------------
+  const filtrarServiciosPorFecha = () => {
+    if (!formData.checkin) return servicios;
+
+    const checkinDate = new Date(formData.checkin);
+    checkinDate.setHours(0, 0, 0, 0);
+
+    return servicios.filter((servicio) => {
+      if (!servicio.from || !servicio.until) return false;
+
+      const fromDate = servicio.from.toDate();
+      const untilDate = servicio.until.toDate();
+
+      fromDate.setHours(0, 0, 0, 0);
+      untilDate.setHours(0, 0, 0, 0);
+
+      return checkinDate >= fromDate && checkinDate <= untilDate;
+    });
+  };
+
+  const serviciosFiltrados = filtrarServiciosPorFecha();
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
@@ -44,14 +70,16 @@ const ReservasPage = () => {
           <h1 className="text-2xl font-bold mb-6 text-gray-800">
             Completa tu Reserva
           </h1>
+
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* DATOS DEL FORM */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label
                   htmlFor="checkin"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Fecha de inicio
+                  Fecha de inicio de viaje
                 </label>
                 <input
                   type="date"
@@ -63,6 +91,7 @@ const ReservasPage = () => {
                   className="mt-1 w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
+
               <div>
                 <label
                   htmlFor="checkout"
@@ -81,6 +110,7 @@ const ReservasPage = () => {
                 />
               </div>
             </div>
+
             <div>
               <label
                 htmlFor="fullname"
@@ -99,6 +129,7 @@ const ReservasPage = () => {
                 className="mt-1 w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
+
             <div>
               <label
                 htmlFor="email"
@@ -117,26 +148,40 @@ const ReservasPage = () => {
                 className="mt-1 w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
+
+            {/* SERVICIOS FILTRADOS */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Agregar servicios
               </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {servicios.map((servicio) => (
-                  <label
-                    key={servicio.id}
-                    className="flex items-center space-x-2"
-                  >
-                    <input
-                      type="checkbox"
-                      value={servicio.id}
-                      checked={selectedServices.includes(servicio.id)}
-                      onChange={() => handleCheckboxChange(servicio.id)}
-                      className="text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                    />
-                    <span className="text-sm text-gray-700">{servicio.title}</span>
-                  </label>
-                ))}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                {serviciosFiltrados.map((servicio) => {
+                  const isSelected = selectedServices.includes(servicio.id);
+
+                  return (
+                    <div
+                      key={servicio.id}
+                      onClick={() => handleCheckboxChange(servicio.id)}
+                      className={`cursor-pointer border rounded-lg p-3 shadow-md transition-all duration-200 
+      ${isSelected ? "ring-2 ring-indigo-500 shadow-xl" : "hover:shadow-lg"}`}
+                    >
+                      <img
+                        src={servicio.image}
+                        alt={servicio.title}
+                        className="w-full h-40 object-cover rounded-md mb-3"
+                      />
+
+                      <h3 className="font-semibold text-gray-800 text-center">
+                        {servicio.title}
+                      </h3>
+
+                      <p className="text-sm text-gray-600 text-center mt-1">
+                        {servicio.description}
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
@@ -161,6 +206,7 @@ const ReservasPage = () => {
           <h2 className="text-xl font-semibold mb-4 text-gray-800">
             Servicios Seleccionados
           </h2>
+
           {selectedServices.length === 0 ? (
             <p className="text-gray-500">No seleccionaste servicios aún.</p>
           ) : (
