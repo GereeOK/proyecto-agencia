@@ -6,16 +6,17 @@ import {
   deleteServicio
 } from "../firebase/firestore";
 
+import { Timestamp } from "firebase/firestore";
+
 const Servicios = () => {
   const [servicios, setServicios] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Estados para modales y servicio actual
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [currentService, setCurrentService] = useState(null);
 
-  // Función para recargar lista
+  // Cargar servicios
   const recargar = async () => {
     setLoading(true);
     try {
@@ -32,26 +33,38 @@ const Servicios = () => {
     recargar();
   }, []);
 
-  // Abre modal de creación
+  // Abrir modal de agregar
   const abrirAdd = () => {
-    setCurrentService({ title: "", description: "", image: "" });
+    setCurrentService({
+      title: "",
+      description: "",
+      image: "",
+      from: null,
+      until: null
+    });
     setShowAddModal(true);
   };
 
-  // Abre modal de edición
+  // Abrir modal de edición
   const abrirEdit = (servicio) => {
-    setCurrentService(servicio);
+    setCurrentService({
+      id: servicio.id,
+      title: servicio.title,
+      description: servicio.description,
+      image: servicio.image,
+      from: servicio.from || null,
+      until: servicio.until || null
+    });
     setShowEditModal(true);
   };
 
-  // Cierra ambos modales
   const cerrarModales = () => {
     setShowAddModal(false);
     setShowEditModal(false);
     setCurrentService(null);
   };
 
-  // Maneja envío de form para crear
+  // Crear servicio
   const handleAdd = async (e) => {
     e.preventDefault();
     try {
@@ -63,14 +76,16 @@ const Servicios = () => {
     }
   };
 
-  // Maneja envío de form para editar
+  // Editar servicio
   const handleEdit = async (e) => {
     e.preventDefault();
     try {
       await updateServicio(currentService.id, {
         title: currentService.title,
         description: currentService.description,
-        image: currentService.image
+        image: currentService.image,
+        from: currentService.from,
+        until: currentService.until
       });
       recargar();
       cerrarModales();
@@ -79,7 +94,7 @@ const Servicios = () => {
     }
   };
 
-  // Confirmar y eliminar
+  // Eliminar
   const handleDelete = async (id) => {
     if (!window.confirm("¿Confirmás eliminar este servicio?")) return;
     try {
@@ -88,6 +103,16 @@ const Servicios = () => {
     } catch (err) {
       console.error("Error eliminando servicio:", err);
     }
+  };
+
+  // Mostrar fecha formateada
+  const mostrarFecha = (valor) => {
+    if (!valor) return "-";
+
+    if (valor.toDate) return valor.toDate().toLocaleDateString();
+    if (valor instanceof Date) return valor.toLocaleDateString();
+
+    return "-";
   };
 
   if (loading) {
@@ -108,45 +133,52 @@ const Servicios = () => {
           <table className="table-auto w-full text-left">
             <thead>
               <tr>
-                <th className="px-4 py-2 bg-gray-100 text-sm font-medium text-gray-900 rounded-tl rounded-bl">
-                  Título
-                </th>
-                <th className="px-4 py-2 bg-gray-100 text-sm font-medium text-gray-900">
-                  Descripción
-                </th>
-                <th className="px-4 py-2 bg-gray-100 text-sm font-medium text-gray-900">
-                  Imagen
-                </th>
-                <th className="px-4 py-2 bg-gray-100 text-sm font-medium text-gray-900 rounded-tr rounded-br text-center">
-                  Acciones
-                </th>
+                <th className="px-4 py-2 bg-gray-100">Título</th>
+                <th className="px-4 py-2 bg-gray-100">Descripción</th>
+                <th className="px-4 py-2 bg-gray-100">Imagen</th>
+                <th className="px-4 py-2 bg-gray-100">Desde</th>
+                <th className="px-4 py-2 bg-gray-100">Hasta</th>
+                <th className="px-4 py-2 bg-gray-100 text-center">Acciones</th>
               </tr>
             </thead>
+
             <tbody>
               {servicios.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="text-center py-4">
+                  <td colSpan={6} className="text-center py-4">
                     No hay servicios cargados
                   </td>
                 </tr>
               )}
-              {servicios.map(({ id, title, description, image }) => (
+
+              {servicios.map(({ id, title, description, image, from, until }) => (
                 <tr key={id} className="border-t">
-                  <td className="px-4 py-2 font-medium text-gray-800">{title}</td>
+                  <td className="px-4 py-2">{title}</td>
                   <td className="px-4 py-2 text-sm">{description}</td>
                   <td className="px-4 py-2">
-                    <img src={image} alt={title} className="w-24 h-16 object-cover rounded" />
+                    <img
+                      src={image}
+                      alt={title}
+                      className="w-24 h-16 object-cover rounded"
+                    />
                   </td>
+
+                  <td className="px-4 py-2">{mostrarFecha(from)}</td>
+                  <td className="px-4 py-2">{mostrarFecha(until)}</td>
+
                   <td className="px-4 py-2">
                     <div className="flex justify-center space-x-2">
                       <button
-                        className="bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-1 rounded"
-                        onClick={() => abrirEdit({ id, title, description, image })}
+                        className="bg-blue-500 text-white text-sm px-3 py-1 rounded"
+                        onClick={() =>
+                          abrirEdit({ id, title, description, image, from, until })
+                        }
                       >
                         Editar
                       </button>
+
                       <button
-                        className="bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded"
+                        className="bg-red-500 text-white text-sm px-3 py-1 rounded"
                         onClick={() => handleDelete(id)}
                       >
                         Eliminar
@@ -161,7 +193,7 @@ const Servicios = () => {
 
         <div className="flex justify-end mt-6">
           <button
-            className="text-white bg-green-500 hover:bg-green-600 py-2 px-5 rounded"
+            className="text-white bg-green-500 py-2 px-5 rounded"
             onClick={abrirAdd}
           >
             Agregar Servicio
@@ -169,8 +201,7 @@ const Servicios = () => {
         </div>
       </div>
 
-      {/* Modales */}
-      {(showAddModal || showEditModal) && (
+      {(showAddModal || showEditModal) && currentService && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <form
             onSubmit={showAddModal ? handleAdd : handleEdit}
@@ -186,7 +217,9 @@ const Servicios = () => {
                 type="text"
                 className="w-full border rounded p-2"
                 value={currentService.title}
-                onChange={e => setCurrentService({ ...currentService, title: e.target.value })}
+                onChange={(e) =>
+                  setCurrentService({ ...currentService, title: e.target.value })
+                }
                 required
               />
             </label>
@@ -196,7 +229,12 @@ const Servicios = () => {
               <textarea
                 className="w-full border rounded p-2"
                 value={currentService.description}
-                onChange={e => setCurrentService({ ...currentService, description: e.target.value })}
+                onChange={(e) =>
+                  setCurrentService({
+                    ...currentService,
+                    description: e.target.value
+                  })
+                }
                 required
               />
             </label>
@@ -207,7 +245,57 @@ const Servicios = () => {
                 type="text"
                 className="w-full border rounded p-2"
                 value={currentService.image}
-                onChange={e => setCurrentService({ ...currentService, image: e.target.value })}
+                onChange={(e) =>
+                  setCurrentService({ ...currentService, image: e.target.value })
+                }
+              />
+            </label>
+
+            {/* === FECHA DESDE === */}
+            <label className="block mb-2">
+              Desde
+              <input
+                type="date"
+                className="w-full border rounded p-2"
+                value={
+                  currentService.from && currentService.from.toDate
+                    ? currentService.from.toDate().toISOString().split("T")[0]
+                    : currentService.from instanceof Date
+                    ? currentService.from.toISOString().split("T")[0]
+                    : ""
+                }
+                onChange={(e) =>
+                  setCurrentService({
+                    ...currentService,
+                    from: e.target.value
+                      ? Timestamp.fromDate(new Date(e.target.value))
+                      : null
+                  })
+                }
+              />
+            </label>
+
+            {/* === FECHA HASTA === */}
+            <label className="block mb-4">
+              Hasta
+              <input
+                type="date"
+                className="w-full border rounded p-2"
+                value={
+                  currentService.until && currentService.until.toDate
+                    ? currentService.until.toDate().toISOString().split("T")[0]
+                    : currentService.until instanceof Date
+                    ? currentService.until.toISOString().split("T")[0]
+                    : ""
+                }
+                onChange={(e) =>
+                  setCurrentService({
+                    ...currentService,
+                    until: e.target.value
+                      ? Timestamp.fromDate(new Date(e.target.value))
+                      : null
+                  })
+                }
               />
             </label>
 
@@ -219,10 +307,8 @@ const Servicios = () => {
               >
                 Cancelar
               </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-blue-500 text-white rounded"
-              >
+
+              <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded">
                 {showAddModal ? "Crear" : "Guardar"}
               </button>
             </div>

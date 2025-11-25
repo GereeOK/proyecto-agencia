@@ -21,7 +21,6 @@ const ReservasAdmin = () => {
 
   const editarReserva = (reserva) => {
     alert("Editar reserva:\n" + JSON.stringify(reserva, null, 2));
-    // Acá podrías abrir un modal o redirigir a un formulario con los datos precargados
   };
 
   const eliminarReserva = async (id) => {

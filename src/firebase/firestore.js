@@ -115,7 +115,7 @@ export const fetchServiciosByCompany = async (companyId) => {
   return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 };
 
-// 14. Traer los datos de las empresas (sin usar getDoc, igual que las otras funciones)
+// 14. Traer los datos de las empresas
 export const getCompanyByUser = async (companyId) => {
   if (!companyId) return null;
 
