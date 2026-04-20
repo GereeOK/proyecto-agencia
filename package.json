@@ -9,18 +9,22 @@
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
+    "dotenv": "^17.4.2",
     "firebase": "^11.10.0",
+    "firebase-admin": "^13.8.0",
     "flowbite": "^3.1.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "leaflet": "^1.9.4",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.6.3",
     "recharts": "^3.1.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.0.0",
+    "@vitejs/plugin-react": "^6.0.1",
     "autoprefixer": "^10.4.0",
     "postcss": "^8.4.0",
     "tailwindcss": "^3.4.0",
-    "vite": "^4.5.0"
+    "vite": "^8.0.9"
   }
 }

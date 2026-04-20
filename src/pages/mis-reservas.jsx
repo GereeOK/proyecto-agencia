@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, lazy, Suspense } from "react";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
 import ModalReserva from "../components/ModalReserva";
 import { useMisReservas } from "../hooks/useMisReservas";
+
+// Lazy-load del mapa (RNF-04)
+const MapaServicio = lazy(() => import("../components/MapaServicio"));
 
 // MEJORA (RF-03 / CP7 – Estado de reserva): Se muestra el estado (pendiente /
 // confirmada / cancelada) de cada reserva con un badge de color, para que el
@@ -86,6 +89,18 @@ const MisReservas = () => {
                     <p>No especificados</p>
                   )}
                 </div>
+
+                {/* MAPA: muestra la ubicación del primer servicio si tiene coordenadas */}
+                {reserva.servicios?.[0]?.lat && reserva.servicios?.[0]?.lng && (
+                  <Suspense fallback={<div className="w-full h-32 bg-gray-100 rounded-lg animate-pulse" />}>
+                    <MapaServicio
+                      lat={reserva.servicios[0].lat}
+                      lng={reserva.servicios[0].lng}
+                      titulo={reserva.servicios[0].title || "Punto de encuentro"}
+                      height="150px"
+                    />
+                  </Suspense>
+                )}
 
                 {/* Overlay con acciones al hover */}
                 <div className="absolute inset-0 bg-white bg-opacity-90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center gap-3 rounded-lg">

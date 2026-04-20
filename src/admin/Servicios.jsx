@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import {
   fetchServicios,
   createServicio,
@@ -6,6 +6,9 @@ import {
   deleteServicio,
 } from "../firebase/firestore";
 import { Timestamp } from "firebase/firestore";
+
+// Lazy-load del mapa para no impactar el bundle del panel admin
+const MapaServicio = lazy(() => import("../components/MapaServicio"));
 
 // MEJORA (RF-04 – Gestión de Experiencias): Se agrega la opción de
 // "desactivar" un servicio sin eliminarlo, tal como indica el requerimiento:
@@ -44,7 +47,9 @@ const Servicios = () => {
       price: "",
       from: null,
       until: null,
-      activo: true, // MEJORA: Nuevo campo; por defecto activo al crear
+      lat: "",
+      lng: "",
+      activo: true,
     });
     setShowAddModal(true);
   };
@@ -58,7 +63,9 @@ const Servicios = () => {
       price: servicio.price || "",
       from: servicio.from || null,
       until: servicio.until || null,
-      activo: servicio.activo !== false, // Mantener estado actual
+      lat: servicio.lat || "",
+      lng: servicio.lng || "",
+      activo: servicio.activo !== false,
     });
     setShowEditModal(true);
   };
@@ -90,6 +97,8 @@ const Servicios = () => {
         price: currentService.price,
         from: currentService.from,
         until: currentService.until,
+        lat: currentService.lat,
+        lng: currentService.lng,
         activo: currentService.activo,
       });
       recargar();
@@ -278,6 +287,48 @@ const Servicios = () => {
               />
             </label>
 
+            {/* Campos nuevos usados por la UI estilo TripAdvisor */}
+            <div className="grid grid-cols-2 gap-2 mb-2">
+              <label className="block">
+                Categoría
+                <select
+                  className="w-full border rounded p-2 mt-1"
+                  value={currentService.categoria || ""}
+                  onChange={(e) => setCurrentService({ ...currentService, categoria: e.target.value })}
+                >
+                  <option value="">Sin categoría</option>
+                  <option value="Tours">Tours</option>
+                  <option value="Gastronomia">Gastronomía</option>
+                  <option value="Traslados">Traslados</option>
+                  <option value="Experiencias">Experiencias</option>
+                </select>
+              </label>
+              <label className="block">
+                Duración
+                <input type="text" placeholder="Ej: 3 horas" className="w-full border rounded p-2 mt-1"
+                  value={currentService.duracion || ""}
+                  onChange={(e) => setCurrentService({ ...currentService, duracion: e.target.value })} />
+              </label>
+            </div>
+            <label className="block mb-2">
+              Idioma
+              <input type="text" placeholder="Ej: Español, Inglés" className="w-full border rounded p-2"
+                value={currentService.idioma || ""}
+                onChange={(e) => setCurrentService({ ...currentService, idioma: e.target.value })} />
+            </label>
+            <label className="block mb-2">
+              Ubicación (texto)
+              <input type="text" placeholder="Ej: Barracas, CABA" className="w-full border rounded p-2"
+                value={currentService.ubicacion || ""}
+                onChange={(e) => setCurrentService({ ...currentService, ubicacion: e.target.value })} />
+            </label>
+            <label className="block mb-2">
+              ¿Qué incluye?
+              <textarea rows={2} placeholder="Ej: Guía local, traslado, entrada..." className="w-full border rounded p-2 text-sm"
+                value={currentService.incluye || ""}
+                onChange={(e) => setCurrentService({ ...currentService, incluye: e.target.value })} />
+            </label>
+
             <label className="block mb-2">
               Desde
               <input
@@ -319,6 +370,40 @@ const Servicios = () => {
                 }
               />
             </label>
+
+            {/* MAPA INTERACTIVO: el seller/admin hace click para ubicar la experiencia */}
+            <div className="mb-4">
+              <p className="text-sm font-medium mb-1">Ubicación en el mapa</p>
+              <div className="grid grid-cols-2 gap-2 mb-2">
+                <label className="block text-xs">
+                  Latitud
+                  <input type="number" step="any" placeholder="-34.6037"
+                    className="w-full border rounded p-2 text-sm mt-1"
+                    value={currentService.lat || ""}
+                    onChange={(e) => setCurrentService({ ...currentService, lat: e.target.value })} />
+                </label>
+                <label className="block text-xs">
+                  Longitud
+                  <input type="number" step="any" placeholder="-58.3816"
+                    className="w-full border rounded p-2 text-sm mt-1"
+                    value={currentService.lng || ""}
+                    onChange={(e) => setCurrentService({ ...currentService, lng: e.target.value })} />
+                </label>
+              </div>
+              {/* Mapa editable: click para mover el pin y actualizar lat/lng automáticamente */}
+              <Suspense fallback={<div className="w-full h-48 bg-gray-100 rounded-xl animate-pulse flex items-center justify-center text-sm text-gray-400">Cargando mapa...</div>}>
+                <MapaServicio
+                  lat={currentService.lat}
+                  lng={currentService.lng}
+                  titulo={currentService.title || "Nueva experiencia"}
+                  editable={true}
+                  height="200px"
+                  onChangeCoords={(lat, lng) =>
+                    setCurrentService({ ...currentService, lat: lat.toFixed(6), lng: lng.toFixed(6) })
+                  }
+                />
+              </Suspense>
+            </div>
 
             {/* MEJORA (RF-04): Toggle de estado activo en el formulario de edición */}
             {showEditModal && (
