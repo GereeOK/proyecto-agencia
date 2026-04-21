@@ -2,6 +2,15 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 import { useState, useEffect, useRef } from "react";
 
+// MEJORA (RNF-01 – Responsive / RNF-02 – Navegación):
+// El navbar original no era responsive: en pantallas pequeñas todos los botones
+// quedaban apilados y desbordaban el layout (visible en la imagen adjunta).
+// Nueva estructura:
+//   MOBILE  → Hamburguesa (izquierda) + Logo (centro) + Avatar/Login (derecha)
+//   DESKTOP → Logo (izquierda) + Nav links (centro) + Acciones usuario (derecha)
+// El menú hamburguesa agrupa tanto los links de navegación como las acciones
+// del usuario (Reservar, Mis Reservas, Panel, Perfil, Logout).
+
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -140,7 +149,7 @@ const Header = () => {
             <>
               {/* Desktop: botones de acción inline */}
               <div className="hidden md:flex items-center gap-2">
-                <Link to="/reservas" className="bg-indigo-500 hover:bg-indigo-600 text-white py-1.5 px-3 rounded text-sm transition-colors">
+                <Link to="/servicios" className="bg-indigo-500 hover:bg-indigo-600 text-white py-1.5 px-3 rounded text-sm transition-colors">
                   Reservar
                 </Link>
                 <Link to="/mis-reservas" className="bg-indigo-500 hover:bg-indigo-600 text-white py-1.5 px-3 rounded text-sm transition-colors">
@@ -217,7 +226,7 @@ const Header = () => {
               <div className="border-t border-gray-700 my-3" />
               <p className="text-xs uppercase text-gray-500 font-semibold mb-1 tracking-widest">Mi cuenta</p>
 
-              <Link to="/reservas" className="text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded transition-colors">
+              <Link to="/servicios" className="text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded transition-colors">
                 Reservar
               </Link>
               <Link to="/mis-reservas" className="text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded transition-colors">
