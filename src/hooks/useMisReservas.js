@@ -7,10 +7,6 @@ import {
   deleteReserva,
 } from "../firebase/firestore";
 
-// MEJORA (RF-03 / Mis Reservas): Se agrega ordenamiento de reservas por fecha
-// de creación descendente para que el usuario vea primero las más recientes.
-// También se expone el estado "estado" de cada reserva para mostrarlo en la UI.
-
 export const useMisReservas = () => {
   const { user, loading: authLoading } = useAuth();
   const [reservas, setReservas] = useState([]);
@@ -22,7 +18,6 @@ export const useMisReservas = () => {
     if (!user) return;
     setLoading(true);
     setError(null);
-
     try {
       const [reservasData, serviciosData] = await Promise.all([
         fetchReservasByUser(user.email),
@@ -30,20 +25,29 @@ export const useMisReservas = () => {
       ]);
 
       const serviciosMap = {};
-      serviciosData.forEach((s) => {
-        serviciosMap[s.id] = s;
-      });
+      serviciosData.forEach((s) => { serviciosMap[s.id] = s; });
 
       const reservasConServicios = reservasData.map((reserva) => {
-        const serviciosCompletos = (reserva.servicios || []).map((srv) =>
-          typeof srv === "string"
-            ? serviciosMap[srv]
-            : serviciosMap[srv.id] || srv
-        );
-        return { ...reserva, servicios: serviciosCompletos };
+        const serviciosCompletos = (reserva.servicios || []).map((srv) => {
+          if (typeof srv === "string") return serviciosMap[srv] || { id: srv };
+          // BUG FIX: Mergear datos de Firestore (lat, lng, price, etc.) con los
+          // datos guardados en la reserva (personas, pasajeros, image, title).
+          // Se da prioridad a los datos de la reserva para preservar pasajeros y personas.
+          const fromFirestore = serviciosMap[srv.id] || {};
+          return {
+            ...fromFirestore,  // datos completos del servicio (lat, lng, price, etc.)
+            ...srv,            // datos guardados en la reserva (personas, pasajeros)
+            id: srv.id || fromFirestore.id, // garantizar que el id siempre esté
+          };
+        });
+        return {
+          ...reserva,
+          // Normalizar estado: si no tiene estado en Firestore, es "pendiente"
+          estado: reserva.estado || "pendiente",
+          servicios: serviciosCompletos,
+        };
       });
 
-      // MEJORA: Ordenar reservas por timestamp descendente (más reciente primero)
       reservasConServicios.sort((a, b) => {
         const fechaA = a.timestamp?.toDate?.() ?? new Date(0);
         const fechaB = b.timestamp?.toDate?.() ?? new Date(0);
@@ -53,7 +57,7 @@ export const useMisReservas = () => {
       setReservas(reservasConServicios);
       setServiciosDisponibles(serviciosData);
     } catch (err) {
-      console.error("Error al traer reservas o servicios:", err);
+      console.error("Error al traer reservas:", err);
       setError("Error al cargar tus reservas.");
     } finally {
       setLoading(false);
@@ -61,20 +65,17 @@ export const useMisReservas = () => {
   }, [user]);
 
   useEffect(() => {
-    if (!authLoading && user) {
-      loadData();
-    } else if (!user && !authLoading) {
-      setReservas([]);
-      setLoading(false);
-    }
+    if (!authLoading && user) loadData();
+    else if (!user && !authLoading) { setReservas([]); setLoading(false); }
   }, [authLoading, user, loadData]);
-
-  const refetch = () => loadData();
 
   const handleUpdate = async (reservaActualizada) => {
     try {
       await updateReserva(reservaActualizada);
-      await loadData();
+      // Actualizar estado local sin recargar todo — más rápido y evita perder datos locales
+      setReservas((prev) =>
+        prev.map((r) => r.id === reservaActualizada.id ? { ...r, ...reservaActualizada } : r)
+      );
     } catch (err) {
       console.error("Error actualizando reserva:", err);
     }
@@ -83,21 +84,11 @@ export const useMisReservas = () => {
   const handleDelete = async (reservaId) => {
     try {
       await deleteReserva(reservaId);
-      // MEJORA: Actualizar el estado local inmediatamente en lugar de recargar
-      // todo desde Firestore, lo que reduce una llamada a la red.
       setReservas((prev) => prev.filter((r) => r.id !== reservaId));
     } catch (err) {
       console.error("Error eliminando reserva:", err);
     }
   };
 
-  return {
-    reservas,
-    serviciosDisponibles,
-    loading,
-    error,
-    handleUpdate,
-    handleDelete,
-    refetch,
-  };
+  return { reservas, serviciosDisponibles, loading, error, handleUpdate, handleDelete };
 };

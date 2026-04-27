@@ -384,10 +384,12 @@ const HomeSeller = () => {
         ]);
         setServicios(svcs);
         // Filtrar reservas que contienen servicios de esta empresa
+        // y normalizar el campo estado (las reservas viejas no lo tienen)
         const svcsIds = new Set(svcs.map((s) => s.id));
-        setReservas(ress.filter((r) =>
-          (r.servicios || []).some((s) => svcsIds.has(s.id))
-        ));
+        const reservasFiltradas = ress
+          .filter((r) => (r.servicios || []).some((s) => svcsIds.has(s.id)))
+          .map((r) => ({ ...r, estado: r.estado || "pendiente" }));
+        setReservas(reservasFiltradas);
       } catch (err) {
         console.error(err);
       } finally {
