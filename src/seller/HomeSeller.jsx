@@ -1,21 +1,31 @@
-import React, { useEffect, useState, lazy, Suspense } from "react";
+import React, { useEffect, useState, lazy, Suspense, useCallback } from "react";
 import { useAuth } from "../context/authContext";
 import {
-  fetchServiciosByCompany, fetchReservas,
-  createServicio, updateServicio, deleteServicio,
+  fetchServiciosByCompany,
+  createServicio,
+  updateServicio,
+  deleteServicio,
   cambiarEstadoReserva,
+  updateReserva,
 } from "../firebase/firestore";
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  onSnapshot,
+} from "firebase/firestore";
+import { app } from "../firebase/config";
 import { Timestamp } from "firebase/firestore";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
 
+const db = getFirestore(app);
 const MapaServicio = lazy(() => import("../components/MapaServicio"));
 
 const formatARS = (n) => Number(n || 0).toLocaleString("es-AR");
-
 const CATEGORIAS = ["Tours", "Gastronomia", "Traslados", "Experiencias"];
 
-// ── Stat card
 const StatCard = ({ icon, label, value }) => (
   <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm text-center">
     <p className="text-3xl mb-1">{icon}</p>
@@ -24,7 +34,6 @@ const StatCard = ({ icon, label, value }) => (
   </div>
 );
 
-// ── Badge estado
 const EstadoBadge = ({ activo }) => (
   <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
     activo !== false ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
@@ -33,13 +42,12 @@ const EstadoBadge = ({ activo }) => (
   </span>
 );
 
-// ── Modal de gestión de reserva (solo para seller/admin)
-// El seller puede: confirmar la reserva, o cancelarla dejando un motivo
+// ── Modal gestión de reserva (confirmar / cancelar con motivo)
 const ModalGestionReserva = ({ reserva, onClose, onUpdate }) => {
   const [showCancelForm, setShowCancelForm] = useState(false);
   const [motivo, setMotivo] = useState("");
   const [loading, setLoading] = useState(false);
-  const [exito, setExito] = useState(null); // "confirmada" | "cancelada"
+  const [exito, setExito] = useState(null);
 
   const handleConfirmar = async () => {
     setLoading(true);
@@ -48,8 +56,11 @@ const ModalGestionReserva = ({ reserva, onClose, onUpdate }) => {
       if (onUpdate) onUpdate({ ...reserva, estado: "confirmada" });
       setExito("confirmada");
       setTimeout(onClose, 1200);
-    } catch (err) { console.error(err); }
-    finally { setLoading(false); }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCancelar = async () => {
@@ -57,14 +68,15 @@ const ModalGestionReserva = ({ reserva, onClose, onUpdate }) => {
     setLoading(true);
     try {
       await cambiarEstadoReserva(reserva.id, "cancelada");
-      // Guardar el motivo junto con el estado
-      const { updateReserva } = await import("../firebase/firestore");
       await updateReserva({ ...reserva, estado: "cancelada", motivoCancelacion: motivo });
       if (onUpdate) onUpdate({ ...reserva, estado: "cancelada", motivoCancelacion: motivo });
       setExito("cancelada");
       setTimeout(onClose, 1200);
-    } catch (err) { console.error(err); }
-    finally { setLoading(false); }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -73,7 +85,6 @@ const ModalGestionReserva = ({ reserva, onClose, onUpdate }) => {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md"
         onClick={(e) => e.stopPropagation()}>
 
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <div>
             <h2 className="text-lg font-bold text-gray-900">Gestionar Reserva</h2>
@@ -113,7 +124,7 @@ const ModalGestionReserva = ({ reserva, onClose, onUpdate }) => {
             </div>
           )}
 
-          {/* Acciones según estado — solo si no hay resultado todavía y no está en form de cancelar */}
+          {/* Botones de acción */}
           {!exito && !showCancelForm && (
             <div className="space-y-2">
               {/* Confirmar — solo si está pendiente */}
@@ -126,7 +137,6 @@ const ModalGestionReserva = ({ reserva, onClose, onUpdate }) => {
                   {loading ? "Confirmando..." : "✅ Confirmar reserva"}
                 </button>
               )}
-              {/* Cancelar — disponible para pendiente y confirmada */}
               <button
                 onClick={() => setShowCancelForm(true)}
                 className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl text-sm transition-colors"
@@ -141,7 +151,7 @@ const ModalGestionReserva = ({ reserva, onClose, onUpdate }) => {
             </div>
           )}
 
-          {/* Formulario de motivo de cancelación */}
+          {/* Formulario motivo cancelación */}
           {!exito && showCancelForm && (
             <div className="space-y-3">
               <p className="text-sm font-semibold text-gray-700">
@@ -159,9 +169,11 @@ const ModalGestionReserva = ({ reserva, onClose, onUpdate }) => {
                   className="flex-1 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-sm">
                   Volver
                 </button>
-                <button onClick={handleCancelar}
+                <button
+                  onClick={handleCancelar}
                   disabled={loading || !motivo.trim()}
-                  className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-sm disabled:opacity-50">
+                  className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-sm disabled:opacity-50"
+                >
                   {loading ? "Cancelando..." : "Confirmar cancelación"}
                 </button>
               </div>
@@ -173,7 +185,7 @@ const ModalGestionReserva = ({ reserva, onClose, onUpdate }) => {
   );
 };
 
-// ── Formulario de servicio (modal)
+// ── Modal crear/editar servicio
 const ModalServicio = ({ servicio, onClose, onSave }) => {
   const { user } = useAuth();
   const [form, setForm] = useState({
@@ -232,7 +244,7 @@ const ModalServicio = ({ servicio, onClose, onSave }) => {
           <button type="button" onClick={onClose}
             className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">
             <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
@@ -243,13 +255,11 @@ const ModalServicio = ({ servicio, onClose, onSave }) => {
             <input type="text" value={form.title} onChange={(e) => set("title", e.target.value)}
               placeholder="Ej: Tour de Grafitis en Barracas" className={inputCls} required />
           </div>
-
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">Descripción *</label>
             <textarea rows={3} value={form.description} onChange={(e) => set("description", e.target.value)}
               placeholder="Describí la experiencia..." className={inputCls} required />
           </div>
-
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">URL de imagen</label>
             <input type="text" value={form.image} onChange={(e) => set("image", e.target.value)}
@@ -259,7 +269,6 @@ const ModalServicio = ({ servicio, onClose, onSave }) => {
                 onError={(e) => { e.target.style.display = "none"; }} />
             )}
           </div>
-
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1">Precio (ARS)</label>
@@ -274,7 +283,6 @@ const ModalServicio = ({ servicio, onClose, onSave }) => {
               </select>
             </div>
           </div>
-
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1">Duración</label>
@@ -287,19 +295,16 @@ const ModalServicio = ({ servicio, onClose, onSave }) => {
                 placeholder="Español, Inglés" className={inputCls} />
             </div>
           </div>
-
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">Ubicación (texto)</label>
             <input type="text" value={form.ubicacion} onChange={(e) => set("ubicacion", e.target.value)}
               placeholder="Barracas, CABA" className={inputCls} />
           </div>
-
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">¿Qué incluye?</label>
             <textarea rows={2} value={form.incluye} onChange={(e) => set("incluye", e.target.value)}
               placeholder="Guía local, traslado, entrada..." className={inputCls} />
           </div>
-
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1">Disponible desde</label>
@@ -330,13 +335,12 @@ const ModalServicio = ({ servicio, onClose, onSave }) => {
                 titulo={form.title || "Nueva experiencia"}
                 editable height="180px"
                 onChangeCoords={(lat, lng) => setForm((p) => ({
-                  ...p, lat: lat.toFixed(6), lng: lng.toFixed(6)
+                  ...p, lat: lat.toFixed(6), lng: lng.toFixed(6),
                 }))}
               />
             </Suspense>
           </div>
 
-          {/* Activo toggle */}
           {form.id && (
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={form.activo !== false}
@@ -364,44 +368,80 @@ const ModalServicio = ({ servicio, onClose, onSave }) => {
   );
 };
 
-// ── Página principal del Seller
+// ────────────────────────────────────────────────────────────
+// PÁGINA PRINCIPAL
+// ────────────────────────────────────────────────────────────
 const HomeSeller = () => {
   const { user } = useAuth();
   const [servicios, setServicios] = useState([]);
   const [reservas, setReservas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingReservas, setLoadingReservas] = useState(true);
   const [modalServicio, setModalServicio] = useState(null);
-  const [modalReserva, setModalReserva] = useState(null); // reserva seleccionada para gestionar
-  const [tab, setTab] = useState("servicios"); // "servicios" | "reservas"
+  const [modalReserva, setModalReserva] = useState(null);
+  const [tab, setTab] = useState("servicios");
 
+  // ── Cargar servicios (una sola vez)
   useEffect(() => {
-    const cargar = async () => {
-      if (!user?.companyId) { setLoading(false); return; }
-      try {
-        const [svcs, ress] = await Promise.all([
-          fetchServiciosByCompany(user.companyId),
-          fetchReservas(),
-        ]);
-        setServicios(svcs);
-        // Filtrar reservas que contienen servicios de esta empresa
-        // y normalizar el campo estado (las reservas viejas no lo tienen)
-        const svcsIds = new Set(svcs.map((s) => s.id));
-        const reservasFiltradas = ress
-          .filter((r) => (r.servicios || []).some((s) => svcsIds.has(s.id)))
-          .map((r) => ({ ...r, estado: r.estado || "pendiente" }));
-        setReservas(reservasFiltradas);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    cargar();
+    if (!user?.companyId) { setLoading(false); return; }
+    fetchServiciosByCompany(user.companyId)
+      .then(setServicios)
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, [user]);
+
+  // ── Suscripción en tiempo real a reservas (onSnapshot)
+  // Se filtra por servicios del seller usando array de IDs.
+  // Firestore limita "in" a 30 elementos — para sellers con muchos servicios
+  // habría que paginar, pero para este caso es suficiente.
+  useEffect(() => {
+    if (!user?.companyId || servicios.length === 0) {
+      setLoadingReservas(false);
+      return;
+    }
+
+    const svcsIds = servicios.map((s) => s.id);
+
+    // onSnapshot reemplaza la lectura única getDocs — ahora cualquier nueva
+    // reserva aparece automáticamente sin recargar la página
+    const q = query(
+      collection(db, "reservas"),
+      where("servicios", "array-contains-any", svcsIds.slice(0, 10))
+      // Nota: array-contains-any soporta hasta 10 valores.
+      // Si tenés más de 10 servicios, habría que hacer múltiples queries.
+    );
+
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const nuevasReservas = snapshot.docs
+          .map((doc) => ({ id: doc.id, ...doc.data() }))
+          .filter((r) =>
+            // Filtrar que al menos un servicio de la reserva pertenezca al seller
+            (r.servicios || []).some((s) =>
+              typeof s === "string" ? svcsIds.includes(s) : svcsIds.includes(s?.id)
+            )
+          )
+          .map((r) => ({ ...r, estado: r.estado || "pendiente" }));
+
+        setReservas(nuevasReservas);
+        setLoadingReservas(false);
+      },
+      (err) => {
+        console.error("Error en onSnapshot reservas:", err);
+        setLoadingReservas(false);
+      }
+    );
+
+    // Cleanup: desuscribirse cuando el componente se desmonta
+    return () => unsubscribe();
+  }, [servicios, user]);
 
   const handleToggle = async (s) => {
     await updateServicio(s.id, { activo: s.activo === false ? true : false });
-    setServicios((prev) => prev.map((x) => x.id === s.id ? { ...x, activo: s.activo === false } : x));
+    setServicios((prev) =>
+      prev.map((x) => x.id === s.id ? { ...x, activo: s.activo === false } : x)
+    );
   };
 
   const handleDelete = async (id) => {
@@ -410,7 +450,7 @@ const HomeSeller = () => {
     setServicios((prev) => prev.filter((x) => x.id !== id));
   };
 
-  const activos   = servicios.filter((s) => s.activo !== false).length;
+  const activos = servicios.filter((s) => s.activo !== false).length;
   const inactivos = servicios.length - activos;
   const pendientes = reservas.filter((r) => r.estado === "pendiente").length;
 
@@ -432,7 +472,6 @@ const HomeSeller = () => {
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Navbar />
 
-      {/* Hero */}
       <div className="bg-gray-900 text-white px-4 py-10">
         <div className="container mx-auto">
           <h1 className="text-3xl font-bold mb-1">Panel de Vendedor</h1>
@@ -446,17 +485,23 @@ const HomeSeller = () => {
           <StatCard icon="🎯" label="Experiencias" value={servicios.length} />
           <StatCard icon="✅" label="Activas" value={activos} />
           <StatCard icon="⏸️" label="Inactivas" value={inactivos} />
-          <StatCard icon="📋" label="Reservas pendientes" value={pendientes} />
+          <StatCard icon="📋" label="Pendientes" value={pendientes} />
         </div>
 
         {/* Tabs */}
         <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
           {["servicios", "reservas"].map((t) => (
             <button key={t} onClick={() => setTab(t)}
-              className={`px-5 py-2 rounded-lg text-sm font-semibold capitalize transition-colors ${
+              className={`px-5 py-2 rounded-lg text-sm font-semibold capitalize transition-colors relative ${
                 tab === t ? "bg-white shadow text-gray-900" : "text-gray-500 hover:text-gray-700"
               }`}>
               {t === "servicios" ? "Mis Experiencias" : "Reservas recibidas"}
+              {/* Badge de pendientes en el tab de reservas */}
+              {t === "reservas" && pendientes > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                  {pendientes}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -474,7 +519,7 @@ const HomeSeller = () => {
 
             {loading ? (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {[1,2,3].map((i) => (
+                {[1, 2, 3].map((i) => (
                   <div key={i} className="bg-white rounded-2xl h-64 animate-pulse border border-gray-100" />
                 ))}
               </div>
@@ -499,9 +544,7 @@ const HomeSeller = () => {
                       <img src={s.image} alt={s.title}
                         className="w-full h-40 object-cover"
                         onError={(e) => { e.target.src = "https://placehold.co/400x160?text=Sin+imagen"; }} />
-                      <div className="absolute top-2 right-2">
-                        <EstadoBadge activo={s.activo} />
-                      </div>
+                      <div className="absolute top-2 right-2"><EstadoBadge activo={s.activo} /></div>
                       {s.price && (
                         <div className="absolute bottom-2 left-2 bg-white/90 rounded-full px-2.5 py-0.5 text-xs font-bold text-indigo-700">
                           ${formatARS(s.price)}
@@ -541,12 +584,31 @@ const HomeSeller = () => {
         {/* TAB: Reservas */}
         {tab === "reservas" && (
           <section>
-            <p className="text-sm text-gray-500 mb-4">{reservas.length} reserva{reservas.length !== 1 ? "s" : ""} recibida{reservas.length !== 1 ? "s" : ""}</p>
-            {reservas.length === 0 ? (
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm text-gray-500">
+                {reservas.length} reserva{reservas.length !== 1 ? "s" : ""} recibida{reservas.length !== 1 ? "s" : ""}
+                {loadingReservas && " · actualizando..."}
+              </p>
+              {/* Indicador de tiempo real */}
+              <span className="flex items-center gap-1.5 text-xs text-green-600 font-medium">
+                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                Actualización en tiempo real
+              </span>
+            </div>
+
+            {loadingReservas ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="bg-white rounded-2xl h-24 animate-pulse border border-gray-100" />
+                ))}
+              </div>
+            ) : reservas.length === 0 ? (
               <div className="text-center py-16 bg-white rounded-2xl border border-gray-100">
                 <p className="text-4xl mb-3">📋</p>
                 <p className="text-gray-600 font-medium">No hay reservas todavía</p>
-                <p className="text-gray-400 text-sm mt-1">Cuando los turistas reserven tus experiencias, aparecerán aquí</p>
+                <p className="text-gray-400 text-sm mt-1">
+                  Cuando los turistas reserven tus experiencias, aparecerán aquí automáticamente
+                </p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -562,11 +624,10 @@ const HomeSeller = () => {
                         <div className="mt-2 flex flex-wrap gap-1">
                           {(r.servicios || []).map((s, i) => (
                             <span key={i} className="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full">
-                              {s.title} × {s.personas || r.personas || 1}
+                              {s.title || s} × {s.personas || r.personas || 1}
                             </span>
                           ))}
                         </div>
-                        {/* Motivo de cancelación visible en la card */}
                         {r.estado === "cancelada" && r.motivoCancelacion && (
                           <p className="text-xs text-red-500 mt-2 bg-red-50 rounded-lg px-2 py-1">
                             ❌ {r.motivoCancelacion}
@@ -577,12 +638,12 @@ const HomeSeller = () => {
                         <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
                           r.estado === "confirmada" ? "bg-green-100 text-green-700" :
                           r.estado === "cancelada"  ? "bg-red-100 text-red-700"    :
+                          r.estado === "pagada"     ? "bg-purple-100 text-purple-700" :
                           "bg-yellow-100 text-yellow-700"
                         }`}>
-                          {r.estado || "pendiente"}
+                          {r.estado === "pagada" ? "💳 Pagada" : r.estado || "pendiente"}
                         </span>
-                        {/* Botón gestionar — solo si no está cancelada */}
-                        {r.estado !== "cancelada" && (
+                        {r.estado !== "cancelada" && r.estado !== "pagada" && (
                           <button
                             onClick={() => setModalReserva(r)}
                             className="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-3 py-1.5 rounded-xl transition-colors"
@@ -607,8 +668,8 @@ const HomeSeller = () => {
         <ModalGestionReserva
           reserva={modalReserva}
           onClose={() => setModalReserva(null)}
-          onUpdate={(r) => {
-            setReservas((prev) => prev.map((x) => x.id === r.id ? r : x));
+          onUpdate={() => {
+            // onSnapshot actualiza automáticamente — solo cerramos el modal
             setModalReserva(null);
           }}
         />

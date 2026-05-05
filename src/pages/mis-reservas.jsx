@@ -3,7 +3,7 @@ import Navbar from "../components/navbar";
 import Footer from "../components/footer";
 import { useMisReservas } from "../hooks/useMisReservas";
 import { updateReserva, cambiarEstadoReserva } from "../firebase/firestore";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const MapaServicio = lazy(() => import("../components/MapaServicio"));
 
@@ -337,6 +337,7 @@ const MisReservas = () => {
   const { reservas, loading, error, handleUpdate, handleDelete } = useMisReservas();
   const [reservaAbierta, setReservaAbierta] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const navigate = useNavigate();
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -450,8 +451,11 @@ const MisReservas = () => {
                         Ver detalle →
                       </button>
                       {reserva.estado === "confirmada" && (
-                        <button className="flex-1 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-2 rounded-xl transition-colors">
-                          Pagar
+                        <button
+                          onClick={() => navigate("/pagar", { state: { reserva } })}
+                          className="flex-1 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-2 rounded-xl transition-colors"
+                        >
+                          💳 Pagar
                         </button>
                       )}
                       {reserva.estado === "cancelada" && (

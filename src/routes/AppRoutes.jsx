@@ -8,6 +8,9 @@ import PublicRoute from "./PublicRoute";
 import Perfil from "../pages/perfil";
 import ReservaExitosa from "../pages/reserva-exitosa";
 import Servicios from "../pages/Servicios";
+import PantallaPago from "../pages/PantallaPago";
+import PagoExitoso from "../pages/PagoExitoso";
+import PagoFallido from "../pages/PagoFallido";
 
 // Admin
 import AdminLayout from "../admin/AdminLayout";
@@ -28,17 +31,21 @@ const AppRoutes = () => {
       <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
       <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
 
-      {/* /reservas redirige a /servicios — el flujo de reserva ahora vive ahí */}
+      {/* /reservas redirige a /servicios */}
       <Route path="/reservas" element={<Navigate to="/servicios" replace />} />
-
-      {/* Catálogo + flujo de reserva con carrito (accesible sin login,
-          pero el login se pide al intentar confirmar) */}
       <Route path="/servicios" element={<Servicios />} />
 
       {/* Protegidas */}
       <Route path="/mis-reservas" element={<ProtectedRoute><MisReservas /></ProtectedRoute>} />
       <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
       <Route path="/reserva-exitosa" element={<ProtectedRoute><ReservaExitosa /></ProtectedRoute>} />
+
+      {/* Pago — protegido, recibe reserva por location.state */}
+      <Route path="/pagar" element={<ProtectedRoute><PantallaPago /></ProtectedRoute>} />
+
+      {/* Retorno de plataformas de pago — sin protección para que MP/PayPal puedan redirigir */}
+      <Route path="/pago-exitoso" element={<PagoExitoso />} />
+      <Route path="/pago-fallido" element={<PagoFallido />} />
 
       {/* Seller */}
       <Route path="/seller" element={<ProtectedRoute requiredRole="seller"><HomeSeller /></ProtectedRoute>} />
