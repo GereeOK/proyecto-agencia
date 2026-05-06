@@ -257,6 +257,12 @@ export const fetchConsultas = async () => {
 // 5. EMPRESAS
 // ==========================================
 
+// Traer todas las empresas
+export const fetchEmpresas = async () => {
+  const snap = await getDocs(collection(db, "companies"));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+};
+
 // Traer datos de la empresa según companyId
 export const getCompanyByUser = async (companyId) => {
   if (!companyId) return null;

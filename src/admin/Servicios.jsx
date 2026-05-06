@@ -4,6 +4,7 @@ import {
   createServicio,
   updateServicio,
   deleteServicio,
+  fetchEmpresas,
 } from "../firebase/firestore";
 import { Timestamp } from "firebase/firestore";
 
@@ -13,6 +14,7 @@ const CATEGORIAS = ["Tours", "Gastronomia", "Traslados", "Experiencias"];
 
 const Servicios = () => {
   const [servicios, setServicios] = useState([]);
+  const [empresasMap, setEmpresasMap] = useState({});  // companyId → nombre
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -26,8 +28,11 @@ const Servicios = () => {
   const recargar = async () => {
     setLoading(true);
     try {
-      const data = await fetchServicios();
+      const [data, empresas] = await Promise.all([fetchServicios(), fetchEmpresas()]);
       setServicios(data);
+      const map = {};
+      empresas.forEach((e) => { map[e.id] = e.name || e.nombre || e.razonSocial || e.id; });
+      setEmpresasMap(map);
     } catch (err) {
       console.error("Error recargando servicios:", err);
     } finally {
@@ -210,6 +215,7 @@ const Servicios = () => {
             <thead>
               <tr>
                 <th className="px-4 py-2 bg-gray-100">Título</th>
+                <th className="px-4 py-2 bg-gray-100">Empresa</th>
                 <th className="px-4 py-2 bg-gray-100">Categoría</th>
                 <th className="px-4 py-2 bg-gray-100">Imagen</th>
                 <th className="px-4 py-2 bg-gray-100">Precio</th>
@@ -222,7 +228,7 @@ const Servicios = () => {
             <tbody>
               {serviciosFiltrados.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="text-center py-8 text-gray-400">
+                  <td colSpan={9} className="text-center py-8 text-gray-400">
                     No hay servicios que coincidan con los filtros
                   </td>
                 </tr>
@@ -230,6 +236,15 @@ const Servicios = () => {
               {serviciosFiltrados.map((s) => (
                 <tr key={s.id} className={`border-t ${s.activo === false ? "opacity-50" : ""}`}>
                   <td className="px-4 py-2 font-medium">{s.title}</td>
+                  <td className="px-4 py-2 text-sm">
+                    {s.companyId ? (
+                      <span className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full font-medium">
+                        {empresasMap[s.companyId] || s.companyId}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400 text-xs">Sin empresa</span>
+                    )}
+                  </td>
                   <td className="px-4 py-2 text-sm">
                     {s.categoria
                       ? <span className="bg-indigo-50 text-indigo-700 text-xs px-2 py-0.5 rounded-full">{s.categoria}</span>
