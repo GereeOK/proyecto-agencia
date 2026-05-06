@@ -14,6 +14,7 @@ import {
   query,
   where,
   orderBy,
+  limit,
   onSnapshot,
   serverTimestamp,
   deleteDoc,
@@ -403,4 +404,31 @@ export const cancelarReserva = async (reservaId) => {
     estado: "cancelada",
     timestamp: serverTimestamp(),
   });
+};
+
+// ==========================================
+// 10. RESEÑAS
+// Colección: resenas/{id}
+// tipo: "experiencia" | "empresa" | "plataforma"
+// ==========================================
+
+export const saveResena = async (resena) => {
+  return addDoc(collection(db, "resenas"), {
+    ...resena,
+    timestamp: serverTimestamp(),
+  });
+};
+
+// Reseñas ya enviadas para una reserva (para saber qué secciones están completas)
+export const getResenasByReserva = async (reservaId) => {
+  const q = query(collection(db, "resenas"), where("reservaId", "==", reservaId));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+};
+
+// Últimas N reseñas para mostrar en el home (se mezclan en el cliente)
+export const getResenasRecientes = async (n = 50) => {
+  const q = query(collection(db, "resenas"), orderBy("timestamp", "desc"), limit(n));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 };
