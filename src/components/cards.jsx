@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/authContext";
 import { useNavigate } from "react-router-dom";
-import { fetchServicios } from "../firebase/firestore";
+import { fetchServiciosActivos } from "../firebase/firestore";
 
 const Cards = () => {
   const [cards, setCards] = useState([]);
@@ -10,8 +10,9 @@ const Cards = () => {
 
   useEffect(() => {
     const cargarServicios = async () => {
-      const data = await fetchServicios();
-      setCards(data);
+      const data = await fetchServiciosActivos();
+      const shuffled = data.sort(() => Math.random() - 0.5);
+      setCards(shuffled.slice(0, 9));
     };
     cargarServicios();
   }, []);
