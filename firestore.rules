@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Usuarios: cada uno lee/edita el suyo; admin puede todo
+    match /users/{userId} {
+      allow read:  if request.auth != null && (request.auth.uid == userId || isAdmin());
+      allow write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+    }
+
+    // Servicios: lectura pública; escritura solo seller/admin
+    match /servicios/{id} {
+      allow read:  if true;
+      allow write: if request.auth != null && (isSeller() || isAdmin());
+    }
+
+    // Reservas: usuario ve las suyas; seller y admin ven todas
+    match /reservas/{id} {
+      allow read:   if request.auth != null &&
+                       (resource.data.email == request.auth.token.email ||
+                        isSeller() || isAdmin());
+      allow create: if request.auth != null;
+      allow update: if request.auth != null &&
+                       (isSeller() || isAdmin() ||
+                        resource.data.email == request.auth.token.email);
+      allow delete: if request.auth != null &&
+                       (resource.data.email == request.auth.token.email || isAdmin());
+    }
+
+    // Mensajes de contacto: cualquiera crea, solo admin lee
+    match /messages/{id} {
+      allow create: if true;
+      allow read:   if isAdmin();
+    }
+
+    // Empresas: seller gestiona la suya, admin gestiona todas
+    match /companies/{id} {
+      allow read, write: if request.auth != null && (isSeller() || isAdmin());
+    }
+
+    // Favoritos: solo el dueño accede a los suyos
+    match /favoritos/{userId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isSeller() {
+      return request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'seller';
+    }
+  }
+}
