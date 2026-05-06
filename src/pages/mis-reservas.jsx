@@ -1,25 +1,38 @@
-import React, { useState, lazy, Suspense } from "react";
+import React, { useState, useEffect, useRef, lazy, Suspense } from "react";
+import { toast } from "sonner";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
+import { useAuth } from "../context/authContext";
 import { useMisReservas } from "../hooks/useMisReservas";
-import { updateReserva, cambiarEstadoReserva } from "../firebase/firestore";
+import {
+  updateServiciosReserva,
+  updatePasajeros,
+  confirmarReservaPorUsuario,
+  cancelarReserva,
+  sendMensaje,
+  subscribeToMensajes,
+  getGrupoFamiliar,
+  saveGrupoFamiliar,
+} from "../firebase/firestore";
 import { Link, useNavigate } from "react-router-dom";
 
 const MapaServicio = lazy(() => import("../components/MapaServicio"));
 
 const formatARS = (n) => Number(n || 0).toLocaleString("es-AR");
 
+const ESTADO_CFG = {
+  pendiente:          { cls: "bg-yellow-100 text-yellow-800 border-yellow-200", icon: "⏳", bar: "bg-yellow-400", label: "Pendiente" },
+  confirmada_usuario: { cls: "bg-blue-100 text-blue-700 border-blue-200",       icon: "🕐", bar: "bg-blue-400",   label: "Esperando seller" },
+  confirmada:         { cls: "bg-green-100 text-green-700 border-green-200",    icon: "✅", bar: "bg-green-400",  label: "Confirmada" },
+  cancelada:          { cls: "bg-red-100 text-red-700 border-red-200",          icon: "❌", bar: "bg-red-400",    label: "Cancelada" },
+  pagada:             { cls: "bg-purple-100 text-purple-700 border-purple-200", icon: "💳", bar: "bg-purple-400", label: "Pagada" },
+};
+
 const EstadoBadge = ({ estado }) => {
-  const cfg = {
-    pendiente:  { cls: "bg-yellow-100 text-yellow-800 border-yellow-200", icon: "⏳" },
-    confirmada: { cls: "bg-green-100 text-green-700 border-green-200",    icon: "✅" },
-    cancelada:  { cls: "bg-red-100 text-red-700 border-red-200",          icon: "❌" },
-    pagada:     { cls: "bg-purple-100 text-purple-700 border-purple-200", icon: "💳" },
-  };
-  const { cls, icon } = cfg[estado] || { cls: "bg-gray-100 text-gray-600 border-gray-200", icon: "•" };
+  const cfg = ESTADO_CFG[estado] || { cls: "bg-gray-100 text-gray-600 border-gray-200", icon: "•", label: estado || "pendiente" };
   return (
-    <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full border ${cls}`}>
-      {icon} {estado || "pendiente"}
+    <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full border ${cfg.cls}`}>
+      {cfg.icon} {cfg.label}
     </span>
   );
 };
@@ -35,335 +48,595 @@ const SkeletonCard = () => (
   </div>
 );
 
-// ─────────────────────────────────────────────────────────
-// MODAL DE DETALLE
-// ─────────────────────────────────────────────────────────
-const ModalDetalleReserva = ({ reserva, onClose, onUpdate }) => {
-  // Usar índice como key de fallback si s.id es undefined
-  const keyOf = (s, i) => s.id || `idx_${i}`;
+// ─── Mini calendario de eventos ──────────────────────────────────────────────
+const CalendarioEventos = ({ servicios, checkin, checkout }) => {
+  const eventos = [...servicios]
+    .filter(s => s.fecha)
+    .sort((a, b) => a.fecha.localeCompare(b.fecha));
 
-  const [personasPorServicio, setPersonasPorServicio] = useState(() =>
-    Object.fromEntries(
-      (reserva.servicios || []).map((s, i) => [
-        keyOf(s, i),
-        s.personas || reserva.personas || 1,
-      ])
-    )
-  );
+  const fmtFecha = (f) => {
+    const d = new Date(f + "T12:00:00");
+    return {
+      dia:  d.getDate(),
+      mes:  d.toLocaleString("es", { month: "short" }).toUpperCase(),
+      dow:  d.toLocaleString("es", { weekday: "short" }),
+    };
+  };
 
-  const [datosPersonas, setDatosPersonas] = useState(() =>
-    Object.fromEntries(
-      (reserva.servicios || []).map((s, i) => {
-        const key = keyOf(s, i);
-        const cant = s.personas || reserva.personas || 1;
-        const lista = Array.from({ length: cant }, (_, j) => {
-          const g = s.pasajeros?.[j];
-          if (g && g.nombre) return { nombre: g.nombre, dni: g.dni || "", email: g.email || "" };
-          if (j === 0) return { nombre: reserva.fullname || "", dni: "", email: "" };
-          return { nombre: "", dni: "", email: "" };
-        });
-        return [key, lista];
-      })
-    )
-  );
+  if (eventos.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-4xl mb-3">📅</p>
+        <p className="text-sm font-medium text-gray-600">Sin fechas asignadas</p>
+        <p className="text-xs text-gray-400 mt-1">Asigná una fecha a cada actividad en la pestaña Detalle.</p>
+      </div>
+    );
+  }
 
-  const [guardando, setGuardando] = useState(false);
-  const [exito, setExito] = useState(false);
-
-  const actualizarPersonas = (key, cantidad) => {
-    const cant = Math.max(1, cantidad);
-    setPersonasPorServicio((prev) => ({ ...prev, [key]: cant }));
-    setDatosPersonas((prev) => {
-      const actual = prev[key] || [];
-      if (cant > actual.length) {
-        const nuevos = Array.from(
-          { length: cant - actual.length },
-          () => ({ nombre: "", dni: "", email: "" })
+  return (
+    <div className="space-y-2">
+      <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-4">
+        {eventos.length} actividad/es programada/s
+      </p>
+      {eventos.map((s, i) => {
+        const { dia, mes, dow } = fmtFecha(s.fecha);
+        return (
+          <div key={i} className="flex items-center gap-4 bg-indigo-50 border border-indigo-100 rounded-xl p-3">
+            <div className="flex-shrink-0 w-12 text-center">
+              <p className="text-xs font-semibold text-indigo-400">{mes}</p>
+              <p className="text-2xl font-bold text-indigo-700 leading-none">{dia}</p>
+              <p className="text-xs text-indigo-400">{dow}</p>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-gray-900 text-sm truncate">{s.title}</p>
+              <div className="flex gap-3 mt-0.5">
+                {s.horario && <span className="text-xs text-gray-500">🕐 {s.horario}</span>}
+                {s.ubicacion && <span className="text-xs text-gray-500 truncate">📍 {s.ubicacion}</span>}
+              </div>
+            </div>
+          </div>
         );
-        return { ...prev, [key]: [...actual, ...nuevos] };
-      }
-      return { ...prev, [key]: actual.slice(0, cant) };
-    });
+      })}
+    </div>
+  );
+};
+
+// ─── Tab de consultas (chat) ──────────────────────────────────────────────────
+const TabConsultas = ({ reservaId, user }) => {
+  const [mensajes, setMensajes] = useState([]);
+  const [texto, setTexto] = useState("");
+  const [enviando, setEnviando] = useState(false);
+  const bottomRef = useRef(null);
+
+  useEffect(() => {
+    const unsub = subscribeToMensajes(reservaId, setMensajes);
+    return unsub;
+  }, [reservaId]);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [mensajes]);
+
+  const handleEnviar = async (e) => {
+    e.preventDefault();
+    if (!texto.trim()) return;
+    setEnviando(true);
+    try {
+      await sendMensaje(reservaId, {
+        texto: texto.trim(),
+        autorId: user.uid,
+        autorNombre: user.displayName || user.email?.split("@")[0] || "Tú",
+        autorRol: "usuario",
+      });
+      setTexto("");
+    } catch {
+      toast.error("No se pudo enviar el mensaje");
+    } finally {
+      setEnviando(false);
+    }
   };
 
-  const actualizarDato = (key, idx, campo, valor) => {
-    setDatosPersonas((prev) => {
-      const arr = [...(prev[key] || [])];
-      arr[idx] = { ...arr[idx], [campo]: valor };
-      return { ...prev, [key]: arr };
-    });
+  return (
+    <div className="flex flex-col h-full">
+      {mensajes.length === 0 ? (
+        <div className="flex-1 flex flex-col items-center justify-center text-center py-10">
+          <p className="text-4xl mb-3">💬</p>
+          <p className="text-sm font-medium text-gray-600">Sin mensajes todavía</p>
+          <p className="text-xs text-gray-400 mt-1">Hacé preguntas al seller sobre tus actividades.</p>
+        </div>
+      ) : (
+        <div className="flex-1 overflow-y-auto space-y-3 pb-3 pr-1" style={{ maxHeight: 280 }}>
+          {mensajes.map(m => {
+            const esPropio = m.autorRol === "usuario";
+            const fecha = m.timestamp?.toDate?.();
+            return (
+              <div key={m.id} className={`flex ${esPropio ? "justify-end" : "justify-start"}`}>
+                <div className={`max-w-[78%] rounded-2xl px-4 py-2.5 text-sm ${
+                  esPropio
+                    ? "bg-indigo-600 text-white rounded-br-sm"
+                    : "bg-gray-100 text-gray-800 rounded-bl-sm"
+                }`}>
+                  {!esPropio && (
+                    <p className="text-xs font-semibold text-indigo-500 mb-0.5">{m.autorNombre}</p>
+                  )}
+                  <p className="leading-snug">{m.texto}</p>
+                  {fecha && (
+                    <p className={`text-xs mt-1 ${esPropio ? "text-indigo-200" : "text-gray-400"}`}>
+                      {fecha.toLocaleString("es", { hour: "2-digit", minute: "2-digit", day: "numeric", month: "short" })}
+                    </p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+          <div ref={bottomRef} />
+        </div>
+      )}
+
+      <form onSubmit={handleEnviar} className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
+        <input
+          value={texto}
+          onChange={e => setTexto(e.target.value)}
+          placeholder="Escribí tu consulta..."
+          className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+        />
+        <button
+          type="submit"
+          disabled={enviando || !texto.trim()}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold disabled:opacity-40 transition-colors"
+        >
+          {enviando ? "..." : "Enviar"}
+        </button>
+      </form>
+    </div>
+  );
+};
+
+// ─── Tab de pasajeros ─────────────────────────────────────────────────────────
+const TabPasajeros = ({ pasajeros, onChange, bloqueado, userId }) => {
+  const [grupoFamiliar, setGrupoFamiliar] = useState([]);
+  const [mostrarGrupo, setMostrarGrupo] = useState(false);
+
+  useEffect(() => {
+    if (userId) getGrupoFamiliar(userId).then(setGrupoFamiliar);
+  }, [userId]);
+
+  const setPasajero = (idx, campo, valor) => {
+    const nuevo = pasajeros.map((p, i) => i === idx ? { ...p, [campo]: valor } : p);
+    onChange(nuevo);
   };
+
+  const agregarPasajero = () => {
+    onChange([...pasajeros, { nombre: "", dni: "", fechaNacimiento: "" }]);
+  };
+
+  const quitarPasajero = (idx) => {
+    if (pasajeros.length <= 1) return;
+    onChange(pasajeros.filter((_, i) => i !== idx));
+  };
+
+  const cargarDesdeFamiliar = (miembro) => {
+    const yaEsta = pasajeros.some(p => p.dni && p.dni === miembro.dni);
+    if (yaEsta) { toast.info(`${miembro.nombre} ya está en la lista`); return; }
+    onChange([...pasajeros, { nombre: miembro.nombre, dni: miembro.dni || "", fechaNacimiento: miembro.fechaNacimiento || "" }]);
+    toast.success("Pasajero agregado", { description: miembro.nombre });
+    setMostrarGrupo(false);
+  };
+
+  const guardarEnFamiliar = async (pasajero) => {
+    if (!userId || !pasajero.nombre) return;
+    const yaEsta = grupoFamiliar.some(m => m.dni && m.dni === pasajero.dni);
+    if (yaEsta) { toast.info(`${pasajero.nombre} ya está en el grupo familiar`); return; }
+    const nuevo = { ...pasajero, id: `${Date.now()}`, relacion: "" };
+    const nuevos = [...grupoFamiliar, nuevo];
+    await saveGrupoFamiliar(userId, nuevos);
+    setGrupoFamiliar(nuevos);
+    toast.success("Guardado en grupo familiar", { description: pasajero.nombre });
+  };
+
+  const disponiblesEnFamiliar = grupoFamiliar.filter(
+    m => !pasajeros.some(p => p.dni && p.dni === m.dni)
+  );
+
+  return (
+    <div className="space-y-4">
+      {/* Cargar del grupo familiar */}
+      {!bloqueado && grupoFamiliar.length > 0 && (
+        <div>
+          <button
+            onClick={() => setMostrarGrupo(v => !v)}
+            className="flex items-center gap-2 text-sm text-indigo-600 font-semibold hover:underline"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0" />
+            </svg>
+            Cargar del grupo familiar
+          </button>
+          {mostrarGrupo && (
+            <div className="mt-2 bg-indigo-50 rounded-xl p-3 space-y-1.5">
+              {disponiblesEnFamiliar.length === 0 ? (
+                <p className="text-xs text-gray-400">Todos los integrantes ya están en la lista.</p>
+              ) : (
+                disponiblesEnFamiliar.map(m => (
+                  <button
+                    key={m.id}
+                    onClick={() => cargarDesdeFamiliar(m)}
+                    className="w-full flex items-center justify-between bg-white rounded-lg px-3 py-2 text-sm hover:bg-indigo-100 transition-colors"
+                  >
+                    <span className="font-medium text-gray-800">{m.nombre}</span>
+                    <span className="text-xs text-gray-400">{m.relacion || (m.dni ? `DNI ${m.dni}` : "")}</span>
+                  </button>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Lista de pasajeros */}
+      <div className="space-y-3">
+        {pasajeros.map((p, i) => (
+          <div key={i} className={`rounded-xl border p-3 ${i === 0 ? "border-indigo-200 bg-indigo-50/40" : "border-gray-200 bg-gray-50"}`}>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-gray-500">Pasajero {i + 1}</span>
+                {i === 0 && <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">Titular</span>}
+              </div>
+              <div className="flex gap-1">
+                {!bloqueado && p.nombre && (
+                  <button
+                    onClick={() => guardarEnFamiliar(p)}
+                    title="Guardar en grupo familiar"
+                    className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-indigo-100 text-gray-400 hover:text-indigo-600 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0" />
+                    </svg>
+                  </button>
+                )}
+                {!bloqueado && i > 0 && (
+                  <button
+                    onClick={() => quitarPasajero(i)}
+                    className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs text-gray-400 mb-0.5">Nombre y apellido *</label>
+                <input
+                  value={p.nombre || ""}
+                  onChange={e => setPasajero(i, "nombre", e.target.value)}
+                  disabled={bloqueado}
+                  placeholder="Juan García"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-300 outline-none disabled:bg-gray-100 disabled:text-gray-400"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-0.5">DNI / Pasaporte *</label>
+                <input
+                  value={p.dni || ""}
+                  onChange={e => setPasajero(i, "dni", e.target.value)}
+                  disabled={bloqueado}
+                  placeholder="30.123.456"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-300 outline-none disabled:bg-gray-100 disabled:text-gray-400"
+                />
+              </div>
+              <div className="col-span-2">
+                <label className="block text-xs text-gray-400 mb-0.5">Fecha de nacimiento</label>
+                <input
+                  type="date"
+                  value={p.fechaNacimiento || ""}
+                  onChange={e => setPasajero(i, "fechaNacimiento", e.target.value)}
+                  disabled={bloqueado}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-300 outline-none disabled:bg-gray-100 disabled:text-gray-400"
+                />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {!bloqueado && (
+        <button
+          onClick={agregarPasajero}
+          className="w-full border-2 border-dashed border-gray-200 hover:border-indigo-300 text-gray-400 hover:text-indigo-500 rounded-xl py-2.5 text-sm font-medium transition-colors"
+        >
+          + Agregar pasajero
+        </button>
+      )}
+    </div>
+  );
+};
+
+// ─── MODAL PRINCIPAL ──────────────────────────────────────────────────────────
+const ModalDetalleReserva = ({ reserva: inicial, onClose, onUpdate }) => {
+  const { user } = useAuth();
+  const [tab, setTab] = useState("detalle");
+  const [servicios, setServicios] = useState(inicial.servicios || []);
+  const [pasajeros, setPasajeros] = useState(
+    inicial.pasajeros?.length
+      ? inicial.pasajeros
+      : [{ nombre: inicial.fullname || "", dni: "", fechaNacimiento: "" }]
+  );
+  const [guardando, setGuardando] = useState(false);
+  const [confirmando, setConfirmando] = useState(false);
+
+  const bloqueado = inicial.estado !== "pendiente";
+
+  const setServicioField = (idx, campo, valor) =>
+    setServicios(prev => prev.map((s, i) => i === idx ? { ...s, [campo]: valor } : s));
 
   const handleGuardar = async () => {
     setGuardando(true);
     try {
-      const serviciosActualizados = (reserva.servicios || []).map((s, i) => {
-        const key = keyOf(s, i);
-        return {
-          ...s,
-          personas:  personasPorServicio[key] || 1,
-          pasajeros: datosPersonas[key] || [],
-        };
-      });
-      const reservaActualizada = { ...reserva, servicios: serviciosActualizados };
-      await updateReserva(reservaActualizada);
-      if (onUpdate) onUpdate(reservaActualizada);
-      setExito(true);
-      setTimeout(onClose, 1200);
-    } catch (err) {
-      console.error("Error guardando:", err);
+      await updateServiciosReserva(inicial.id, servicios);
+      await updatePasajeros(inicial.id, pasajeros);
+      const actualizada = { ...inicial, servicios, pasajeros };
+      onUpdate?.(actualizada);
+      toast.success("Cambios guardados");
+    } catch {
+      toast.error("No se pudieron guardar los cambios");
     } finally {
       setGuardando(false);
     }
   };
 
+  const handleConfirmar = async () => {
+    const sinFecha = servicios.filter(s => !s.fecha);
+    if (sinFecha.length > 0) {
+      toast.error(`Falta fecha en: ${sinFecha.map(s => s.title).join(", ")}`);
+      setTab("detalle");
+      return;
+    }
+    if (!pasajeros[0]?.nombre || !pasajeros[0]?.dni) {
+      toast.error("Completá nombre y DNI del titular");
+      setTab("pasajeros");
+      return;
+    }
+    setConfirmando(true);
+    try {
+      await updateServiciosReserva(inicial.id, servicios);
+      await updatePasajeros(inicial.id, pasajeros);
+      await confirmarReservaPorUsuario(inicial.id);
+      const actualizada = { ...inicial, servicios, pasajeros, estado: "confirmada_usuario", confirmadoPorUsuario: true };
+      onUpdate?.(actualizada);
+      toast.success("Reserva confirmada. El seller verificará y habilitará el pago.");
+      setTimeout(onClose, 2000);
+    } catch {
+      toast.error("Error al confirmar la reserva");
+    } finally {
+      setConfirmando(false);
+    }
+  };
+
+  const TABS = [
+    { id: "detalle",    label: "Detalle" },
+    { id: "pasajeros",  label: "Pasajeros" },
+    { id: "consultas",  label: "Consultas" },
+    { id: "calendario", label: "Calendario" },
+  ];
+
   return (
-    <div
-      className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[88vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col"
+        style={{ maxHeight: "92vh" }}
+        onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white z-10 rounded-t-2xl">
+        <div className="bg-gray-900 text-white px-6 py-4 rounded-t-2xl flex items-center justify-between flex-shrink-0">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Detalle de Reserva</h2>
-            <p className="text-sm text-gray-400 mt-0.5">
-              {reserva.checkin} → {reserva.checkout}
-            </p>
+            <h2 className="text-base font-bold">Detalle de Reserva</h2>
+            <p className="text-xs text-gray-400 mt-0.5">{inicial.checkin} → {inicial.checkout}</p>
           </div>
-          <div className="flex items-center gap-2">
-            <EstadoBadge estado={reserva.estado} />
+          <div className="flex items-center gap-3">
+            <EstadoBadge estado={inicial.estado} />
             <button
               onClick={onClose}
-              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 ml-1"
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
             >
-              <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
         </div>
 
-        <div className="px-6 py-5 space-y-5">
-          {/* Titular */}
-          <div className="bg-gray-50 rounded-xl p-3 text-sm text-gray-600">
-            <span className="font-semibold text-gray-800">👤 {reserva.fullname}</span>
-            <span className="mx-2 text-gray-300">|</span>
-            {reserva.email}
-          </div>
+        {/* Tabs */}
+        <div className="flex border-b border-gray-100 flex-shrink-0 bg-white">
+          {TABS.map(t => (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className={`flex-1 py-3 text-xs font-semibold transition-colors ${
+                tab === t.id
+                  ? "text-indigo-600 border-b-2 border-indigo-600"
+                  : "text-gray-400 hover:text-gray-700"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
 
-          {/* Bloque por servicio */}
-          {(reserva.servicios || []).map((s, idx) => {
-            const key = keyOf(s, idx);
-            const personas = personasPorServicio[key] || 1;
-            const pasajeros = datosPersonas[key] || [];
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto px-6 py-5">
 
-            return (
-              <div key={key} className="border border-gray-200 rounded-2xl overflow-hidden">
+          {/* ── DETALLE ── */}
+          {tab === "detalle" && (
+            <div className="space-y-4">
+              <div className="bg-gray-50 rounded-xl px-4 py-3 text-sm text-gray-600 flex items-center gap-2">
+                <span className="font-semibold text-gray-800">👤 {inicial.fullname}</span>
+                <span className="text-gray-300">|</span>
+                <span>{inicial.email}</span>
+              </div>
 
-                {/* Info */}
-                <div className="flex gap-3 p-4 bg-gray-50 border-b border-gray-100">
-                  {s.image && (
-                    <img
-                      src={s.image}
-                      alt={s.title}
-                      className="w-20 h-16 object-cover rounded-xl flex-shrink-0"
-                      onError={(e) => { e.target.style.display = "none"; }}
-                    />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 truncate">{s.title}</p>
-                    {s.ubicacion && (
-                      <p className="text-xs text-gray-500 mt-0.5">📍 {s.ubicacion}</p>
+              {servicios.map((s, idx) => (
+                <div key={s.id || idx} className="border border-gray-200 rounded-2xl overflow-hidden">
+                  {/* Card servicio */}
+                  <div className="flex gap-3 p-4 bg-gray-50 border-b border-gray-100">
+                    {s.image && (
+                      <img src={s.image} alt={s.title}
+                        className="w-20 h-16 object-cover rounded-xl flex-shrink-0"
+                        onError={e => { e.target.style.display = "none"; }} />
                     )}
-                    {s.price && (
-                      <p className="text-sm font-bold text-indigo-600 mt-1">
-                        ${formatARS(s.price)} × {personas} = ${formatARS(Number(s.price) * personas)}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Personas + pasajeros */}
-                {reserva.estado !== "cancelada" && (
-                  <div className="p-4 border-b border-gray-100">
-                    <div className="flex items-center justify-between mb-3">
-                      <p className="text-sm font-semibold text-gray-700">Cantidad de personas</p>
-                      <div className="flex items-center border-2 border-gray-200 rounded-xl overflow-hidden">
-                        <button
-                          onClick={() => actualizarPersonas(key, personas - 1)}
-                          className="px-3 py-1.5 text-lg text-gray-500 hover:bg-gray-100"
-                        >
-                          −
-                        </button>
-                        <span className="px-4 font-bold text-gray-900 text-sm">{personas}</span>
-                        <button
-                          onClick={() => actualizarPersonas(key, personas + 1)}
-                          className="px-3 py-1.5 text-lg text-gray-500 hover:bg-gray-100"
-                        >
-                          +
-                        </button>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-gray-900 truncate">{s.title}</p>
+                      {s.ubicacion && <p className="text-xs text-gray-500 mt-0.5">📍 {s.ubicacion}</p>}
+                      {s.price && (
+                        <p className="text-sm font-bold text-indigo-600 mt-1">
+                          ${formatARS(s.price)} × {s.personas || 1} = ${formatARS(Number(s.price) * (s.personas || 1))}
+                        </p>
+                      )}
+                    </div>
+                    {/* Contador personas inline */}
+                    {!bloqueado && (
+                      <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden h-8 self-center flex-shrink-0">
+                        <button onClick={() => setServicioField(idx, "personas", Math.max(1, (s.personas || 1) - 1))}
+                          className="px-2 text-gray-500 hover:bg-gray-100 h-full">−</button>
+                        <span className="px-2 text-sm font-bold text-gray-900">{s.personas || 1}</span>
+                        <button onClick={() => setServicioField(idx, "personas", (s.personas || 1) + 1)}
+                          className="px-2 text-gray-500 hover:bg-gray-100 h-full">+</button>
                       </div>
-                    </div>
+                    )}
+                  </div>
 
-                    <div className="space-y-3">
-                      {Array.from({ length: personas }, (_, i) => {
-                        const p = pasajeros[i] || {};
-                        const esPrimero = i === 0;
-                        return (
-                          <div
-                            key={i}
-                            className={`rounded-xl border p-3 ${
-                              esPrimero
-                                ? "border-indigo-200 bg-indigo-50/50"
-                                : "border-gray-100 bg-gray-50"
-                            }`}
-                          >
-                            <div className="flex items-center gap-2 mb-2">
-                              <p className="text-xs font-semibold text-gray-600">
-                                Pasajero {i + 1}
-                              </p>
-                              {esPrimero && (
-                                <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-medium">
-                                  Vos
-                                </span>
-                              )}
-                            </div>
-                            <div className="grid grid-cols-2 gap-2">
-                              <div>
-                                <label className="block text-xs text-gray-400 mb-0.5">
-                                  Nombre completo *
-                                </label>
-                                <input
-                                  type="text"
-                                  placeholder="Juan Pérez"
-                                  value={p.nombre || ""}
-                                  onChange={(e) => actualizarDato(key, i, "nombre", e.target.value)}
-                                  className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-300 outline-none bg-white"
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-xs text-gray-400 mb-0.5">
-                                  DNI / Pasaporte *
-                                </label>
-                                <input
-                                  type="text"
-                                  placeholder="12345678"
-                                  value={p.dni || ""}
-                                  onChange={(e) => actualizarDato(key, i, "dni", e.target.value)}
-                                  className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-300 outline-none bg-white"
-                                />
-                              </div>
-                            </div>
-                            {!esPrimero && (
-                              <div className="mt-2">
-                                <label className="block text-xs text-gray-400 mb-0.5">
-                                  Email (opcional — para enviarle la invitación)
-                                </label>
-                                <input
-                                  type="email"
-                                  placeholder="acompañante@email.com"
-                                  value={p.email || ""}
-                                  onChange={(e) => actualizarDato(key, i, "email", e.target.value)}
-                                  className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-300 outline-none bg-white"
-                                />
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
+                  {/* Fecha + horario */}
+                  <div className="px-4 py-3 grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-500 mb-1">Fecha de la actividad *</label>
+                      <input
+                        type="date"
+                        value={s.fecha || ""}
+                        onChange={e => setServicioField(idx, "fecha", e.target.value)}
+                        disabled={bloqueado}
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-300 outline-none disabled:bg-gray-50 disabled:text-gray-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-500 mb-1">Horario preferido</label>
+                      <input
+                        type="time"
+                        value={s.horario || ""}
+                        onChange={e => setServicioField(idx, "horario", e.target.value)}
+                        disabled={bloqueado}
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-300 outline-none disabled:bg-gray-50 disabled:text-gray-400"
+                      />
                     </div>
                   </div>
-                )}
 
-                {/* Contacto con el guía */}
-                {(reserva.estado === "confirmada" || reserva.estado === "pagada") &&
-                  (s.whatsapp || s.emailContacto) && (
-                  <div className="px-4 pb-3">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Contactar al guía</p>
-                    <div className="flex gap-2 flex-wrap">
+                  {/* Contacto guía */}
+                  {(inicial.estado === "confirmada" || inicial.estado === "pagada") &&
+                    (s.whatsapp || s.emailContacto) && (
+                    <div className="px-4 pb-3 flex gap-2 flex-wrap">
                       {s.whatsapp && (
-                        <a
-                          href={`https://wa.me/${s.whatsapp}?text=Hola%2C+tengo+una+reserva+para+${encodeURIComponent(s.title)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
-                        >
-                          <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 2C6.477 2 2 6.484 2 12.017c0 1.987.537 3.84 1.473 5.426L2.05 22l4.646-1.37A9.96 9.96 0 0012 22.034C17.522 22.034 22 17.55 22 12.017 22 6.484 17.522 2 12 2h-.001z"/></svg>
+                        <a href={`https://wa.me/${s.whatsapp}?text=Hola%2C+tengo+una+reserva+para+${encodeURIComponent(s.title)}`}
+                          target="_blank" rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">
+                          <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                            <path d="M11.999 2C6.477 2 2 6.484 2 12.017c0 1.987.537 3.84 1.473 5.426L2.05 22l4.646-1.37A9.96 9.96 0 0012 22.034C17.522 22.034 22 17.55 22 12.017 22 6.484 17.522 2 12 2h-.001z"/>
+                          </svg>
                           WhatsApp
                         </a>
                       )}
                       {s.emailContacto && (
-                        <a
-                          href={`mailto:${s.emailContacto}?subject=Reserva%20${encodeURIComponent(s.title)}`}
-                          className="flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
-                        >
-                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        <a href={`mailto:${s.emailContacto}?subject=Reserva%20${encodeURIComponent(s.title)}`}
+                          className="flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                          </svg>
                           Email
                         </a>
                       )}
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* Mapa al final */}
-                {s.lat && s.lng && (
-                  <div className="p-4">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                      📍 Punto de encuentro
-                    </p>
-                    <div style={{ position: "relative", isolation: "isolate" }}>
-                      <Suspense
-                        fallback={<div className="w-full h-40 bg-gray-100 rounded-xl animate-pulse" />}
-                      >
-                        <MapaServicio
-                          lat={s.lat}
-                          lng={s.lng}
-                          titulo={s.title}
-                          height="160px"
-                        />
-                      </Suspense>
+                  {/* Mapa */}
+                  {s.lat && s.lng && (
+                    <div className="px-4 pb-4">
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">📍 Punto de encuentro</p>
+                      <div style={{ isolation: "isolate" }}>
+                        <Suspense fallback={<div className="w-full h-36 bg-gray-100 rounded-xl animate-pulse" />}>
+                          <MapaServicio lat={s.lat} lng={s.lng} titulo={s.title} height="144px" />
+                        </Suspense>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                  )}
+                </div>
+              ))}
 
-          {/* Motivo cancelación (lectura) */}
-          {reserva.estado === "cancelada" && reserva.motivoCancelacion && (
-            <div className="bg-red-50 border border-red-100 rounded-xl p-4">
-              <p className="text-xs font-semibold text-red-600 mb-1">Motivo de cancelación</p>
-              <p className="text-sm text-red-700">{reserva.motivoCancelacion}</p>
+              {inicial.estado === "cancelada" && inicial.motivoCancelacion && (
+                <div className="bg-red-50 border border-red-100 rounded-xl p-4">
+                  <p className="text-xs font-semibold text-red-600 mb-1">Motivo de cancelación</p>
+                  <p className="text-sm text-red-700">{inicial.motivoCancelacion}</p>
+                </div>
+              )}
+
+              {inicial.estado === "confirmada_usuario" && (
+                <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-blue-700">
+                  🕐 Confirmaste tu parte. Estamos esperando que el seller confirme para habilitar el pago.
+                </div>
+              )}
             </div>
           )}
 
-          {/* Guardar */}
-          {reserva.estado !== "cancelada" && (
+          {/* ── PASAJEROS ── */}
+          {tab === "pasajeros" && (
+            <TabPasajeros
+              pasajeros={pasajeros}
+              onChange={setPasajeros}
+              bloqueado={bloqueado}
+              userId={user?.uid}
+            />
+          )}
+
+          {/* ── CONSULTAS ── */}
+          {tab === "consultas" && (
+            <TabConsultas reservaId={inicial.id} user={user} />
+          )}
+
+          {/* ── CALENDARIO ── */}
+          {tab === "calendario" && (
+            <CalendarioEventos
+              servicios={servicios}
+              checkin={inicial.checkin}
+              checkout={inicial.checkout}
+            />
+          )}
+        </div>
+
+        {/* Footer */}
+        {!bloqueado && (
+          <div className="px-6 py-4 bg-gray-50 rounded-b-2xl border-t border-gray-100 flex gap-3 flex-shrink-0">
             <button
               onClick={handleGuardar}
               disabled={guardando}
-              className={`w-full py-3 rounded-xl font-bold text-sm transition-colors shadow-md ${
-                exito
-                  ? "bg-green-500 text-white"
-                  : "bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-50"
-              }`}
+              className="flex-1 py-2.5 rounded-xl bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 font-semibold text-sm transition-colors disabled:opacity-50"
             >
-              {exito ? "✅ Guardado" : guardando ? "Guardando..." : "Guardar cambios"}
+              {guardando ? "Guardando..." : "Guardar cambios"}
             </button>
-          )}
-        </div>
+            <button
+              onClick={handleConfirmar}
+              disabled={confirmando}
+              className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm transition-colors disabled:opacity-50"
+            >
+              {confirmando ? "Confirmando..." : "✅ Confirmar mi parte"}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-// ─────────────────────────────────────────────────────────
-// PÁGINA PRINCIPAL
-// ─────────────────────────────────────────────────────────
+// ─── PÁGINA PRINCIPAL ─────────────────────────────────────────────────────────
 const MisReservas = () => {
   const { reservas, loading, error, handleUpdate, handleDelete } = useMisReservas();
   const [reservaAbierta, setReservaAbierta] = useState(null);
@@ -376,65 +649,40 @@ const MisReservas = () => {
 
       <div className="bg-gray-900 text-white py-10 px-4 text-center">
         <h1 className="text-3xl font-bold mb-1">Mis Reservas</h1>
-        <p className="text-gray-400 text-sm mt-1">
-          Revisá el estado y completá los datos de los pasajeros
-        </p>
+        <p className="text-gray-400 text-sm mt-1">Revisá el estado, cargá pasajeros y coordiná tus actividades</p>
       </div>
 
       <main className="flex-grow container mx-auto px-4 py-8 max-w-5xl">
         {loading ? (
           <div className="grid gap-5 md:grid-cols-2">
-            {[1, 2, 3, 4].map((i) => <SkeletonCard key={i} />)}
+            {[1,2,3,4].map(i => <SkeletonCard key={i} />)}
           </div>
         ) : error ? (
-          <div className="text-center py-20">
-            <p className="text-red-500">{error}</p>
-          </div>
+          <div className="text-center py-20"><p className="text-red-500">{error}</p></div>
         ) : reservas.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-gray-400 text-5xl mb-4">🧳</p>
             <p className="text-gray-600 text-lg font-medium mb-2">No hay reservas todavía</p>
-            <p className="text-gray-400 text-sm mb-6">
-              Explorá nuestras experiencias y armá tu viaje
-            </p>
-            <Link
-              to="/servicios"
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
-            >
+            <p className="text-gray-400 text-sm mb-6">Explorá nuestras experiencias y armá tu viaje</p>
+            <Link to="/servicios" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-xl transition-colors">
               Ver experiencias →
             </Link>
           </div>
         ) : (
           <div className="grid gap-5 md:grid-cols-2">
-            {reservas.map((reserva) => {
+            {reservas.map(reserva => {
               const total = (reserva.servicios || []).reduce(
-                (acc, s) =>
-                  acc + Number(s.price || 0) * Number(s.personas || reserva.personas || 1),
-                0
+                (acc, s) => acc + Number(s.price || 0) * Number(s.personas || reserva.personas || 1), 0
               );
+              const barColor = ESTADO_CFG[reserva.estado]?.bar || "bg-yellow-400";
 
               return (
-                <div
-                  key={reserva.id}
-                  className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow"
-                >
-                  <div
-                    className={`h-1.5 w-full ${
-                      reserva.estado === "confirmada"
-                        ? "bg-green-400"
-                        : reserva.estado === "cancelada"
-                        ? "bg-red-400"
-                        : reserva.estado === "pagada"
-                        ? "bg-purple-400"
-                        : "bg-yellow-400"
-                    }`}
-                  />
+                <div key={reserva.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className={`h-1.5 w-full ${barColor}`} />
                   <div className="p-5">
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <p className="font-bold text-gray-900">
-                          {reserva.checkin} → {reserva.checkout}
-                        </p>
+                        <p className="font-bold text-gray-900">{reserva.checkin} → {reserva.checkout}</p>
                         <p className="text-xs text-gray-400 mt-0.5">{reserva.email}</p>
                       </div>
                       <EstadoBadge estado={reserva.estado} />
@@ -442,38 +690,20 @@ const MisReservas = () => {
 
                     <div className="flex gap-2 mb-4 flex-wrap">
                       {(reserva.servicios || []).map((s, i) => (
-                        <div
-                          key={i}
-                          className="flex items-center gap-1.5 bg-gray-50 rounded-lg px-2 py-1"
-                        >
+                        <div key={i} className="flex items-center gap-1.5 bg-gray-50 rounded-lg px-2 py-1">
                           {s.image && (
-                            <img
-                              src={s.image}
-                              alt=""
-                              className="w-6 h-6 rounded object-cover"
-                              onError={(e) => { e.target.style.display = "none"; }}
-                            />
+                            <img src={s.image} alt="" className="w-6 h-6 rounded object-cover"
+                              onError={e => { e.target.style.display = "none"; }} />
                           )}
-                          <span className="text-xs text-gray-700 font-medium">
-                            {s.title || "Experiencia"}
-                          </span>
-                          <span className="text-xs text-gray-400">
-                            × {s.personas || reserva.personas || 1}
-                          </span>
+                          <span className="text-xs text-gray-700 font-medium">{s.title || "Experiencia"}</span>
+                          <span className="text-xs text-gray-400">× {s.personas || reserva.personas || 1}</span>
+                          {s.fecha && <span className="text-xs text-indigo-500 font-medium">{s.fecha}</span>}
                         </div>
                       ))}
                     </div>
 
-                    {reserva.estado === "cancelada" && reserva.motivoCancelacion && (
-                      <p className="text-xs text-red-500 mb-3 bg-red-50 rounded-lg px-3 py-2">
-                        ❌ {reserva.motivoCancelacion}
-                      </p>
-                    )}
-
                     {total > 0 && (
-                      <p className="text-sm font-bold text-indigo-600 mb-4">
-                        Total: ${formatARS(total)}
-                      </p>
+                      <p className="text-sm font-bold text-indigo-600 mb-4">Total: ${formatARS(total)}</p>
                     )}
 
                     <div className="flex gap-2">
@@ -514,10 +744,7 @@ const MisReservas = () => {
         <ModalDetalleReserva
           reserva={reservaAbierta}
           onClose={() => setReservaAbierta(null)}
-          onUpdate={(r) => {
-            setReservaAbierta(null);
-            handleUpdate(r);
-          }}
+          onUpdate={r => { setReservaAbierta(null); handleUpdate(r); }}
         />
       )}
 
@@ -527,19 +754,12 @@ const MisReservas = () => {
             <p className="text-lg font-bold text-gray-900 mb-2">¿Eliminar esta reserva?</p>
             <p className="text-gray-500 text-sm mb-6">Esta acción no se puede deshacer.</p>
             <div className="flex gap-3">
-              <button
-                onClick={() => setConfirmDelete(null)}
-                className="flex-1 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-sm"
-              >
+              <button onClick={() => setConfirmDelete(null)}
+                className="flex-1 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-sm">
                 Cancelar
               </button>
-              <button
-                onClick={() => {
-                  handleDelete(confirmDelete);
-                  setConfirmDelete(null);
-                }}
-                className="flex-1 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-sm"
-              >
+              <button onClick={() => { handleDelete(confirmDelete); setConfirmDelete(null); }}
+                className="flex-1 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-sm">
                 Eliminar
               </button>
             </div>
