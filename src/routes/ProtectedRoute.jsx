@@ -25,13 +25,17 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     );
   }
 
-  // Si no hay sesión, redirigir al login
+  // Sin sesión → login
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
-  // MEJORA: Si se requiere un rol específico y el usuario no lo tiene,
-  // redirigir al inicio. Esto es el "Role Guard" mencionado en RNF-03.
+  // Usuario desactivado por admin → login
+  if (user.activo === false) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Rol incorrecto → inicio
   if (requiredRole && user.role !== requiredRole) {
     return <Navigate to="/" replace />;
   }
