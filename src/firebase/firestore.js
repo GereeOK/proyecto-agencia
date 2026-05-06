@@ -287,3 +287,38 @@ export const updateCompany = async (companyId, updates) => {
     throw error;
   }
 };
+
+// ==========================================
+// FAVORITOS
+// Colección: favoritos/{userId}/items/{servicioId}
+// ==========================================
+
+export const toggleFavorito = async (userId, servicio) => {
+  const ref = doc(db, "favoritos", userId, "items", servicio.id);
+  const snap = await getDoc(ref);
+  if (snap.exists()) {
+    await deleteDoc(ref);
+    return false;
+  }
+  await setDoc(ref, {
+    id: servicio.id,
+    title: servicio.title,
+    image: servicio.image || "",
+    price: servicio.price || "",
+    categoria: servicio.categoria || "",
+    ubicacion: servicio.ubicacion || "",
+    duracion: servicio.duracion || "",
+    timestamp: serverTimestamp(),
+  });
+  return true;
+};
+
+export const getFavoritos = async (userId) => {
+  const snap = await getDocs(collection(db, "favoritos", userId, "items"));
+  return snap.docs.map((d) => d.data());
+};
+
+export const isFavorito = async (userId, servicioId) => {
+  const snap = await getDoc(doc(db, "favoritos", userId, "items", servicioId));
+  return snap.exists();
+};

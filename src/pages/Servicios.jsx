@@ -3,7 +3,7 @@
 // → Agregar al carrito → Paso 4: revisar carrito y confirmar
 
 import React, { useEffect, useState, lazy, Suspense } from "react";
-import { fetchServiciosActivos, saveReservaTransaccional } from "../firebase/firestore";
+import { fetchServiciosActivos, saveReservaTransaccional, toggleFavorito, getFavoritos } from "../firebase/firestore";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
 import { useAuth } from "../context/authContext";
@@ -275,6 +275,35 @@ const ModalDetalle = ({ servicio, onClose }) => {
                 + Agregar al carrito
               </button>
             )}
+
+            {/* Contacto con el guía */}
+            {(servicio.whatsapp || servicio.emailContacto) && (
+              <div className="border-t border-gray-200 pt-4 space-y-2">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Contactar al guía</p>
+                {servicio.whatsapp && (
+                  <a
+                    href={`https://wa.me/${servicio.whatsapp}?text=Hola%2C+me+interesa+la+experiencia+${encodeURIComponent(servicio.title)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex items-center justify-center gap-2 w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 2C6.477 2 2 6.484 2 12.017c0 1.987.537 3.84 1.473 5.426L2.05 22l4.646-1.37A9.96 9.96 0 0012 22.034C17.522 22.034 22 17.55 22 12.017 22 6.484 17.522 2 12 2h-.001zm.001 18.034a7.97 7.97 0 01-4.073-1.113l-.292-.174-3.03.894.898-3.02-.19-.31A7.994 7.994 0 014 12.017C4 7.589 7.582 4 12 4s8 3.589 8 8.017c0 4.428-3.582 8.017-8 8.017z"/></svg>
+                    Consultar por WhatsApp
+                  </a>
+                )}
+                {servicio.emailContacto && (
+                  <a
+                    href={`mailto:${servicio.emailContacto}?subject=Consulta%20sobre%20${encodeURIComponent(servicio.title)}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex items-center justify-center gap-2 w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl text-sm transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    Enviar email
+                  </a>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -429,6 +458,7 @@ const PanelCarrito = ({ open, onClose }) => {
 const CATEGORIAS = ["Todas", "Tours", "Gastronomia", "Traslados", "Experiencias"];
 
 const Catalogo = ({ onCambiarFechas }) => {
+  const { user } = useAuth();
   const { carrito, estaEnCarrito } = useCarrito();
   const [servicios, setServicios] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -436,6 +466,7 @@ const Catalogo = ({ onCambiarFechas }) => {
   const [catActiva, setCatActiva] = useState("Todas");
   const [seleccionado, setSeleccionado] = useState(null);
   const [carritoOpen, setCarritoOpen] = useState(false);
+  const [favs, setFavs] = useState(new Set());
 
   useEffect(() => {
     fetchServiciosActivos()
@@ -443,6 +474,22 @@ const Catalogo = ({ onCambiarFechas }) => {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (!user) { setFavs(new Set()); return; }
+    getFavoritos(user.uid).then((items) => setFavs(new Set(items.map((i) => i.id))));
+  }, [user]);
+
+  const handleToggleFav = async (e, servicio) => {
+    e.stopPropagation();
+    if (!user) return;
+    const added = await toggleFavorito(user.uid, servicio);
+    setFavs((prev) => {
+      const next = new Set(prev);
+      added ? next.add(servicio.id) : next.delete(servicio.id);
+      return next;
+    });
+  };
 
   const filtrados = servicios.filter((s) => {
     const matchQ = s.title?.toLowerCase().includes(busqueda.toLowerCase()) ||
@@ -554,6 +601,18 @@ const Catalogo = ({ onCambiarFechas }) => {
                         <div className="absolute top-3 right-3 bg-white/95 rounded-full px-2.5 py-1 text-xs font-bold text-indigo-700 shadow">
                           ${formatARS(s.price)}
                         </div>
+                      )}
+                      {/* Favorito */}
+                      {user && (
+                        <button
+                          onClick={(e) => handleToggleFav(e, s)}
+                          className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-white/90 shadow hover:bg-white transition-colors z-10"
+                          title={favs.has(s.id) ? "Quitar de favoritos" : "Guardar"}
+                        >
+                          <svg className={`w-4 h-4 transition-colors ${favs.has(s.id) ? "text-red-500 fill-red-500" : "text-gray-400"}`} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} fill="none">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                          </svg>
+                        </button>
                       )}
                       {/* Badge "En carrito" */}
                       {enCarrito && (
