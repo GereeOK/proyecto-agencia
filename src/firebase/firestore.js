@@ -432,11 +432,16 @@ export const getResenasByReserva = async (reservaId) => {
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 };
 
-// Últimas N reseñas para mostrar en el home (se mezclan en el cliente)
+// Últimas N reseñas VISIBLES para mostrar en el home (se mezclan en el cliente)
+// Filtra client-side para no requerir índice compuesto y para incluir
+// reseñas antiguas que no tienen el campo "oculto" definido.
 export const getResenasRecientes = async (n = 50) => {
-  const q = query(collection(db, "resenas"), orderBy("timestamp", "desc"), limit(n));
+  const q = query(collection(db, "resenas"), orderBy("timestamp", "desc"), limit(n * 3));
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  return snap.docs
+    .map((d) => ({ id: d.id, ...d.data() }))
+    .filter((r) => !r.oculto)
+    .slice(0, n);
 };
 
 // Todas las reseñas de tipo "experiencia" para calcular promedios por servicio
@@ -444,4 +449,15 @@ export const fetchResenasExperiencias = async () => {
   const q = query(collection(db, "resenas"), where("tipo", "==", "experiencia"));
   const snap = await getDocs(q);
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+};
+
+// Admin: traer TODAS las reseñas sin filtro (incluyendo ocultas)
+export const fetchResenasAdmin = async () => {
+  const snap = await getDocs(collection(db, "resenas"));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+};
+
+// Actualizar campos de una reseña (oculto, respuesta, etc.)
+export const updateResena = async (id, updates) => {
+  await updateDoc(doc(db, "resenas", id), updates);
 };

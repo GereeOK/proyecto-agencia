@@ -715,6 +715,7 @@ const ModalResena = ({ reserva, user, onClose }) => {
             reservaId:        reserva.id,
             userId:           user?.uid,
             userName:         user?.displayName || user?.email?.split("@")[0] || "Anónimo",
+            userEmail:        user?.email || "",
             estrellas:        ratings[sec.key].estrellas,
             texto:            (ratings[sec.key].texto || "").slice(0, 140),
           })

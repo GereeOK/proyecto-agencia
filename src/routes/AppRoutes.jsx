@@ -20,6 +20,7 @@ import ServiciosAdmin from "../admin/Servicios";
 import Usuarios from "../admin/Usuarios";
 import ReservasAdmin from "../admin/Reservas";
 import Consultas from "../admin/Consultas";
+import ResenasAdmin from "../admin/Resenas";
 
 // Seller
 import HomeSeller from "../seller/HomeSeller";
@@ -59,6 +60,7 @@ const AppRoutes = () => {
         <Route path="usuarios" element={<Usuarios />} />
         <Route path="reservas" element={<ReservasAdmin />} />
         <Route path="consultas" element={<Consultas />} />
+        <Route path="resenas" element={<ResenasAdmin />} />
       </Route>
 
       <Route path="*" element={<Home />} />
