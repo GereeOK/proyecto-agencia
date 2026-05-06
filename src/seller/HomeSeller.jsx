@@ -391,9 +391,7 @@ const HomeSeller = () => {
   }, [user]);
 
   // ── Suscripción en tiempo real a reservas (onSnapshot)
-  // Se filtra por servicios del seller usando array de IDs.
-  // Firestore limita "in" a 30 elementos — para sellers con muchos servicios
-  // habría que paginar, pero para este caso es suficiente.
+  // array-contains-any tiene límite de 10 — se divide en chunks y se mergean resultados
   useEffect(() => {
     if (!user?.companyId || servicios.length === 0) {
       setLoadingReservas(false);
@@ -401,40 +399,40 @@ const HomeSeller = () => {
     }
 
     const svcsIds = servicios.map((s) => s.id);
+    const chunks = [];
+    for (let i = 0; i < svcsIds.length; i += 10) {
+      chunks.push(svcsIds.slice(i, i + 10));
+    }
 
-    // onSnapshot reemplaza la lectura única getDocs — ahora cualquier nueva
-    // reserva aparece automáticamente sin recargar la página
-    const q = query(
-      collection(db, "reservas"),
-      where("servicios", "array-contains-any", svcsIds.slice(0, 10))
-      // Nota: array-contains-any soporta hasta 10 valores.
-      // Si tenés más de 10 servicios, habría que hacer múltiples queries.
-    );
-
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const nuevasReservas = snapshot.docs
-          .map((doc) => ({ id: doc.id, ...doc.data() }))
-          .filter((r) =>
-            // Filtrar que al menos un servicio de la reserva pertenezca al seller
-            (r.servicios || []).some((s) =>
+    const reservasMap = new Map();
+    const unsubs = chunks.map((chunk) => {
+      const q = query(
+        collection(db, "reservas"),
+        where("servicios", "array-contains-any", chunk)
+      );
+      return onSnapshot(
+        q,
+        (snapshot) => {
+          snapshot.docs.forEach((doc) => {
+            const r = { id: doc.id, ...doc.data() };
+            const belongs = (r.servicios || []).some((s) =>
               typeof s === "string" ? svcsIds.includes(s) : svcsIds.includes(s?.id)
-            )
-          )
-          .map((r) => ({ ...r, estado: r.estado || "pendiente" }));
+            );
+            if (belongs) {
+              reservasMap.set(doc.id, { ...r, estado: r.estado || "pendiente" });
+            }
+          });
+          setReservas([...reservasMap.values()]);
+          setLoadingReservas(false);
+        },
+        (err) => {
+          console.error("Error en onSnapshot reservas:", err);
+          setLoadingReservas(false);
+        }
+      );
+    });
 
-        setReservas(nuevasReservas);
-        setLoadingReservas(false);
-      },
-      (err) => {
-        console.error("Error en onSnapshot reservas:", err);
-        setLoadingReservas(false);
-      }
-    );
-
-    // Cleanup: desuscribirse cuando el componente se desmonta
-    return () => unsubscribe();
+    return () => unsubs.forEach((u) => u());
   }, [servicios, user]);
 
   const handleToggle = async (s) => {

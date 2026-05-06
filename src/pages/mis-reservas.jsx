@@ -14,6 +14,7 @@ const EstadoBadge = ({ estado }) => {
     pendiente:  { cls: "bg-yellow-100 text-yellow-800 border-yellow-200", icon: "⏳" },
     confirmada: { cls: "bg-green-100 text-green-700 border-green-200",    icon: "✅" },
     cancelada:  { cls: "bg-red-100 text-red-700 border-red-200",          icon: "❌" },
+    pagada:     { cls: "bg-purple-100 text-purple-700 border-purple-200", icon: "💳" },
   };
   const { cls, icon } = cfg[estado] || { cls: "bg-gray-100 text-gray-600 border-gray-200", icon: "•" };
   return (
@@ -393,6 +394,8 @@ const MisReservas = () => {
                         ? "bg-green-400"
                         : reserva.estado === "cancelada"
                         ? "bg-red-400"
+                        : reserva.estado === "pagada"
+                        ? "bg-purple-400"
                         : "bg-yellow-400"
                     }`}
                   />

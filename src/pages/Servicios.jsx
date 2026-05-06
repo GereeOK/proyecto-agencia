@@ -3,7 +3,7 @@
 // → Agregar al carrito → Paso 4: revisar carrito y confirmar
 
 import React, { useEffect, useState, lazy, Suspense } from "react";
-import { fetchServicios, saveReserva } from "../firebase/firestore";
+import { fetchServiciosActivos, saveReservaTransaccional } from "../firebase/firestore";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
 import { useAuth } from "../context/authContext";
@@ -304,7 +304,7 @@ const PanelCarrito = ({ open, onClose }) => {
     setLoading(true);
     setError(null);
     try {
-      await saveReserva({
+      await saveReservaTransaccional({
         fullname: user.displayName || user.email,
         email: user.email,
         checkin: carrito.checkin,
@@ -314,12 +314,12 @@ const PanelCarrito = ({ open, onClose }) => {
           id: s.id,
           title: s.title,
           image: s.image,
+          price: s.price,
           lat: s.lat || null,
           lng: s.lng || null,
           personas: s.personasSeleccionadas || carrito.personas,
         })),
         total,
-        estado: "pendiente",
       });
       limpiarCarrito();
       navigate("/reserva-exitosa");
@@ -438,8 +438,8 @@ const Catalogo = ({ onCambiarFechas }) => {
   const [carritoOpen, setCarritoOpen] = useState(false);
 
   useEffect(() => {
-    fetchServicios()
-      .then((data) => setServicios(data.filter((s) => s.activo !== false)))
+    fetchServiciosActivos()
+      .then(setServicios)
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
