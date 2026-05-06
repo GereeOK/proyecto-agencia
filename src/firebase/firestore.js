@@ -438,3 +438,10 @@ export const getResenasRecientes = async (n = 50) => {
   const snap = await getDocs(q);
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 };
+
+// Todas las reseñas de tipo "experiencia" para calcular promedios por servicio
+export const fetchResenasExperiencias = async () => {
+  const q = query(collection(db, "resenas"), where("tipo", "==", "experiencia"));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+};
