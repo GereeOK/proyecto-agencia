@@ -36,14 +36,22 @@ const Modal = ({ children, onClose }) => (
 
 const EstadoBadge = ({ estado }) => {
   const colores = {
-    pendiente: "bg-yellow-100 text-yellow-800",
-    confirmada: "bg-green-100 text-green-700",
-    cancelada: "bg-red-100 text-red-700",
-    pagada: "bg-purple-100 text-purple-700",
+    pendiente:          "bg-yellow-100 text-yellow-800",
+    confirmada_usuario: "bg-blue-100 text-blue-700",
+    confirmada:         "bg-green-100 text-green-700",
+    cancelada:          "bg-red-100 text-red-700",
+    pagada:             "bg-purple-100 text-purple-700",
+  };
+  const labels = {
+    pendiente:          "Pendiente",
+    confirmada_usuario: "Esp. seller",
+    confirmada:         "Confirmada",
+    cancelada:          "Cancelada",
+    pagada:             "Pagada",
   };
   return (
-    <span className={`px-2 py-1 rounded text-xs font-semibold capitalize ${colores[estado] || "bg-gray-100 text-gray-600"}`}>
-      {estado || "pendiente"}
+    <span className={`px-2 py-1 rounded text-xs font-semibold ${colores[estado] || "bg-gray-100 text-gray-600"}`}>
+      {labels[estado] || estado || "pendiente"}
     </span>
   );
 };
