@@ -116,6 +116,7 @@ const AdminLayout = () => {
             <Link to="/admin/servicios" className="hover:text-indigo-600">Servicios</Link>
             <Link to="/admin/reservas" className="hover:text-indigo-600">Reservas</Link>
             <Link to="/admin/consultas" className="hover:text-indigo-600">Consultas</Link>
+            <Link to="/admin/resenas" className="hover:text-indigo-600">Reseñas</Link>
           </nav>
         </aside>
 
