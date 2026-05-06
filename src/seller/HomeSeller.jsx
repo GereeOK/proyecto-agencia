@@ -44,6 +44,7 @@ const ESTADO_CFG = {
   confirmada:         { cls: "bg-green-100 text-green-700",  label: "Confirmada", icon: "✅" },
   cancelada:          { cls: "bg-red-100 text-red-700",      label: "Cancelada", icon: "❌" },
   pagada:             { cls: "bg-purple-100 text-purple-700",label: "Pagada", icon: "💳" },
+  finalizada:         { cls: "bg-gray-100 text-gray-600",    label: "Finalizada", icon: "🏁" },
 };
 
 const ReservaEstadoBadge = ({ estado }) => {

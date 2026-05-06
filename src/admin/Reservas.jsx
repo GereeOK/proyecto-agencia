@@ -41,6 +41,7 @@ const EstadoBadge = ({ estado }) => {
     confirmada:         "bg-green-100 text-green-700",
     cancelada:          "bg-red-100 text-red-700",
     pagada:             "bg-purple-100 text-purple-700",
+    finalizada:         "bg-gray-100 text-gray-600",
   };
   const labels = {
     pendiente:          "Pendiente",
@@ -48,6 +49,7 @@ const EstadoBadge = ({ estado }) => {
     confirmada:         "Confirmada",
     cancelada:          "Cancelada",
     pagada:             "Pagada",
+    finalizada:         "Finalizada",
   };
   return (
     <span className={`px-2 py-1 rounded text-xs font-semibold ${colores[estado] || "bg-gray-100 text-gray-600"}`}>
@@ -195,9 +197,11 @@ const ReservasAdmin = () => {
           >
             <option value="todos">Todos los estados</option>
             <option value="pendiente">Pendiente</option>
+            <option value="confirmada_usuario">Esp. seller</option>
             <option value="confirmada">Confirmada</option>
-            <option value="cancelada">Cancelada</option>
             <option value="pagada">Pagada</option>
+            <option value="finalizada">Finalizada</option>
+            <option value="cancelada">Cancelada</option>
           </select>
           <div className="flex items-center gap-2">
             <label className="text-sm text-gray-600 whitespace-nowrap">Check-in desde:</label>
@@ -258,18 +262,18 @@ const ReservasAdmin = () => {
                   <td className="px-4 py-2"><EstadoBadge estado={res.estado} /></td>
                   <td className="px-4 py-2">
                     <div className="flex justify-center flex-wrap gap-1">
-                      {res.estado !== "confirmada" && (
-                        <button className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs"
-                          onClick={() => handleCambiarEstado(res.id, "confirmada")}>
-                          Confirmar
-                        </button>
-                      )}
-                      {res.estado !== "cancelada" && (
-                        <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded text-xs"
-                          onClick={() => handleCambiarEstado(res.id, "cancelada")}>
-                          Cancelar
-                        </button>
-                      )}
+                      <select
+                        value={res.estado || "pendiente"}
+                        onChange={(e) => handleCambiarEstado(res.id, e.target.value)}
+                        className="border rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white"
+                      >
+                        <option value="pendiente">Pendiente</option>
+                        <option value="confirmada_usuario">Esp. seller</option>
+                        <option value="confirmada">Confirmada</option>
+                        <option value="pagada">Pagada</option>
+                        <option value="finalizada">Finalizada</option>
+                        <option value="cancelada">Cancelada</option>
+                      </select>
                       <button className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs"
                         onClick={() => setReservaEditando(res)}>
                         Editar

@@ -28,6 +28,7 @@ const ESTADO_CFG = {
   confirmada:         { cls: "bg-green-100 text-green-700 border-green-200",    icon: "✅", bar: "bg-green-400",  label: "Confirmada" },
   cancelada:          { cls: "bg-red-100 text-red-700 border-red-200",          icon: "❌", bar: "bg-red-400",    label: "Cancelada" },
   pagada:             { cls: "bg-purple-100 text-purple-700 border-purple-200", icon: "💳", bar: "bg-purple-400", label: "Pagada" },
+  finalizada:         { cls: "bg-gray-100 text-gray-600 border-gray-200",       icon: "🏁", bar: "bg-gray-400",   label: "Finalizada" },
 };
 
 const EstadoBadge = ({ estado }) => {
@@ -920,7 +921,7 @@ const MisReservas = () => {
                           💳 Pagar
                         </button>
                       )}
-                      {(reserva.estado === "pagada" || reserva.estado === "confirmada") && (
+                      {reserva.estado === "finalizada" && (
                         <button
                           onClick={() => setReservaParaResena(reserva)}
                           className="px-4 py-2 bg-yellow-50 hover:bg-yellow-100 text-yellow-700 rounded-xl text-sm font-semibold transition-colors"

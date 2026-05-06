@@ -218,7 +218,7 @@ export const updateReserva = async (reserva) => {
 // separada del update general para mayor claridad semántica.
 export const cambiarEstadoReserva = async (reservaId, nuevoEstado) => {
   // nuevoEstado puede ser: "pendiente" | "confirmada" | "cancelada"
-  const estadosValidos = ["pendiente", "confirmada_usuario", "confirmada", "cancelada", "pagada"];
+  const estadosValidos = ["pendiente", "confirmada_usuario", "confirmada", "cancelada", "pagada", "finalizada"];
   if (!estadosValidos.includes(nuevoEstado)) {
     throw new Error(`Estado inválido: ${nuevoEstado}`);
   }

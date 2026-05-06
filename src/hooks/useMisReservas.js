@@ -5,7 +5,19 @@ import {
   fetchServicios,
   updateReserva,
   deleteReserva,
+  cambiarEstadoReserva,
 } from "../firebase/firestore";
+
+// Parsea "YYYY-MM-DD" o "DD/MM/YYYY" → Date local medianoche
+const parseCheckout = (str) => {
+  if (!str) return null;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return new Date(str + "T00:00:00");
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(str)) {
+    const [d, m, y] = str.split("/");
+    return new Date(`${y}-${m}-${d}T00:00:00`);
+  }
+  return null;
+};
 
 export const useMisReservas = () => {
   const { user, loading: authLoading } = useAuth();
@@ -27,26 +39,40 @@ export const useMisReservas = () => {
       const serviciosMap = {};
       serviciosData.forEach((s) => { serviciosMap[s.id] = s; });
 
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+
       const reservasConServicios = reservasData.map((reserva) => {
         const serviciosCompletos = (reserva.servicios || []).map((srv) => {
           if (typeof srv === "string") return serviciosMap[srv] || { id: srv };
-          // BUG FIX: Mergear datos de Firestore (lat, lng, price, etc.) con los
-          // datos guardados en la reserva (personas, pasajeros, image, title).
-          // Se da prioridad a los datos de la reserva para preservar pasajeros y personas.
           const fromFirestore = serviciosMap[srv.id] || {};
           return {
-            ...fromFirestore,  // datos completos del servicio (lat, lng, price, etc.)
-            ...srv,            // datos guardados en la reserva (personas, pasajeros)
-            id: srv.id || fromFirestore.id, // garantizar que el id siempre esté
+            ...fromFirestore,
+            ...srv,
+            id: srv.id || fromFirestore.id,
           };
         });
-        return {
-          ...reserva,
-          // Normalizar estado: si no tiene estado en Firestore, es "pendiente"
-          estado: reserva.estado || "pendiente",
-          servicios: serviciosCompletos,
-        };
+
+        // Transición lazy a "finalizada": checkout pasado + estado activo completado
+        let estado = reserva.estado || "pendiente";
+        const checkout = parseCheckout(reserva.checkout);
+        if (
+          checkout && checkout < hoy &&
+          (estado === "confirmada" || estado === "pagada")
+        ) {
+          estado = "finalizada";
+        }
+
+        return { ...reserva, estado, servicios: serviciosCompletos };
       });
+
+      // Persistir en Firestore las que cambiaron a "finalizada"
+      const aFinalizar = reservasConServicios.filter(
+        (r, i) => r.estado === "finalizada" && (reservasData[i].estado === "confirmada" || reservasData[i].estado === "pagada")
+      );
+      if (aFinalizar.length > 0) {
+        await Promise.all(aFinalizar.map((r) => cambiarEstadoReserva(r.id, "finalizada")));
+      }
 
       reservasConServicios.sort((a, b) => {
         const fechaA = a.timestamp?.toDate?.() ?? new Date(0);
@@ -72,7 +98,6 @@ export const useMisReservas = () => {
   const handleUpdate = async (reservaActualizada) => {
     try {
       await updateReserva(reservaActualizada);
-      // Actualizar estado local sin recargar todo — más rápido y evita perder datos locales
       setReservas((prev) =>
         prev.map((r) => r.id === reservaActualizada.id ? { ...r, ...reservaActualizada } : r)
       );
