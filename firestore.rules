@@ -58,11 +58,12 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Reseñas: lectura pública; solo usuarios autenticados crean; nadie edita/borra
+    // Reseñas: lectura pública; usuarios autenticados crean; solo admin puede actualizar (ocultar/responder)
     match /resenas/{id} {
       allow read:   if true;
       allow create: if request.auth != null;
-      allow update, delete: if false;
+      allow update: if isAdmin();
+      allow delete: if false;
     }
 
     function isAdmin() {
