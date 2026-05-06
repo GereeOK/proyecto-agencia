@@ -3,24 +3,16 @@
 // Se accede desde el botón "Pagar" en Mis Reservas.
 // Recibe la reserva via location.state (React Router).
 //
-// Métodos disponibles:
-//   - MercadoPago (ARS, tarjetas locales, cuotas, billetera MP)
-//   - PayPal (USD, tarjetas internacionales, turistas extranjeros)
-//
 // Flujo:
-//   1. Usuario elige método
-//   2. Se llama a la Cloud Function correspondiente
-//   3. Se redirige a la URL de pago (MP o PayPal)
-//   4. Plataforma redirige de vuelta a /pago-exitoso o /pago-fallido
+//   1. Usuario elige MercadoPago
+//   2. Se llama a /api/crearPreferenciaMp (Vercel Serverless Function)
+//   3. Se redirige a la URL de pago de MP
+//   4. MP redirige de vuelta a /pago-exitoso o /pago-fallido
 
 import React, { useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
-import { getFunctions, httpsCallable } from "firebase/functions";
-import { app } from "../firebase/config";
-
-const functions = getFunctions(app);
 const formatARS = (n) => Number(n || 0).toLocaleString("es-AR");
 
 // ── Calcular total de la reserva
@@ -117,25 +109,30 @@ const PantallaPago = () => {
     setLoading(true);
     setError(null);
     try {
-      const crearPreferencia = httpsCallable(functions, "crearPreferenciaMp");
-      const result = await crearPreferencia({
-        reservaId: reserva.id,
-        items: (reserva.servicios || []).map((s) => ({
-          title: s.title || "Experiencia",
-          price: Number(s.price || 0),
-          personas: Number(s.personas || reserva.personas || 1),
-        })),
-        email: reserva.email,
+      const response = await fetch("/api/crearPreferenciaMp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reservaId: reserva.id,
+          items: (reserva.servicios || []).map((s) => ({
+            title: s.title || "Experiencia",
+            price: Number(s.price || 0),
+            personas: Number(s.personas || reserva.personas || 1),
+          })),
+          email: reserva.email,
+        }),
       });
 
-      // En sandbox usar sandbox_init_point, en producción usar init_point
-      const url = result.data?.sandbox_init_point || result.data?.init_point;
+      if (!response.ok) throw new Error("Error del servidor al crear el pago.");
+      const data = await response.json();
+
+      const url = data.sandbox_init_point || data.init_point;
       if (!url) throw new Error("No se recibió URL de pago de MercadoPago.");
       window.location.href = url;
     } catch (err) {
       console.error("Error MP:", err);
       setError(
-        err.message.includes("No se recibió")
+        err.message.includes("No se recibió") || err.message.includes("Error del servidor")
           ? err.message
           : "No se pudo iniciar el pago con MercadoPago. Verificá tu conexión e intentá de nuevo."
       );
