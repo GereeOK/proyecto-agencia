@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { fetchConsultas } from "../firebase/firestore"; // Ajusta si la ruta es distinta
+import { fetchConsultas } from "../firebase/firestore";
 
 const Consultas = () => {
   const [consultas, setConsultas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [busqueda, setBusqueda] = useState("");
 
   useEffect(() => {
     const cargarConsultas = async () => {
@@ -19,16 +20,43 @@ const Consultas = () => {
     cargarConsultas();
   }, []);
 
-  if (loading) {
-    return <p className="text-center py-10">Cargando consultas...</p>;
-  }
+  const consultasFiltradas = consultas.filter(c => {
+    if (!busqueda) return true;
+    const texto = busqueda.toLowerCase();
+    return (
+      (c.name || "").toLowerCase().includes(texto) ||
+      (c.email || "").toLowerCase().includes(texto) ||
+      (c.message || "").toLowerCase().includes(texto)
+    );
+  });
+
+  if (loading) return <p className="text-center py-10">Cargando consultas...</p>;
 
   return (
     <section className="text-gray-600 body-font">
       <div className="container px-4 py-8 mx-auto">
-        <div className="flex flex-col text-center w-full mb-8">
+        <div className="flex flex-col text-center w-full mb-6">
           <h1 className="text-3xl font-semibold text-gray-900 mb-2">Consultas</h1>
           <p className="text-gray-600 text-base">Mensajes enviados desde el formulario de contacto.</p>
+        </div>
+
+        {/* Filtro de búsqueda */}
+        <div className="flex flex-wrap gap-3 mb-6 items-center">
+          <input
+            type="text"
+            placeholder="Buscar por nombre, email o mensaje..."
+            className="border rounded-lg px-3 py-2 text-sm flex-1 min-w-[250px] focus:outline-none focus:ring-2 focus:ring-indigo-300"
+            value={busqueda}
+            onChange={e => setBusqueda(e.target.value)}
+          />
+          <span className="text-sm text-gray-500 whitespace-nowrap">
+            {consultasFiltradas.length} resultado/s
+          </span>
+          {busqueda && (
+            <button className="text-sm text-indigo-600 hover:underline" onClick={() => setBusqueda("")}>
+              Limpiar
+            </button>
+          )}
         </div>
 
         <div className="w-full overflow-x-auto">
@@ -42,12 +70,14 @@ const Consultas = () => {
               </tr>
             </thead>
             <tbody>
-              {consultas.length === 0 && (
+              {consultasFiltradas.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="text-center py-4">No hay consultas registradas</td>
+                  <td colSpan={4} className="text-center py-8 text-gray-400">
+                    {busqueda ? "No hay consultas que coincidan con la búsqueda" : "No hay consultas registradas"}
+                  </td>
                 </tr>
               )}
-              {consultas.map(({ id, name, email, message }) => (
+              {consultasFiltradas.map(({ id, name, email, message }) => (
                 <tr key={id} className="border-t">
                   <td className="px-4 py-2">{name}</td>
                   <td className="px-4 py-2">{email}</td>

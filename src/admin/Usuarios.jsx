@@ -1,15 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { fetchUsuarios, updateUsuarioRol, desactivarUsuario } from "../firebase/firestore";
 
-// MEJORA (RF-05 – Gestión de Usuarios y Roles): El componente original tenía
-// los botones "Editar" y "Eliminar" con alert() falsos (sin funcionalidad real).
-// Se implementa:
-//  - Edición real del rol del usuario (Turista / Seller / Admin) con modal.
-//  - Desactivación de cuenta (soft delete con campo "activo: false") en lugar
-//    de eliminación definitiva, como indica RF-05: "Desactivar cuentas".
-//  - Badge de rol con color para mejorar la legibilidad (RNF-01 – UX).
-//  - Indicador visual para cuentas inactivas.
-
 const ROLES = ["user", "seller", "admin"];
 
 const rolColor = {
@@ -22,11 +13,15 @@ const UsuariosTable = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Estado del modal de edición de rol
   const [usuarioEditando, setUsuarioEditando] = useState(null);
   const [rolSeleccionado, setRolSeleccionado] = useState("");
   const [guardando, setGuardando] = useState(false);
   const [feedback, setFeedback] = useState(null);
+
+  // Filtros
+  const [busqueda, setBusqueda] = useState("");
+  const [filtroRol, setFiltroRol] = useState("todos");
+  const [filtroActivo, setFiltroActivo] = useState("todos");
 
   useEffect(() => {
     cargarUsuarios();
@@ -43,24 +38,19 @@ const UsuariosTable = () => {
     }
   };
 
-  // MEJORA: Abre el modal de edición con el rol actual pre-seleccionado
   const abrirModalEditar = (usuario) => {
     setUsuarioEditando(usuario);
     setRolSeleccionado(usuario.role || "user");
     setFeedback(null);
   };
 
-  // MEJORA: Guarda el nuevo rol en Firestore usando updateUsuarioRol()
   const guardarRol = async () => {
     if (!usuarioEditando) return;
     setGuardando(true);
     try {
       await updateUsuarioRol(usuarioEditando.uid, rolSeleccionado);
-      // Actualizar el estado local para reflejar el cambio sin recargar
-      setUsuarios((prev) =>
-        prev.map((u) =>
-          u.uid === usuarioEditando.uid ? { ...u, role: rolSeleccionado } : u
-        )
+      setUsuarios(prev =>
+        prev.map(u => u.uid === usuarioEditando.uid ? { ...u, role: rolSeleccionado } : u)
       );
       setFeedback({ tipo: "ok", mensaje: "Rol actualizado correctamente." });
       setTimeout(() => setUsuarioEditando(null), 1200);
@@ -72,39 +62,79 @@ const UsuariosTable = () => {
     }
   };
 
-  // MEJORA: Desactiva la cuenta (soft delete) en lugar de eliminarla
   const handleDesactivar = async (usuario) => {
-    if (
-      !window.confirm(
-        `¿Desactivar la cuenta de ${usuario.email}? El usuario no podrá iniciar sesión.`
-      )
-    )
-      return;
+    if (!window.confirm(`¿Desactivar la cuenta de ${usuario.email}? El usuario no podrá iniciar sesión.`)) return;
     try {
       await desactivarUsuario(usuario.uid);
-      setUsuarios((prev) =>
-        prev.map((u) =>
-          u.uid === usuario.uid ? { ...u, activo: false } : u
-        )
-      );
+      setUsuarios(prev => prev.map(u => u.uid === usuario.uid ? { ...u, activo: false } : u));
     } catch (err) {
       console.error("Error desactivando usuario:", err);
       alert("No se pudo desactivar el usuario.");
     }
   };
 
-  if (loading) {
-    return <p className="text-center py-10">Cargando usuarios...</p>;
-  }
+  // Usuarios filtrados
+  const usuariosFiltrados = usuarios.filter(u => {
+    const texto = busqueda.toLowerCase();
+    const matchBusqueda = !texto ||
+      (u.fullname || "").toLowerCase().includes(texto) ||
+      (u.email || "").toLowerCase().includes(texto);
+    const matchRol = filtroRol === "todos" || u.role === filtroRol;
+    const matchActivo =
+      filtroActivo === "todos" ||
+      (filtroActivo === "activo" ? u.activo !== false : u.activo === false);
+    return matchBusqueda && matchRol && matchActivo;
+  });
+
+  if (loading) return <p className="text-center py-10">Cargando usuarios...</p>;
 
   return (
     <section className="text-gray-600 body-font">
       <div className="container px-4 py-8 mx-auto">
-        <div className="flex flex-col text-center w-full mb-8">
+        <div className="flex flex-col text-center w-full mb-6">
           <h1 className="text-3xl font-semibold text-gray-900 mb-2">Usuarios</h1>
-          <p className="text-gray-600 text-base">
-            Listado de usuarios. Podés editar roles o desactivar cuentas.
-          </p>
+          <p className="text-gray-600 text-base">Listado de usuarios. Podés editar roles o desactivar cuentas.</p>
+        </div>
+
+        {/* Barra de filtros */}
+        <div className="flex flex-wrap gap-3 mb-6 items-center">
+          <input
+            type="text"
+            placeholder="Buscar por nombre o email..."
+            className="border rounded-lg px-3 py-2 text-sm flex-1 min-w-[200px] focus:outline-none focus:ring-2 focus:ring-indigo-300"
+            value={busqueda}
+            onChange={e => setBusqueda(e.target.value)}
+          />
+          <select
+            className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+            value={filtroRol}
+            onChange={e => setFiltroRol(e.target.value)}
+          >
+            <option value="todos">Todos los roles</option>
+            <option value="user">Turista</option>
+            <option value="seller">Seller</option>
+            <option value="admin">Admin</option>
+          </select>
+          <select
+            className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+            value={filtroActivo}
+            onChange={e => setFiltroActivo(e.target.value)}
+          >
+            <option value="todos">Todos los estados</option>
+            <option value="activo">Activos</option>
+            <option value="inactivo">Inactivos</option>
+          </select>
+          <span className="text-sm text-gray-500 whitespace-nowrap">
+            {usuariosFiltrados.length} resultado/s
+          </span>
+          {(busqueda || filtroRol !== "todos" || filtroActivo !== "todos") && (
+            <button
+              className="text-sm text-indigo-600 hover:underline"
+              onClick={() => { setBusqueda(""); setFiltroRol("todos"); setFiltroActivo("todos"); }}
+            >
+              Limpiar filtros
+            </button>
+          )}
         </div>
 
         <div className="w-full overflow-x-auto">
@@ -114,42 +144,32 @@ const UsuariosTable = () => {
                 <th className="px-4 py-2 bg-gray-100 text-sm font-medium text-gray-900">Nombre</th>
                 <th className="px-4 py-2 bg-gray-100 text-sm font-medium text-gray-900">Email</th>
                 <th className="px-4 py-2 bg-gray-100 text-sm font-medium text-gray-900">Rol</th>
-                {/* MEJORA: Nueva columna para mostrar el estado de la cuenta */}
                 <th className="px-4 py-2 bg-gray-100 text-sm font-medium text-gray-900">Estado</th>
                 <th className="px-4 py-2 bg-gray-100 text-sm font-medium text-gray-900 text-center">Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {usuarios.length === 0 && (
+              {usuariosFiltrados.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="text-center py-4">
-                    No hay usuarios registrados
+                  <td colSpan={5} className="text-center py-8 text-gray-400">
+                    No hay usuarios que coincidan con los filtros
                   </td>
                 </tr>
               )}
-              {usuarios.map(({ uid, email, role, activo, fullname }) => (
-                <tr
-                  key={uid}
-                  className={`border-t ${activo === false ? "opacity-50" : ""}`}
-                >
+              {usuariosFiltrados.map(({ uid, email, role, activo, fullname }) => (
+                <tr key={uid} className={`border-t ${activo === false ? "opacity-50" : ""}`}>
                   <td className="px-4 py-2">{fullname || email?.split("@")[0]}</td>
                   <td className="px-4 py-2">{email}</td>
                   <td className="px-4 py-2">
-                    {/* MEJORA: Badge de rol con color según tipo (RNF-01 – UX) */}
-                    <span
-                      className={`px-2 py-1 rounded text-xs font-semibold capitalize ${
-                        rolColor[role] || "bg-gray-100 text-gray-600"
-                      }`}
-                    >
+                    <span className={`px-2 py-1 rounded text-xs font-semibold capitalize ${rolColor[role] || "bg-gray-100 text-gray-600"}`}>
                       {role || "user"}
                     </span>
                   </td>
                   <td className="px-4 py-2">
-                    {activo === false ? (
-                      <span className="text-xs text-red-500 font-medium">Inactivo</span>
-                    ) : (
-                      <span className="text-xs text-green-600 font-medium">Activo</span>
-                    )}
+                    {activo === false
+                      ? <span className="text-xs text-red-500 font-medium">Inactivo</span>
+                      : <span className="text-xs text-green-600 font-medium">Activo</span>
+                    }
                   </td>
                   <td className="px-4 py-2">
                     <div className="flex justify-center space-x-2">
@@ -176,7 +196,7 @@ const UsuariosTable = () => {
         </div>
       </div>
 
-      {/* MODAL DE EDICIÓN DE ROL */}
+      {/* MODAL EDITAR ROL */}
       {usuarioEditando && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm">
@@ -187,30 +207,21 @@ const UsuariosTable = () => {
             <select
               className="border w-full rounded px-3 py-2 mb-4"
               value={rolSeleccionado}
-              onChange={(e) => setRolSeleccionado(e.target.value)}
+              onChange={e => setRolSeleccionado(e.target.value)}
             >
-              {ROLES.map((r) => (
-                <option key={r} value={r}>
-                  {r.charAt(0).toUpperCase() + r.slice(1)}
-                </option>
+              {ROLES.map(r => (
+                <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
               ))}
             </select>
 
             {feedback && (
-              <p
-                className={`text-sm mb-3 ${
-                  feedback.tipo === "ok" ? "text-green-600" : "text-red-600"
-                }`}
-              >
+              <p className={`text-sm mb-3 ${feedback.tipo === "ok" ? "text-green-600" : "text-red-600"}`}>
                 {feedback.mensaje}
               </p>
             )}
 
             <div className="flex justify-end gap-2">
-              <button
-                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-                onClick={() => setUsuarioEditando(null)}
-              >
+              <button className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300" onClick={() => setUsuarioEditando(null)}>
                 Cancelar
               </button>
               <button
