@@ -68,37 +68,36 @@ const MapaServicio = ({
   const center = coordsValidas ? [latNum, lngNum] : [-34.6037, -58.3816];
 
   return (
-    <div style={{ height }} className="w-full rounded-xl overflow-hidden border border-gray-200 z-0">
-      <MapContainer
-        center={center}
-        zoom={coordsValidas ? 15 : 12}
-        style={{ height: "100%", width: "100%" }}
-        // scrollWheelZoom desactivado para no interferir con el scroll de la página
-        scrollWheelZoom={false}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-
-        {/* Marcador: solo si hay coordenadas */}
-        {coordsValidas && (
-          <Marker position={[latNum, lngNum]}>
-            <Popup>
-              <strong>{titulo}</strong>
-            </Popup>
-          </Marker>
-        )}
-
-        {/* Handler de clicks solo en modo edición */}
-        {editable && (
-          <ClickHandler
-            onClickMap={({ lat: newLat, lng: newLng }) => {
-              if (onChangeCoords) onChangeCoords(newLat, newLng);
-            }}
+    <div className="w-full">
+      <div style={{ height }} className="w-full rounded-xl overflow-hidden border border-gray-200 z-0">
+        <MapContainer
+          center={center}
+          zoom={coordsValidas ? 15 : 12}
+          style={{ height: "100%", width: "100%" }}
+          scrollWheelZoom={false}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-        )}
-      </MapContainer>
+
+          {coordsValidas && (
+            <Marker position={[latNum, lngNum]}>
+              <Popup>
+                <strong>{titulo}</strong>
+              </Popup>
+            </Marker>
+          )}
+
+          {editable && (
+            <ClickHandler
+              onClickMap={({ lat: newLat, lng: newLng }) => {
+                if (onChangeCoords) onChangeCoords(newLat, newLng);
+              }}
+            />
+          )}
+        </MapContainer>
+      </div>
 
       {/* Instrucción visual en modo edición */}
       {editable && (
@@ -107,6 +106,21 @@ const MapaServicio = ({
             ? `📍 ${latNum.toFixed(5)}, ${lngNum.toFixed(5)} — Hacé click para mover el pin`
             : "Hacé click en el mapa para ubicar la experiencia"}
         </p>
+      )}
+
+      {/* Enlace a Google Maps en modo solo lectura */}
+      {!editable && coordsValidas && (
+        <a
+          href={`https://www.google.com/maps?q=${latNum},${lngNum}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-1.5 flex items-center justify-center gap-1.5 text-xs text-indigo-600 hover:text-indigo-700 font-medium"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+          </svg>
+          Abrir en Google Maps
+        </a>
       )}
     </div>
   );

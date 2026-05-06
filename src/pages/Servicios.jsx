@@ -3,7 +3,7 @@
 // → Agregar al carrito → Paso 4: revisar carrito y confirmar
 
 import React, { useEffect, useState, lazy, Suspense } from "react";
-import { fetchServiciosActivos, saveReservaTransaccional, toggleFavorito, getFavoritos } from "../firebase/firestore";
+import { fetchServiciosActivos, saveReservaTransaccional, toggleFavorito, getFavoritos, fetchResenasExperiencias } from "../firebase/firestore";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
 import { useAuth } from "../context/authContext";
@@ -15,7 +15,8 @@ const MapaServicio = lazy(() => import("../components/MapaServicio"));
 // ─────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────
-const Stars = ({ rating = 4.5 }) => {
+const Stars = ({ rating, count }) => {
+  if (!rating) return <span className="text-xs text-gray-400 italic">Sin reseñas</span>;
   const full = Math.floor(rating);
   const half = rating % 1 >= 0.5;
   return (
@@ -25,10 +26,49 @@ const Stars = ({ rating = 4.5 }) => {
           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
         </svg>
       ))}
-      <span className="ml-1 text-sm text-gray-500">{rating}</span>
+      <span className="ml-1 text-sm text-gray-500">
+        {rating.toFixed(1)}{count > 0 ? ` (${count})` : ""}
+      </span>
     </span>
   );
 };
+
+// ─────────────────────────────────────────
+// MODAL DE RESEÑAS DEL SERVICIO
+// ─────────────────────────────────────────
+const ModalResenas = ({ servicio, data, onClose }) => (
+  <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70" onClick={onClose}>
+    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
+        <div>
+          <h3 className="font-bold text-gray-900 line-clamp-1">{servicio.title}</h3>
+          <p className="text-sm text-gray-500">
+            {data.count} reseña{data.count !== 1 ? "s" : ""} · Promedio {data.avg.toFixed(1)} ⭐
+          </p>
+        </div>
+        <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 flex-shrink-0 ml-3">
+          <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+        {data.list.map((r, i) => (
+          <div key={r.id || i} className="border-b border-gray-100 pb-4 last:border-0">
+            <div className="flex items-center justify-between mb-1">
+              <span className="font-semibold text-sm text-gray-800">{r.userName || "Usuario"}</span>
+              <span className="text-xs text-gray-400">
+                {r.timestamp?.toDate?.().toLocaleDateString("es-AR") || ""}
+              </span>
+            </div>
+            <Stars rating={r.estrellas}/>
+            {r.texto && <p className="text-sm text-gray-600 mt-1">{r.texto}</p>}
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
 
 const catColor = {
   tours: "bg-purple-100 text-purple-700",
@@ -106,7 +146,7 @@ const SelectorFechas = ({ onConfirmar }) => {
 // ─────────────────────────────────────────
 // MODAL DE DETALLE DEL SERVICIO
 // ─────────────────────────────────────────
-const ModalDetalle = ({ servicio, onClose }) => {
+const ModalDetalle = ({ servicio, onClose, resenas, onVerResenas }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { carrito, agregarItem, quitarItem, estaEnCarrito } = useCarrito();
@@ -152,7 +192,15 @@ const ModalDetalle = ({ servicio, onClose }) => {
           {/* ── Info */}
           <div className="flex-1 p-6 border-r border-gray-100">
             <h2 className="text-2xl font-bold text-gray-900 mb-1">{servicio.title}</h2>
-            <Stars rating={servicio.rating || 4.5}/>
+            <div className="flex items-center gap-3 flex-wrap">
+              <Stars rating={resenas?.avg} count={resenas?.count}/>
+              {resenas?.count > 0 && (
+                <button type="button" onClick={onVerResenas}
+                  className="text-xs text-indigo-600 hover:underline font-medium">
+                  Ver {resenas.count} reseña{resenas.count !== 1 ? "s" : ""} →
+                </button>
+              )}
+            </div>
 
             {/* Detalles rápidos */}
             <div className="mt-4 flex flex-wrap gap-4 text-sm text-gray-600">
@@ -467,12 +515,32 @@ const Catalogo = ({ onCambiarFechas }) => {
   const [seleccionado, setSeleccionado] = useState(null);
   const [carritoOpen, setCarritoOpen] = useState(false);
   const [favs, setFavs] = useState(new Set());
+  const [resenasMap, setResenasMap] = useState({});
+  const [verResenas, setVerResenas] = useState(null);
 
   useEffect(() => {
     fetchServiciosActivos()
       .then(setServicios)
       .catch(console.error)
       .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    fetchResenasExperiencias().then((resenas) => {
+      const acc = {};
+      resenas.forEach((r) => {
+        if (!r.referenciaId) return;
+        if (!acc[r.referenciaId]) acc[r.referenciaId] = { total: 0, count: 0, list: [] };
+        acc[r.referenciaId].total += Number(r.estrellas || 0);
+        acc[r.referenciaId].count += 1;
+        acc[r.referenciaId].list.push(r);
+      });
+      const result = {};
+      Object.entries(acc).forEach(([id, d]) => {
+        result[id] = { avg: d.total / d.count, count: d.count, list: d.list };
+      });
+      setResenasMap(result);
+    }).catch(console.error);
   }, []);
 
   useEffect(() => {
@@ -625,7 +693,16 @@ const Catalogo = ({ onCambiarFechas }) => {
                       <h3 className="font-bold text-gray-900 mb-1 group-hover:text-indigo-600 transition-colors line-clamp-1">
                         {s.title}
                       </h3>
-                      <Stars rating={s.rating || 4.5}/>
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <Stars rating={resenasMap[s.id]?.avg} count={resenasMap[s.id]?.count}/>
+                        {resenasMap[s.id]?.count > 0 && (
+                          <button type="button"
+                            onClick={(e) => { e.stopPropagation(); setVerResenas({ servicio: s, data: resenasMap[s.id] }); }}
+                            className="text-xs text-indigo-600 hover:underline font-medium">
+                            Ver {resenasMap[s.id].count} reseña{resenasMap[s.id].count !== 1 ? "s" : ""} →
+                          </button>
+                        )}
+                      </div>
                       <div className="flex gap-3 mt-2 text-xs text-gray-400">
                         {s.duracion && <span>⏱ {s.duracion}</span>}
                         {s.ubicacion && <span className="truncate">📍 {s.ubicacion}</span>}
@@ -650,7 +727,21 @@ const Catalogo = ({ onCambiarFechas }) => {
 
       {/* Modal de detalle */}
       {seleccionado && (
-        <ModalDetalle servicio={seleccionado} onClose={() => setSeleccionado(null)}/>
+        <ModalDetalle
+          servicio={seleccionado}
+          onClose={() => setSeleccionado(null)}
+          resenas={resenasMap[seleccionado.id]}
+          onVerResenas={() => setVerResenas({ servicio: seleccionado, data: resenasMap[seleccionado.id] })}
+        />
+      )}
+
+      {/* Modal de reseñas */}
+      {verResenas && (
+        <ModalResenas
+          servicio={verResenas.servicio}
+          data={verResenas.data}
+          onClose={() => setVerResenas(null)}
+        />
       )}
 
       {/* Panel carrito */}
