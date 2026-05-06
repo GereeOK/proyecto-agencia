@@ -658,17 +658,13 @@ const StarPicker = ({ value, onChange }) => (
 // ─── Modal de reseñas ─────────────────────────────────────────────────────────
 const ModalResena = ({ reserva, user, onClose }) => {
   const [existentes, setExistentes] = useState([]);
-  const [ratings, setRatings] = useState({});   // key → { estrellas, texto }
+  const [ratings, setRatings] = useState({});
   const [enviando, setEnviando] = useState(false);
   const [enviado, setEnviado] = useState(false);
 
-  // Servicios únicos de la reserva
   const servicios = reserva.servicios || [];
-
-  // companyId del primer servicio que lo tenga
   const companyId = servicios.find((s) => s.companyId)?.companyId || null;
 
-  // Secciones a reseñar
   const secciones = [
     ...servicios.map((s) => ({
       key:    `exp-${s.id || s.title}`,
@@ -694,19 +690,15 @@ const ModalResena = ({ reserva, user, onClose }) => {
     getResenasByReserva(reserva.id).then(setExistentes).catch(console.error);
   }, [reserva.id]);
 
-  const yaReseno = (key) => {
-    const sec = secciones.find((s) => s.key === key);
-    if (!sec) return false;
-    return existentes.some((r) => r.tipo === sec.tipo && r.referenciaId === sec.refId);
-  };
+  const yaReseno = (sec) =>
+    existentes.some((r) => r.tipo === sec.tipo && r.referenciaId === sec.refId);
 
   const setRating = (key, field, val) =>
     setRatings((prev) => ({ ...prev, [key]: { ...(prev[key] || {}), [field]: val } }));
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleEnviar = async () => {
     const pendientes = secciones.filter(
-      (sec) => !yaReseno(sec.key) && (ratings[sec.key]?.estrellas || 0) > 0
+      (sec) => !yaReseno(sec) && (ratings[sec.key]?.estrellas || 0) > 0
     );
     if (pendientes.length === 0) {
       toast.error("Asigná al menos una estrella en alguna sección");
@@ -717,21 +709,22 @@ const ModalResena = ({ reserva, user, onClose }) => {
       await Promise.all(
         pendientes.map((sec) =>
           saveResena({
-            tipo:            sec.tipo,
-            referenciaId:    sec.refId,
+            tipo:             sec.tipo,
+            referenciaId:     sec.refId,
             referenciaNombre: sec.nombre,
-            reservaId:       reserva.id,
-            userId:          user.uid,
-            userName:        user.displayName || user.email?.split("@")[0] || "Anónimo",
-            estrellas:       ratings[sec.key].estrellas,
-            texto:           (ratings[sec.key].texto || "").slice(0, 140),
+            reservaId:        reserva.id,
+            userId:           user?.uid,
+            userName:         user?.displayName || user?.email?.split("@")[0] || "Anónimo",
+            estrellas:        ratings[sec.key].estrellas,
+            texto:            (ratings[sec.key].texto || "").slice(0, 140),
           })
         )
       );
       setEnviado(true);
       toast.success("¡Gracias por tu reseña!");
       setTimeout(onClose, 1800);
-    } catch {
+    } catch (err) {
+      console.error("Error guardando reseña:", err);
       toast.error("No se pudieron guardar las reseñas");
     } finally {
       setEnviando(false);
@@ -745,7 +738,7 @@ const ModalResena = ({ reserva, user, onClose }) => {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
           <div>
             <h2 className="text-lg font-bold text-gray-900">Calificá tu experiencia</h2>
             <p className="text-sm text-gray-400">
@@ -753,7 +746,7 @@ const ModalResena = ({ reserva, user, onClose }) => {
               {reserva.checkout && reserva.checkout !== reserva.checkin ? ` al ${reserva.checkout}` : ""}
             </p>
           </div>
-          <button onClick={onClose}
+          <button type="button" onClick={onClose}
             className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">
             <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -761,74 +754,75 @@ const ModalResena = ({ reserva, user, onClose }) => {
           </button>
         </div>
 
-        {/* Body */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
-          <div className="px-6 py-4 space-y-5">
-            {enviado ? (
-              <div className="text-center py-10">
-                <p className="text-5xl mb-3">🌟</p>
-                <p className="font-bold text-gray-900 text-lg">¡Gracias por tu opinión!</p>
-                <p className="text-gray-400 text-sm mt-1">Tu reseña ayuda a otros viajeros</p>
-              </div>
-            ) : (
-              secciones.map((sec) => {
-                const done = yaReseno(sec.key);
-                const existing = existentes.find((r) => r.tipo === sec.tipo && r.referenciaId === sec.refId);
-                const r = ratings[sec.key] || {};
-
-                return (
-                  <div key={sec.key} className={`rounded-xl border p-4 ${done ? "bg-gray-50 border-gray-100" : "border-gray-200"}`}>
-                    <p className="text-sm font-semibold text-gray-700 mb-2">{sec.nombre}</p>
-
-                    {done ? (
-                      <div className="space-y-1">
-                        <div className="flex gap-0.5 text-yellow-400 text-lg">
-                          {"★".repeat(existing.estrellas)}{"☆".repeat(5 - existing.estrellas)}
-                        </div>
-                        {existing.texto && (
-                          <p className="text-xs text-gray-500 italic">"{existing.texto}"</p>
-                        )}
-                        <p className="text-xs text-green-600 font-medium">✓ Ya calificaste esto</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        <StarPicker
-                          value={r.estrellas || 0}
-                          onChange={(v) => setRating(sec.key, "estrellas", v)}
-                        />
-                        <div className="relative">
-                          <textarea
-                            rows={2}
-                            maxLength={140}
-                            placeholder="Contá tu experiencia (opcional)..."
-                            value={r.texto || ""}
-                            onChange={(e) => setRating(sec.key, "texto", e.target.value)}
-                            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400 transition-colors resize-none"
-                          />
-                          <span className="absolute bottom-2 right-3 text-xs text-gray-300">
-                            {(r.texto || "").length}/140
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })
-            )}
-          </div>
-
-          {!enviado && (
-            <div className="px-6 py-4 border-t border-gray-100">
-              <button
-                type="submit"
-                disabled={enviando}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-sm disabled:opacity-50 transition-colors"
-              >
-                {enviando ? "Enviando..." : "Enviar reseñas"}
-              </button>
+        {/* Scrollable body */}
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-5">
+          {enviado ? (
+            <div className="text-center py-10">
+              <p className="text-5xl mb-3">🌟</p>
+              <p className="font-bold text-gray-900 text-lg">¡Gracias por tu opinión!</p>
+              <p className="text-gray-400 text-sm mt-1">Tu reseña ayuda a otros viajeros</p>
             </div>
+          ) : (
+            secciones.map((sec) => {
+              const done = yaReseno(sec);
+              const existing = existentes.find((r) => r.tipo === sec.tipo && r.referenciaId === sec.refId);
+              const r = ratings[sec.key] || {};
+
+              return (
+                <div key={sec.key} className={`rounded-xl border p-4 ${done ? "bg-gray-50 border-gray-100" : "border-gray-200"}`}>
+                  <p className="text-sm font-semibold text-gray-700 mb-2">{sec.nombre}</p>
+
+                  {done ? (
+                    <div className="space-y-1">
+                      <div className="flex gap-0.5 text-yellow-400 text-lg">
+                        {"★".repeat(existing.estrellas)}
+                        <span className="text-gray-200">{"★".repeat(5 - existing.estrellas)}</span>
+                      </div>
+                      {existing.texto && (
+                        <p className="text-xs text-gray-500 italic">"{existing.texto}"</p>
+                      )}
+                      <p className="text-xs text-green-600 font-medium">✓ Ya calificaste esto</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <StarPicker
+                        value={r.estrellas || 0}
+                        onChange={(v) => setRating(sec.key, "estrellas", v)}
+                      />
+                      <div className="relative">
+                        <textarea
+                          rows={2}
+                          maxLength={140}
+                          placeholder="Contá tu experiencia (opcional)..."
+                          value={r.texto || ""}
+                          onChange={(e) => setRating(sec.key, "texto", e.target.value)}
+                          className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400 transition-colors resize-none"
+                        />
+                        <span className="absolute bottom-2 right-3 text-xs text-gray-300">
+                          {(r.texto || "").length}/140
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })
           )}
-        </form>
+        </div>
+
+        {/* Footer fijo fuera del scroll */}
+        {!enviado && (
+          <div className="px-6 py-4 border-t border-gray-100 flex-shrink-0">
+            <button
+              type="button"
+              onClick={handleEnviar}
+              disabled={enviando}
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-sm disabled:opacity-50 transition-colors"
+            >
+              {enviando ? "Enviando..." : "Enviar reseñas"}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
