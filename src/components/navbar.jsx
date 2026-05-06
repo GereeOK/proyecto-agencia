@@ -161,9 +161,14 @@ const Header = () => {
                   </Link>
                 )}
                 {user.role === "admin" && (
-                  <Link to="/admin" className="bg-indigo-500 hover:bg-indigo-600 text-white py-1.5 px-3 rounded text-sm transition-colors">
-                    Panel Admin
-                  </Link>
+                  <>
+                    <Link to="/seller" className="bg-indigo-500 hover:bg-indigo-600 text-white py-1.5 px-3 rounded text-sm transition-colors">
+                      Panel Seller
+                    </Link>
+                    <Link to="/admin" className="bg-indigo-500 hover:bg-indigo-600 text-white py-1.5 px-3 rounded text-sm transition-colors">
+                      Panel Admin
+                    </Link>
+                  </>
                 )}
               </div>
 
@@ -179,7 +184,7 @@ const Header = () => {
                 {showDropdown && (
                   <div className="absolute right-0 mt-2 w-44 bg-white rounded-md shadow-lg py-1 text-sm text-gray-700">
                     <Link to="/perfil" className="block px-4 py-2 hover:bg-gray-100 hover:text-indigo-600 transition-colors">
-                      Mi Perfil
+                      👤 Mi Perfil
                     </Link>
                     <Link to="/favoritos" className="block px-4 py-2 hover:bg-gray-100 hover:text-indigo-600 transition-colors">
                       🤍 Mis Favoritos
@@ -188,7 +193,7 @@ const Header = () => {
                       onClick={handleLogout}
                       className="block w-full text-left px-4 py-2 hover:bg-red-500 hover:text-white transition-colors"
                     >
-                      Cerrar sesión
+                      🚪 Cerrar sesión
                     </button>
                   </div>
                 )}
@@ -241,9 +246,14 @@ const Header = () => {
                 </Link>
               )}
               {user.role === "admin" && (
-                <Link to="/admin" className="text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded transition-colors">
-                  Panel Admin
-                </Link>
+                <>
+                  <Link to="/seller" className="text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded transition-colors">
+                    Panel Seller
+                  </Link>
+                  <Link to="/admin" className="text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded transition-colors">
+                    Panel Admin
+                  </Link>
+                </>
               )}
               <Link to="/perfil" className="text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded transition-colors">
                 Mi Perfil
