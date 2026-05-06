@@ -1,104 +1,160 @@
-# Baires Essence — Web App (Administración y Sellers)
+# Baires Essence — Plataforma Web de Turismo en Buenos Aires
 
-La Web App de **Baires Essence** es el panel administrativo donde agencias, prestadores y administradores gestionan experiencias turísticas, usuarios, disponibilidad y reservas en tiempo real.  
-Está desarrollada con **React + Vite**, Tailwind CSS y Firebase (Firestore, Auth y Storage).
-
----
-
-## 🚀 Características Principales
-
-- Gestión completa de experiencias turísticas (ABM).
-- Gestión de usuarios registrados y roles.
-- Panel con reservas efectuadas por los turistas mediante la app Mobile.
-- Dashboard estadístico.
-- Integración nativa con Firebase Firestore y Firebase Auth.
-- Interfaz responsive basada en **Tailwind CSS** (componentes obtenidos desde tailblocks.cc).
+Plataforma web completa para gestión de experiencias turísticas en Buenos Aires. Permite a turistas explorar y reservar actividades, a vendedores (guías/agencias) gestionar sus experiencias, y a administradores supervisar toda la operación.
 
 ---
 
-## 🏗️ Arquitectura Técnica
+## Características
 
-- **React 18 + Vite**  
-  Vite ofrece hot module replacement (HMR), build ultrarrápida y un entorno moderno de desarrollo.
-- **Tailwind CSS** con utilidades y bloques de diseño basados en **Tailblocks**.
-- **Firebase (modular v9+)**
-  - Firestore (CRUD, consultas, sincronización realtime).
-  - Firebase Auth (Google OAuth).
-  - Firebase Storage (imágenes de experiencias).
-- **ESLint** para estandarización de código (opción expandible a TS lint-rules).
+### Para turistas
+- Catálogo de experiencias con filtros por categoría, precio y disponibilidad
+- Reserva con selección de fecha y horario por actividad
+- Lista de pasajeros con integración al grupo familiar del perfil
+- Chat en tiempo real con el vendedor dentro de cada reserva
+- Estado de reserva con máquina de estados dual (usuario + seller confirman)
+- Pago online con MercadoPago
+- Sección de favoritos (guardados)
+- Historial de reservas con calendario de actividades
 
-### Plugins React + Vite
-El proyecto utiliza los plugins oficiales:
+### Para vendedores (panel seller)
+- Alta y gestión de experiencias con mapa interactivo (Leaflet)
+- Reservas en tiempo real con `onSnapshot` (actualizaciones automáticas)
+- Chat con turistas por reserva
+- Confirmación de reservas tras la confirmación del turista
+- Calendario mensual de todas las actividades reservadas
+- Exportación CSV de reservas con métricas
 
-- `@vitejs/plugin-react` (Babel + Fast Refresh)  
-  o  
-- `@vitejs/plugin-react-swc` (basado en SWC para compilación más rápida)
-
-Ambos compatibles y soportados por Vite.
+### Para administradores (panel admin)
+- Dashboard con KPIs, gráficos de barras, torta y área (Recharts)
+- CRUD completo: usuarios, experiencias, reservas, consultas
+- Filtros y búsqueda en todos los listados
+- Exportación CSV desde el panel de reservas
+- Gestión de roles y activación/desactivación de cuentas
 
 ---
 
-## 📦 Instalación de Dependencias
+## Stack Tecnológico
 
-Cloná el repositorio:
+| Capa | Tecnología |
+|------|------------|
+| Frontend | React 19 + Vite |
+| Estilos | Tailwind CSS |
+| Backend / DB | Firebase Firestore (plan Spark) |
+| Auth | Firebase Auth (email + Google OAuth) |
+| Mapas | Leaflet + React-Leaflet |
+| Gráficos | Recharts |
+| Calendario | React Big Calendar + date-fns |
+| Pagos | MercadoPago SDK (serverless en Vercel) |
+| Email | EmailJS |
+| Toasts | Sonner |
+| Deploy | Vercel (pendiente) |
+
+---
+
+## Estructura del Proyecto
+
+```
+/src
+ ├── admin/          # Panel administrador (Dashboard, CRUDs)
+ ├── seller/         # Panel vendedor (HomeSeller)
+ ├── pages/          # Vistas públicas y de usuario
+ ├── components/     # Componentes reutilizables (Navbar, Footer, Mapa, etc.)
+ ├── firebase/       # Config Firebase + todas las funciones Firestore
+ ├── context/        # AuthContext (usuario autenticado global)
+ └── routes/         # AppRoutes + ProtectedRoute + PublicRoute
+/api
+ ├── crearPreferenciaMp.js   # Serverless: crear preferencia MercadoPago
+ └── webhookMp.js            # Serverless: recibir notificaciones de pago
+```
+
+---
+
+## Instalación
 
 ```bash
 git clone https://github.com/GereeOK/proyecto-agencia
 cd proyecto-agencia
-```
-Instalá las dependencias:
-```bash
 npm install
 ```
-## ▶️ Ejecutar el Proyecto en Local
+
+### Variables de entorno
+
+Crear `.env` en la raíz:
+
+```env
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_STORAGE_BUCKET=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_APP_ID=
+```
+
+Para MercadoPago (solo necesario en producción / Vercel):
+```env
+MP_ACCESS_TOKEN=
+```
+
+### Desarrollo local
+
 ```bash
 npm run dev
 ```
-## 🧰 Estructura del Proyecto
-```bash
-/src
- ├── assets/              # Imágenes, íconos
- ├── components/          # Componentes UI reutilizables
- ├── firebase/            # Configuración Firebase modular
- ├── pages/               # Vistas principales (admin, sellers, dashboard)
- ├── hooks/               # Hooks personalizados
- ├── styles/              # Archivos globales Tailwind
- └── main.jsx             # Punto de entrada
+
+---
+
+## Roles y Permisos
+
+| Rol | Acceso |
+|-----|--------|
+| `user` | `/servicios`, `/mis-reservas`, `/favoritos`, `/perfil` |
+| `seller` | Todo lo anterior + `/seller` |
+| `admin` | Todo lo anterior + `/admin` (también puede acceder a `/seller`) |
+
+Los usuarios con `activo: false` son redirigidos al login automáticamente.
+
+---
+
+## Colecciones Firestore
+
+| Colección | Descripción |
+|-----------|-------------|
+| `users` | Perfiles, roles, grupo familiar |
+| `servicios` | Experiencias turísticas |
+| `reservas` | Reservas con pasajeros, estados y fechas por actividad |
+| `reservas/{id}/mensajes` | Chat en tiempo real por reserva |
+| `messages` | Consultas del formulario de contacto |
+| `companies` | Datos de empresa para sellers |
+| `favoritos/{uid}/items` | Experiencias guardadas por usuario |
+
+---
+
+## Estados de Reserva
+
 ```
-## 🎨 UI y Componentes (Tailwind + Tailblocks)
-
-Toda la interfaz está construida con Tailwind CSS, utilizando:
-
-- Utilidades personalizadas (p-4, flex, grid, rounded-xl, etc.)
-
-- Bloques base importados desde https://tailblocks.cc/
-(cards, headers, secciones hero, formularios, grids responsivas)
-
-Esto asegura una UI limpia, moderna y completamente responsiva.
-
-## 🔐 Variables de Entorno (Obligatorias)
-
-Crear un archivo .env en la raíz con:
-```bash
-VITE_FIREBASE_API_KEY=YOUR_KEY
-VITE_FIREBASE_AUTH_DOMAIN=YOUR_DOMAIN
-VITE_FIREBASE_PROJECT_ID=YOUR_PROJECT_ID
-VITE_FIREBASE_STORAGE_BUCKET=YOUR_BUCKET
-VITE_FIREBASE_MESSAGING_SENDER_ID=YOUR_ID
-VITE_FIREBASE_APP_ID=YOUR_APP_ID
+pendiente → confirmada_usuario → confirmada → pagada
+                                     ↓
+                                  cancelada
 ```
-⚠️ Sin estas claves, la Web App no podrá conectarse a Firebase.
 
-## 🧪 ESLint – Recomendaciones
+- `pendiente`: reserva creada, turista completando datos
+- `confirmada_usuario`: turista confirmó su parte (datos + pasajeros)
+- `confirmada`: seller confirmó → lista para pagar
+- `pagada`: pago acreditado por MercadoPago
+- `cancelada`: cancelada por seller (con motivo)
 
-React + Vite viene con un ESLint base, pero para aplicar reglas robustas se recomienda:
+---
 
-- Integrar TypeScript (opcional)
+## Deploy (Vercel)
 
-- Agregar typescript-eslint con reglas type-aware<br>Ver: https://typescript-eslint.io
+1. Importar repo en [vercel.com](https://vercel.com) → Framework: **Vite**
+2. Agregar variables de entorno (`VITE_FIREBASE_*` + `MP_ACCESS_TOKEN`)
+3. Deploy automático
+4. Configurar webhook MercadoPago → `https://tu-app.vercel.app/api/webhookMp`
+5. Deployar reglas Firestore: `firebase deploy --only firestore:rules`
 
-- Usar el template oficial de React + TS para proyectos de producción:<br>https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts
+---
 
-## 📄 Licencia
+## Licencia
 
-Proyecto académico / prototipo funcional — uso libre para fines educativos.
+Proyecto académico — uso libre para fines educativos.
