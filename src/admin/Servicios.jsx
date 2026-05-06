@@ -281,132 +281,288 @@ const Servicios = () => {
 
       {/* MODAL ADD / EDIT */}
       {(showAddModal || showEditModal) && currentService && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <form
-            onSubmit={showAddModal ? handleAdd : handleEdit}
-            className="bg-white p-6 rounded shadow-lg w-full max-w-md max-h-[90vh] overflow-y-auto"
-          >
-            <h2 className="text-xl mb-4">{showAddModal ? "Nuevo Servicio" : "Editar Servicio"}</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[92vh]">
 
-            <label className="block mb-2">
-              Título
-              <input type="text" className="w-full border rounded p-2" value={currentService.title}
-                onChange={e => setCurrentService({ ...currentService, title: e.target.value })} required />
-            </label>
-
-            <label className="block mb-2">
-              Descripción
-              <textarea className="w-full border rounded p-2" value={currentService.description}
-                onChange={e => setCurrentService({ ...currentService, description: e.target.value })} required />
-            </label>
-
-            <label className="block mb-2">
-              URL imagen
-              <input type="text" className="w-full border rounded p-2" value={currentService.image}
-                onChange={e => setCurrentService({ ...currentService, image: e.target.value })} />
-            </label>
-
-            <label className="block mb-2">
-              Precio (opcional)
-              <input type="number" min="0" className="w-full border rounded p-2" value={currentService.price}
-                onChange={e => setCurrentService({ ...currentService, price: e.target.value })} placeholder="Ej: 5000" />
-            </label>
-
-            <div className="grid grid-cols-2 gap-2 mb-2">
-              <label className="block">
-                Categoría
-                <select className="w-full border rounded p-2 mt-1" value={currentService.categoria || ""}
-                  onChange={e => setCurrentService({ ...currentService, categoria: e.target.value })}>
-                  <option value="">Sin categoría</option>
-                  {CATEGORIAS.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </label>
-              <label className="block">
-                Duración
-                <input type="text" placeholder="Ej: 3 horas" className="w-full border rounded p-2 mt-1"
-                  value={currentService.duracion || ""}
-                  onChange={e => setCurrentService({ ...currentService, duracion: e.target.value })} />
-              </label>
-            </div>
-
-            <label className="block mb-2">
-              Idioma
-              <input type="text" placeholder="Ej: Español, Inglés" className="w-full border rounded p-2"
-                value={currentService.idioma || ""}
-                onChange={e => setCurrentService({ ...currentService, idioma: e.target.value })} />
-            </label>
-
-            <label className="block mb-2">
-              Ubicación (texto)
-              <input type="text" placeholder="Ej: Barracas, CABA" className="w-full border rounded p-2"
-                value={currentService.ubicacion || ""}
-                onChange={e => setCurrentService({ ...currentService, ubicacion: e.target.value })} />
-            </label>
-
-            <label className="block mb-2">
-              ¿Qué incluye?
-              <textarea rows={2} placeholder="Ej: Guía local, traslado, entrada..." className="w-full border rounded p-2 text-sm"
-                value={currentService.incluye || ""}
-                onChange={e => setCurrentService({ ...currentService, incluye: e.target.value })} />
-            </label>
-
-            <label className="block mb-2">
-              Desde
-              <input type="date" className="w-full border rounded p-2"
-                value={currentService.from?.toDate ? currentService.from.toDate().toISOString().split("T")[0] : currentService.from instanceof Date ? currentService.from.toISOString().split("T")[0] : ""}
-                onChange={e => setCurrentService({ ...currentService, from: e.target.value ? Timestamp.fromDate(new Date(e.target.value)) : null })} />
-            </label>
-
-            <label className="block mb-2">
-              Hasta
-              <input type="date" className="w-full border rounded p-2"
-                value={currentService.until?.toDate ? currentService.until.toDate().toISOString().split("T")[0] : currentService.until instanceof Date ? currentService.until.toISOString().split("T")[0] : ""}
-                onChange={e => setCurrentService({ ...currentService, until: e.target.value ? Timestamp.fromDate(new Date(e.target.value)) : null })} />
-            </label>
-
-            <div className="mb-4">
-              <p className="text-sm font-medium mb-1">Ubicación en el mapa</p>
-              <div className="grid grid-cols-2 gap-2 mb-2">
-                <label className="block text-xs">
-                  Latitud
-                  <input type="number" step="any" placeholder="-34.6037" className="w-full border rounded p-2 text-sm mt-1"
-                    value={currentService.lat || ""}
-                    onChange={e => setCurrentService({ ...currentService, lat: e.target.value })} />
-                </label>
-                <label className="block text-xs">
-                  Longitud
-                  <input type="number" step="any" placeholder="-58.3816" className="w-full border rounded p-2 text-sm mt-1"
-                    value={currentService.lng || ""}
-                    onChange={e => setCurrentService({ ...currentService, lng: e.target.value })} />
-                </label>
+            {/* Header */}
+            <div className="bg-gray-900 text-white px-6 py-4 rounded-t-xl flex items-center justify-between flex-shrink-0">
+              <div>
+                <h2 className="text-base font-semibold">
+                  {showAddModal ? "Nuevo Servicio" : "Editar Servicio"}
+                </h2>
+                {showEditModal && currentService.title && (
+                  <p className="text-xs text-gray-400 mt-0.5 truncate max-w-[400px]">{currentService.title}</p>
+                )}
               </div>
-              <Suspense fallback={<div className="w-full h-48 bg-gray-100 rounded-xl animate-pulse flex items-center justify-center text-sm text-gray-400">Cargando mapa...</div>}>
-                <MapaServicio
-                  lat={currentService.lat}
-                  lng={currentService.lng}
-                  titulo={currentService.title || "Nueva experiencia"}
-                  editable={true}
-                  height="200px"
-                  onChangeCoords={(lat, lng) => setCurrentService({ ...currentService, lat: lat.toFixed(6), lng: lng.toFixed(6) })}
-                />
-              </Suspense>
-            </div>
-
-            {showEditModal && (
-              <label className="flex items-center gap-2 mb-4 cursor-pointer">
-                <input type="checkbox" checked={currentService.activo !== false}
-                  onChange={e => setCurrentService({ ...currentService, activo: e.target.checked })} />
-                <span className="text-sm text-gray-700">Servicio activo (visible para turistas)</span>
-              </label>
-            )}
-
-            <div className="flex justify-end gap-2 mt-2">
-              <button type="button" className="px-4 py-2 bg-gray-300 rounded" onClick={cerrarModales}>Cancelar</button>
-              <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded">
-                {showAddModal ? "Crear" : "Guardar"}
+              <button
+                type="button"
+                onClick={cerrarModales}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-gray-400 hover:text-white"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
-          </form>
+
+            {/* Body */}
+            <form
+              id="form-servicio"
+              onSubmit={showAddModal ? handleAdd : handleEdit}
+              className="overflow-y-auto flex-1 px-6 py-5 space-y-6"
+            >
+              {/* Sección: Información básica */}
+              <div>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                  Información básica
+                </p>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Título <span className="text-red-500">*</span></label>
+                    <input
+                      type="text"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                      value={currentService.title}
+                      onChange={e => setCurrentService({ ...currentService, title: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Descripción <span className="text-red-500">*</span></label>
+                    <textarea
+                      rows={3}
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-none"
+                      value={currentService.description}
+                      onChange={e => setCurrentService({ ...currentService, description: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Precio</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                        <input
+                          type="number"
+                          min="0"
+                          className="w-full border border-gray-200 rounded-lg pl-7 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                          value={currentService.price}
+                          onChange={e => setCurrentService({ ...currentService, price: e.target.value })}
+                          placeholder="0"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">URL de imagen</label>
+                      <input
+                        type="text"
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                        value={currentService.image}
+                        onChange={e => setCurrentService({ ...currentService, image: e.target.value })}
+                        placeholder="https://..."
+                      />
+                    </div>
+                  </div>
+                  {currentService.image && (
+                    <div className="rounded-lg overflow-hidden border border-gray-100">
+                      <img src={currentService.image} alt="preview" className="w-full h-32 object-cover" />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <hr className="border-gray-100" />
+
+              {/* Sección: Detalles */}
+              <div>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                  Detalles
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                    <select
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                      value={currentService.categoria || ""}
+                      onChange={e => setCurrentService({ ...currentService, categoria: e.target.value })}
+                    >
+                      <option value="">Sin categoría</option>
+                      {CATEGORIAS.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Duración</label>
+                    <input
+                      type="text"
+                      placeholder="Ej: 3 horas"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                      value={currentService.duracion || ""}
+                      onChange={e => setCurrentService({ ...currentService, duracion: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Idioma/s</label>
+                    <input
+                      type="text"
+                      placeholder="Ej: Español, Inglés"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                      value={currentService.idioma || ""}
+                      onChange={e => setCurrentService({ ...currentService, idioma: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Ubicación (texto)</label>
+                    <input
+                      type="text"
+                      placeholder="Ej: Barracas, CABA"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                      value={currentService.ubicacion || ""}
+                      onChange={e => setCurrentService({ ...currentService, ubicacion: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">¿Qué incluye?</label>
+                  <textarea
+                    rows={2}
+                    placeholder="Ej: Guía local, traslado, entrada..."
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-none"
+                    value={currentService.incluye || ""}
+                    onChange={e => setCurrentService({ ...currentService, incluye: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <hr className="border-gray-100" />
+
+              {/* Sección: Disponibilidad */}
+              <div>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                  Disponibilidad
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Desde</label>
+                    <input
+                      type="date"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                      value={currentService.from?.toDate ? currentService.from.toDate().toISOString().split("T")[0] : currentService.from instanceof Date ? currentService.from.toISOString().split("T")[0] : ""}
+                      onChange={e => setCurrentService({ ...currentService, from: e.target.value ? Timestamp.fromDate(new Date(e.target.value)) : null })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Hasta</label>
+                    <input
+                      type="date"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                      value={currentService.until?.toDate ? currentService.until.toDate().toISOString().split("T")[0] : currentService.until instanceof Date ? currentService.until.toISOString().split("T")[0] : ""}
+                      onChange={e => setCurrentService({ ...currentService, until: e.target.value ? Timestamp.fromDate(new Date(e.target.value)) : null })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <hr className="border-gray-100" />
+
+              {/* Sección: Ubicación en el mapa */}
+              <div>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                  Ubicación en el mapa
+                </p>
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Latitud</label>
+                    <input
+                      type="number"
+                      step="any"
+                      placeholder="-34.6037"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                      value={currentService.lat || ""}
+                      onChange={e => setCurrentService({ ...currentService, lat: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Longitud</label>
+                    <input
+                      type="number"
+                      step="any"
+                      placeholder="-58.3816"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                      value={currentService.lng || ""}
+                      onChange={e => setCurrentService({ ...currentService, lng: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <Suspense fallback={
+                  <div className="w-full h-48 bg-gray-100 rounded-xl animate-pulse flex items-center justify-center text-sm text-gray-400">
+                    Cargando mapa...
+                  </div>
+                }>
+                  <div className="rounded-xl overflow-hidden border border-gray-200">
+                    <MapaServicio
+                      lat={currentService.lat}
+                      lng={currentService.lng}
+                      titulo={currentService.title || "Nueva experiencia"}
+                      editable={true}
+                      height="200px"
+                      onChangeCoords={(lat, lng) =>
+                        setCurrentService({ ...currentService, lat: lat.toFixed(6), lng: lng.toFixed(6) })
+                      }
+                    />
+                  </div>
+                </Suspense>
+              </div>
+
+              {/* Toggle de estado (solo en edición) */}
+              {showEditModal && (
+                <>
+                  <hr className="border-gray-100" />
+                  <div>
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Estado</p>
+                    <label className="flex items-center gap-3 cursor-pointer select-none">
+                      <div className="relative">
+                        <input
+                          type="checkbox"
+                          className="sr-only"
+                          checked={currentService.activo !== false}
+                          onChange={e => setCurrentService({ ...currentService, activo: e.target.checked })}
+                        />
+                        <div className={`w-10 h-6 rounded-full transition-colors ${currentService.activo !== false ? "bg-indigo-500" : "bg-gray-300"}`} />
+                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${currentService.activo !== false ? "translate-x-5" : "translate-x-1"}`} />
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium text-gray-700">
+                          {currentService.activo !== false ? "Servicio activo" : "Servicio inactivo"}
+                        </span>
+                        <p className="text-xs text-gray-400">
+                          {currentService.activo !== false ? "Visible para turistas en el catálogo" : "Oculto del catálogo público"}
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+                </>
+              )}
+            </form>
+
+            {/* Footer */}
+            <div className="px-6 py-4 bg-gray-50 rounded-b-xl flex justify-end gap-3 border-t border-gray-100 flex-shrink-0">
+              <button
+                type="button"
+                onClick={cerrarModales}
+                className="px-5 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                form="form-servicio"
+                className="px-5 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors"
+              >
+                {showAddModal ? "Crear servicio" : "Guardar cambios"}
+              </button>
+            </div>
+
+          </div>
         </div>
       )}
     </section>
