@@ -193,6 +193,7 @@ const ModalServicio = ({ servicio, onClose, onSave }) => {
     categoria: "", duracion: "", idioma: "", ubicacion: "",
     incluye: "", lat: "", lng: "",
     from: null, until: null, activo: true,
+    whatsapp: "", emailContacto: "",
     ...servicio,
   });
   const [guardando, setGuardando] = useState(false);
@@ -304,6 +305,18 @@ const ModalServicio = ({ servicio, onClose, onSave }) => {
             <label className="block text-xs font-semibold text-gray-600 mb-1">¿Qué incluye?</label>
             <textarea rows={2} value={form.incluye} onChange={(e) => set("incluye", e.target.value)}
               placeholder="Guía local, traslado, entrada..." className={inputCls} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">WhatsApp de contacto</label>
+              <input type="text" value={form.whatsapp} onChange={(e) => set("whatsapp", e.target.value)}
+                placeholder="5491112345678" className={inputCls} />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">Email de contacto</label>
+              <input type="email" value={form.emailContacto} onChange={(e) => set("emailContacto", e.target.value)}
+                placeholder="guia@email.com" className={inputCls} />
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>

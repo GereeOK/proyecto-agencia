@@ -3,6 +3,7 @@ import Home from "../pages/Home";
 import Login from "../pages/login";
 import Register from "../pages/register";
 import MisReservas from "../pages/mis-reservas";
+import Favoritos from "../pages/Favoritos";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
 import Perfil from "../pages/perfil";
@@ -37,6 +38,7 @@ const AppRoutes = () => {
 
       {/* Protegidas */}
       <Route path="/mis-reservas" element={<ProtectedRoute><MisReservas /></ProtectedRoute>} />
+      <Route path="/favoritos" element={<ProtectedRoute><Favoritos /></ProtectedRoute>} />
       <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
       <Route path="/reserva-exitosa" element={<ProtectedRoute><ReservaExitosa /></ProtectedRoute>} />
 
