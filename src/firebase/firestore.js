@@ -13,6 +13,8 @@ import {
   getDocs,
   query,
   where,
+  orderBy,
+  onSnapshot,
   serverTimestamp,
   deleteDoc,
   updateDoc,
@@ -215,7 +217,7 @@ export const updateReserva = async (reserva) => {
 // separada del update general para mayor claridad semántica.
 export const cambiarEstadoReserva = async (reservaId, nuevoEstado) => {
   // nuevoEstado puede ser: "pendiente" | "confirmada" | "cancelada"
-  const estadosValidos = ["pendiente", "confirmada", "cancelada"];
+  const estadosValidos = ["pendiente", "confirmada_usuario", "confirmada", "cancelada", "pagada"];
   if (!estadosValidos.includes(nuevoEstado)) {
     throw new Error(`Estado inválido: ${nuevoEstado}`);
   }
@@ -321,4 +323,84 @@ export const getFavoritos = async (userId) => {
 export const isFavorito = async (userId, servicioId) => {
   const snap = await getDoc(doc(db, "favoritos", userId, "items", servicioId));
   return snap.exists();
+};
+
+// ==========================================
+// 7. MENSAJES DE RESERVA
+// Subcolección: reservas/{reservaId}/mensajes/{msgId}
+// ==========================================
+
+export const sendMensaje = async (reservaId, { texto, autorId, autorNombre, autorRol, servicioId = null }) => {
+  return addDoc(collection(db, "reservas", reservaId, "mensajes"), {
+    texto,
+    autorId,
+    autorNombre,
+    autorRol, // "usuario" | "seller"
+    servicioId,
+    timestamp: serverTimestamp(),
+    leido: false,
+  });
+};
+
+// Retorna la función unsubscribe — llamarla en el cleanup del useEffect
+export const subscribeToMensajes = (reservaId, callback) => {
+  const q = query(
+    collection(db, "reservas", reservaId, "mensajes"),
+    orderBy("timestamp", "asc")
+  );
+  return onSnapshot(q, snap => {
+    callback(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+  });
+};
+
+// ==========================================
+// 8. GRUPO FAMILIAR
+// Guardado como array en users/{userId}.grupofamiliar
+// ==========================================
+
+export const getGrupoFamiliar = async (userId) => {
+  const snap = await getDoc(doc(db, "users", userId));
+  return snap.exists() ? (snap.data().grupofamiliar || []) : [];
+};
+
+export const saveGrupoFamiliar = async (userId, miembros) => {
+  return updateDoc(doc(db, "users", userId), { grupofamiliar: miembros });
+};
+
+// ==========================================
+// 9. PASAJEROS + FECHAS POR ACTIVIDAD + CONFIRMACIÓN
+// ==========================================
+
+export const updatePasajeros = async (reservaId, pasajeros) => {
+  return updateDoc(doc(db, "reservas", reservaId), { pasajeros });
+};
+
+// Actualiza el array servicios completo (incluye fecha + horario por ítem)
+export const updateServiciosReserva = async (reservaId, servicios) => {
+  return updateDoc(doc(db, "reservas", reservaId), { servicios });
+};
+
+// El usuario confirma su parte → bloquea edición, seller puede confirmar
+export const confirmarReservaPorUsuario = async (reservaId) => {
+  return updateDoc(doc(db, "reservas", reservaId), {
+    confirmadoPorUsuario: true,
+    estado: "confirmada_usuario",
+    timestamp: serverTimestamp(),
+  });
+};
+
+// El seller confirma → reserva lista para pagar
+export const confirmarReservaPorSeller = async (reservaId) => {
+  return updateDoc(doc(db, "reservas", reservaId), {
+    confirmadoPorSeller: true,
+    estado: "confirmada",
+    timestamp: serverTimestamp(),
+  });
+};
+
+export const cancelarReserva = async (reservaId) => {
+  return updateDoc(doc(db, "reservas", reservaId), {
+    estado: "cancelada",
+    timestamp: serverTimestamp(),
+  });
 };

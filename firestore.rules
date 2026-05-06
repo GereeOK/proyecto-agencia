@@ -15,7 +15,7 @@ service cloud.firestore {
     }
 
     // Reservas: usuario ve las suyas; seller y admin ven todas
-    match /reservas/{id} {
+    match /reservas/{reservaId} {
       allow read:   if request.auth != null &&
                        (resource.data.email == request.auth.token.email ||
                         isSeller() || isAdmin());
@@ -25,6 +25,21 @@ service cloud.firestore {
                         resource.data.email == request.auth.token.email);
       allow delete: if request.auth != null &&
                        (resource.data.email == request.auth.token.email || isAdmin());
+
+      // Mensajes de reserva: chat entre usuario y seller
+      match /mensajes/{msgId} {
+        allow read: if request.auth != null && (
+          isAdmin() ||
+          isSeller() ||
+          get(/databases/$(database)/documents/reservas/$(reservaId)).data.email == request.auth.token.email
+        );
+        allow create: if request.auth != null && (
+          isAdmin() ||
+          isSeller() ||
+          get(/databases/$(database)/documents/reservas/$(reservaId)).data.email == request.auth.token.email
+        );
+        allow update, delete: if false;
+      }
     }
 
     // Mensajes de contacto: cualquiera crea, solo admin lee
