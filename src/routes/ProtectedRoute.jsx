@@ -35,8 +35,8 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     return <Navigate to="/login" replace />;
   }
 
-  // Rol incorrecto → inicio
-  if (requiredRole && user.role !== requiredRole) {
+  // Rol incorrecto → inicio (admin puede acceder a cualquier ruta protegida por rol)
+  if (requiredRole && user.role !== requiredRole && user.role !== "admin") {
     return <Navigate to="/" replace />;
   }
 
