@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import "leaflet/dist/leaflet.css";
 import './index.css';
+import './i18n/index.js';
 import { AuthProvider } from './context/authContext';
 import { CarritoProvider } from './context/carritoContext';
 
