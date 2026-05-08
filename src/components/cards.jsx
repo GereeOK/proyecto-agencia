@@ -3,12 +3,14 @@ import { useAuth } from "../context/authContext";
 import { useNavigate } from "react-router-dom";
 import { fetchServiciosActivos } from "../firebase/firestore";
 import { useTranslation } from "react-i18next";
+import { getLang, useLang } from "../utils/translate";
 
 const Cards = () => {
   const [cards, setCards] = useState([]);
   const { user } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const lang = useLang();
 
   useEffect(() => {
     const cargarServicios = async () => {
@@ -36,9 +38,9 @@ const Cards = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {cards.map((card) => (
             <div key={card.id} className="bg-gray-100 p-6 rounded-lg">
-              <img className="h-40 rounded w-full object-cover object-center mb-6" src={card.image} alt={card.title} />
-              <h2 className="text-lg text-gray-900 font-medium title-font mb-2">{card.title}</h2>
-              <p className="leading-relaxed text-base mb-4">{card.description}</p>
+              <img className="h-40 rounded w-full object-cover object-center mb-6" src={card.image} alt={getLang(card, "title", lang)} />
+              <h2 className="text-lg text-gray-900 font-medium title-font mb-2">{getLang(card, "title", lang)}</h2>
+              <p className="leading-relaxed text-base mb-4">{getLang(card, "description", lang)}</p>
               <div className="flex justify-end">
                 <button
                   onClick={handleReservarClick}
