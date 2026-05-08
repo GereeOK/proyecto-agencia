@@ -1,118 +1,170 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
 import { useRegister } from "../hooks/useRegister";
-import { useState } from "react";
-import { Link } from "react-router-dom";
-
-// MEJORA (RF-02 – Registro): Se agrega el estado "loading" del hook para
-// deshabilitar el botón mientras se procesa el registro y evitar doble envío.
-// También se agrega un link al login para usuarios que ya tienen cuenta.
 
 const Register = () => {
   const {
-    fullname,
-    setFullname,
-    email,
-    setEmail,
-    password,
-    setPassword,
-    error,
-    success,
-    loading,
-    register,
+    fullname, setFullname,
+    email,    setEmail,
+    password, setPassword,
+    error, success, loading, register,
   } = useRegister();
 
-  const [isSeller, setIsSeller] = useState(false);
-  const [agencia, setAgencia] = useState("");
+  const [isSeller,    setIsSeller]    = useState(false);
+  const [agencia,     setAgencia]     = useState("");
   const [logoAgencia, setLogoAgencia] = useState("");
 
-  const handleRegister = () => {
-    register({ isSeller, agencia, logoAgencia });
-  };
+  const handleRegister = () => register({ isSeller, agencia, logoAgencia });
 
-  const inputClass =
-    "w-full bg-gray-100 rounded border border-gray-300 focus:ring-2 focus:ring-indigo-200 focus:bg-transparent focus:border-indigo-500 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out";
+  const inputCls =
+    "w-full border-2 border-gray-200 focus:border-indigo-400 rounded-xl px-3 py-2.5 text-sm outline-none transition-colors bg-white";
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       <Navbar />
-      <main className="flex-grow">
-        <section className="text-gray-600 body-font">
-          <div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
-            <div className="lg:max-w-lg lg:w-full md:w-1/2 w-5/6 hidden md:block">
-              <img className="object-cover object-center rounded" alt="register" src="../img/login.jpg" />
-            </div>
 
-            <div className="lg:flex-grow md:w-1/2 lg:pl-24 md:pl-16 flex flex-col md:items-start md:text-left mb-16 md:mb-0 items-center text-center">
-              <h1 className="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900">
-                Crear una cuenta
-              </h1>
-              <p className="mb-4 leading-relaxed">
-                Registrate para descubrir y reservar experiencias únicas en Buenos Aires.
-              </p>
+      <main className="flex-grow flex items-center justify-center px-4 py-12">
+        <div className="bg-white w-full max-w-lg rounded-2xl shadow-xl overflow-hidden">
 
-              <div className="mb-4 flex gap-4 items-center">
-                <label className="text-gray-700 text-sm font-medium">Tipo de cuenta:</label>
-                <select
-                  value={isSeller ? "seller" : "user"}
-                  onChange={(e) => setIsSeller(e.target.value === "seller")}
-                  className="border rounded px-2 py-1 text-sm"
-                >
-                  <option value="user">Usuario / Turista</option>
-                  <option value="seller">Empresa / Agencia / Guía</option>
-                </select>
-              </div>
-
-              <div className="flex w-full flex-wrap gap-4">
-                <div className="relative md:w-1/3 w-full">
-                  <label htmlFor="fullname" className="leading-7 text-sm text-gray-600">Nombre completo</label>
-                  <input type="text" id="fullname" value={fullname} onChange={(e) => setFullname(e.target.value)} className={inputClass} required />
-                </div>
-                <div className="relative md:w-1/3 w-full">
-                  <label htmlFor="email" className="leading-7 text-sm text-gray-600">Email</label>
-                  <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} required />
-                </div>
-                <div className="relative md:w-1/3 w-full">
-                  <label htmlFor="password" className="leading-7 text-sm text-gray-600">Contraseña</label>
-                  <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} className={inputClass} required />
-                </div>
-              </div>
-
-              {isSeller && (
-                <div className="flex w-full flex-wrap gap-4 mt-6">
-                  <div className="relative md:w-1/2 w-full">
-                    <label htmlFor="agencia" className="leading-7 text-sm text-gray-600">Nombre de la Agencia</label>
-                    <input type="text" id="agencia" value={agencia} onChange={(e) => setAgencia(e.target.value)} className={inputClass} required={isSeller} />
-                  </div>
-                  <div className="relative md:w-1/2 w-full">
-                    <label htmlFor="logoAgencia" className="leading-7 text-sm text-gray-600">Logo (URL, opcional)</label>
-                    <input type="text" id="logoAgencia" value={logoAgencia} onChange={(e) => setLogoAgencia(e.target.value)} placeholder="https://..." className={inputClass} />
-                  </div>
-                </div>
-              )}
-
-              <button
-                onClick={handleRegister}
-                disabled={loading}
-                className="mt-6 inline-flex text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg disabled:opacity-50"
-              >
-                {loading ? "Registrando..." : "Registrarse"}
-              </button>
-
-              {success && <p className="text-green-600 mt-4">{success}</p>}
-              {error && <p className="text-red-500 mt-4">{error}</p>}
-
-              {/* MEJORA: Link al login si ya tienen cuenta */}
-              <p className="text-sm mt-4 text-gray-500">
-                ¿Ya tenés cuenta?{" "}
-                <Link to="/login" className="text-indigo-500 hover:underline">
-                  Iniciá sesión acá
-                </Link>.
-              </p>
-            </div>
+          {/* Card header */}
+          <div className="bg-indigo-600 px-8 py-7 text-center text-white">
+            <p className="text-4xl mb-2">✈️</p>
+            <h1 className="text-2xl font-bold">Crear una cuenta</h1>
+            <p className="text-indigo-200 text-sm mt-1">Descubrí experiencias únicas en Buenos Aires</p>
           </div>
-        </section>
+
+          <div className="px-8 py-7 space-y-4">
+
+            {/* Role toggle */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-2">Tipo de cuenta</label>
+              <div className="flex rounded-xl border-2 border-gray-200 overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setIsSeller(false)}
+                  className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
+                    !isSeller
+                      ? "bg-indigo-600 text-white"
+                      : "text-gray-500 hover:bg-gray-50"
+                  }`}
+                >
+                  🧳 Turista
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsSeller(true)}
+                  className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
+                    isSeller
+                      ? "bg-indigo-600 text-white"
+                      : "text-gray-500 hover:bg-gray-50"
+                  }`}
+                >
+                  🏪 Empresa / Agencia
+                </button>
+              </div>
+            </div>
+
+            {/* Common fields */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">Nombre completo</label>
+              <input
+                type="text"
+                value={fullname}
+                onChange={(e) => setFullname(e.target.value)}
+                placeholder="Juan García"
+                className={inputCls}
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="nombre@ejemplo.com"
+                className={inputCls}
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">Contraseña</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Mínimo 6 caracteres"
+                className={inputCls}
+                required
+              />
+            </div>
+
+            {/* Seller-specific fields */}
+            {isSeller && (
+              <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 space-y-3">
+                <p className="text-xs font-bold text-indigo-700 uppercase tracking-wide">
+                  Datos de la empresa
+                </p>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
+                    Nombre de la agencia / empresa
+                  </label>
+                  <input
+                    type="text"
+                    value={agencia}
+                    onChange={(e) => setAgencia(e.target.value)}
+                    placeholder="Ej: BA Tours"
+                    className={inputCls}
+                    required={isSeller}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
+                    Logo (URL, opcional)
+                  </label>
+                  <input
+                    type="text"
+                    value={logoAgencia}
+                    onChange={(e) => setLogoAgencia(e.target.value)}
+                    placeholder="https://..."
+                    className={inputCls}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Feedback banners */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-3 py-2">
+                {error}
+              </div>
+            )}
+            {success && (
+              <div className="bg-green-50 border border-green-200 text-green-700 text-sm rounded-xl px-3 py-2">
+                {success}
+              </div>
+            )}
+
+            <button
+              onClick={handleRegister}
+              disabled={loading}
+              className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm disabled:opacity-50 transition-colors"
+            >
+              {loading ? "Creando cuenta..." : "Crear cuenta"}
+            </button>
+
+            <p className="text-center text-sm text-gray-500">
+              ¿Ya tenés cuenta?{" "}
+              <Link to="/login" className="text-indigo-600 hover:text-indigo-700 font-semibold">
+                Iniciá sesión
+              </Link>
+            </p>
+          </div>
+        </div>
       </main>
+
       <Footer />
     </div>
   );

@@ -12,8 +12,6 @@
     "date-fns": "^4.1.0",
     "dotenv": "^17.4.2",
     "firebase": "^11.10.0",
-    "firebase-admin": "^13.8.0",
-    "flowbite": "^3.1.2",
     "i18next": "^26.0.10",
     "i18next-browser-languagedetector": "^8.2.1",
     "leaflet": "^1.9.4",

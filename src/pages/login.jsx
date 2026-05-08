@@ -5,137 +5,143 @@ import Footer from "../components/footer";
 import { useAuth } from "../context/authContext";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
+  const [error, setError]       = useState(null);
+  const [loading, setLoading]   = useState(false);
   const [pendingRedirect, setPendingRedirect] = useState(false);
 
   const navigate = useNavigate();
   const { login, loginWithGoogle, user } = useAuth();
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      setError("Por favor completá todos los campos.");
-      return;
-    }
-
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    if (!email || !password) { setError("Completá todos los campos."); return; }
+    setLoading(true);
+    setError(null);
     try {
-      setPendingRedirect(true); // señal para esperar el efecto
+      setPendingRedirect(true);
       await login(email, password);
     } catch (err) {
       setPendingRedirect(false);
+      setLoading(false);
       switch (err.code) {
         case "auth/user-not-found":
         case "auth/wrong-password":
-          setError("Usuario o contraseña incorrectos.");
-          break;
+        case "auth/invalid-credential":
+          setError("Email o contraseña incorrectos."); break;
         case "auth/too-many-requests":
-          setError("Demasiados intentos fallidos, probá más tarde.");
-          break;
+          setError("Demasiados intentos fallidos. Probá más tarde."); break;
         default:
-          setError("Error al iniciar sesión, intentá nuevamente.");
+          setError("Error al iniciar sesión. Intentá nuevamente.");
       }
     }
   };
 
   const handleGoogleLogin = async () => {
+    setLoading(true);
+    setError(null);
     try {
       setPendingRedirect(true);
       await loginWithGoogle();
-    } catch (err) {
+    } catch {
       setPendingRedirect(false);
+      setLoading(false);
       setError("No se pudo iniciar sesión con Google.");
     }
   };
 
-  // Espera a que el contexto tenga datos del usuario y lo redirige según rol
   useEffect(() => {
     if (pendingRedirect && user) {
-      navigate(user.role === "admin" ? "/admin" : "/reservas");
+      navigate(user.role === "admin" ? "/admin" : "/servicios");
     }
   }, [pendingRedirect, user, navigate]);
 
+  const inputCls =
+    "w-full border-2 border-gray-200 focus:border-indigo-400 rounded-xl px-3 py-2.5 text-sm outline-none transition-colors bg-white";
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       <Navbar />
 
-      <main className="flex-grow">
-        <section className="text-gray-600 body-font">
-          <div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
-            <div className="lg:flex-grow md:w-1/2 lg:pr-24 md:pr-16 flex flex-col md:items-start md:text-left mb-16 md:mb-0 items-center text-center">
-              <h1 className="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900">
-                Iniciar Sesión
-              </h1>
-              <p className="mb-8 leading-relaxed">
-                Accedé a tu cuenta para gestionar reservas y descubrir experiencias exclusivas.
-              </p>
-              <div className="flex w-full md:justify-start justify-center items-end space-x-4">
-                <div className="relative md:w-1/2 w-full">
-                  <label htmlFor="email" className="leading-7 text-sm text-gray-600">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-gray-100 rounded border border-gray-300 focus:ring-2 focus:ring-indigo-200 focus:bg-transparent focus:border-indigo-500 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-                  />
-                </div>
-                <div className="relative md:w-1/2 w-full">
-                  <label htmlFor="password" className="leading-7 text-sm text-gray-600">
-                    Contraseña
-                  </label>
-                  <input
-                    type="password"
-                    id="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-gray-100 rounded border border-gray-300 focus:ring-2 focus:ring-indigo-200 focus:bg-transparent focus:border-indigo-500 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-                  />
-                </div>
-              </div>
-              <button
-                onClick={handleLogin}
-                className="mt-6 inline-flex text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg"
-              >
-                Entrar
-              </button>
+      <main className="flex-grow flex items-center justify-center px-4 py-12">
+        <div className="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden">
 
-              {error && <p className="text-red-500 mt-4">{error}</p>}
+          {/* Card header */}
+          <div className="bg-indigo-600 px-8 py-7 text-center text-white">
+            <p className="text-4xl mb-2">🌆</p>
+            <h1 className="text-2xl font-bold">Bienvenido de vuelta</h1>
+            <p className="text-indigo-200 text-sm mt-1">Iniciá sesión en tu cuenta</p>
+          </div>
 
-              <p className="text-sm mt-4 text-gray-500 mb-8 w-full">
-                ¿No tenés cuenta? Registrate desde
-                <Link to="/register" className="text-indigo-500 hover:underline">
-                  {" "}acá
-                </Link>.
-              </p>
-
-              <button
-                onClick={handleGoogleLogin}
-                className="bg-white border border-gray-300 py-2 px-5 rounded-lg items-center flex hover:bg-gray-100 focus:outline-none"
-              >
-                <img
-                  src="https://www.svgrepo.com/show/475656/google-color.svg"
-                  alt="Google"
-                  className="w-5 h-5 mr-2"
-                />
-                <span className="text-gray-700 font-medium">
-                  Continuar con Google
-                </span>
-              </button>
-            </div>
-
-            <div className="lg:max-w-lg lg:w-full md:w-1/2 w-5/6">
-              <img
-                className="object-cover object-center rounded"
-                alt="hero"
-                src="../img/login.jpg"
+          {/* Form */}
+          <form onSubmit={handleLogin} className="px-8 py-7 space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="nombre@ejemplo.com"
+                className={inputCls}
+                required
               />
             </div>
-          </div>
-        </section>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">Contraseña</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className={inputCls}
+                required
+              />
+            </div>
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-3 py-2">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm disabled:opacity-50 transition-colors"
+            >
+              {loading ? "Entrando..." : "Iniciar sesión"}
+            </button>
+
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px bg-gray-200" />
+              <span className="text-xs text-gray-400">o</span>
+              <div className="flex-1 h-px bg-gray-200" />
+            </div>
+
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-sm font-semibold text-gray-700 disabled:opacity-50 transition-colors"
+            >
+              <img
+                src="https://www.svgrepo.com/show/475656/google-color.svg"
+                alt="Google"
+                className="w-4 h-4"
+              />
+              Continuar con Google
+            </button>
+
+            <p className="text-center text-sm text-gray-500">
+              ¿No tenés cuenta?{" "}
+              <Link to="/register" className="text-indigo-600 hover:text-indigo-700 font-semibold">
+                Registrate
+              </Link>
+            </p>
+          </form>
+        </div>
       </main>
 
       <Footer />
