@@ -9,8 +9,7 @@ import Footer from "../components/footer";
 import { useAuth } from "../context/authContext";
 import { useCarrito } from "../context/carritoContext";
 import { useNavigate, Link } from "react-router-dom";
-import { getLang } from "../utils/translate";
-import { useTranslation } from "react-i18next";
+import { getLang, useLang } from "../utils/translate";
 
 const MapaServicio = lazy(() => import("../components/MapaServicio"));
 
@@ -39,13 +38,13 @@ const Stars = ({ rating, count }) => {
 // MODAL DE RESEÑAS DEL SERVICIO
 // ─────────────────────────────────────────
 const ModalResenas = ({ servicio, data, onClose }) => {
-  const { i18n } = useTranslation();
+  const lang = useLang();
   return (
   <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70" onClick={onClose}>
     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
         <div>
-          <h3 className="font-bold text-gray-900 line-clamp-1">{getLang(servicio, "title", i18n.language)}</h3>
+          <h3 className="font-bold text-gray-900 line-clamp-1">{getLang(servicio, "title", lang)}</h3>
           <p className="text-sm text-gray-500">
             {data.count} reseña{data.count !== 1 ? "s" : ""} · Promedio {data.avg.toFixed(1)} ⭐
           </p>
@@ -154,7 +153,7 @@ const SelectorFechas = ({ onConfirmar }) => {
 const ModalDetalle = ({ servicio, onClose, resenas, onVerResenas }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { i18n } = useTranslation();
+  const lang = useLang();
   const { carrito, agregarItem, quitarItem, estaEnCarrito } = useCarrito();
   const [personasModal, setPersonasModal] = useState(carrito.personas || 1);
   const enCarrito = estaEnCarrito(servicio.id);
@@ -180,7 +179,7 @@ const ModalDetalle = ({ servicio, onClose, resenas, onVerResenas }) => {
 
         {/* Imagen hero */}
         <div className="relative">
-          <img src={servicio.image} alt={getLang(servicio, "title", i18n.language)}
+          <img src={servicio.image} alt={getLang(servicio, "title", lang)}
             className="w-full h-64 object-cover rounded-t-2xl"
             onError={(e) => { e.target.src = "https://placehold.co/800x256?text=Sin+imagen"; }} />
           <button onClick={onClose}
@@ -197,7 +196,7 @@ const ModalDetalle = ({ servicio, onClose, resenas, onVerResenas }) => {
         <div className="flex flex-col md:flex-row">
           {/* ── Info */}
           <div className="flex-1 p-6 border-r border-gray-100">
-            <h2 className="text-2xl font-bold text-gray-900 mb-1">{getLang(servicio, "title", i18n.language)}</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-1">{getLang(servicio, "title", lang)}</h2>
             <div className="flex items-center gap-3 flex-wrap">
               <Stars rating={resenas?.avg} count={resenas?.count}/>
               {resenas?.count > 0 && (
@@ -240,12 +239,12 @@ const ModalDetalle = ({ servicio, onClose, resenas, onVerResenas }) => {
               </div>
             )}
 
-            <p className="mt-4 text-gray-600 text-sm leading-relaxed">{getLang(servicio, "description", i18n.language)}</p>
+            <p className="mt-4 text-gray-600 text-sm leading-relaxed">{getLang(servicio, "description", lang)}</p>
 
             {servicio.incluye && (
               <div className="mt-4 bg-indigo-50 rounded-xl p-4">
                 <p className="text-sm font-semibold text-indigo-800 mb-1">✅ ¿Qué incluye?</p>
-                <p className="text-sm text-indigo-700">{getLang(servicio, "incluye", i18n.language)}</p>
+                <p className="text-sm text-indigo-700">{getLang(servicio, "incluye", lang)}</p>
               </div>
             )}
 
@@ -336,7 +335,7 @@ const ModalDetalle = ({ servicio, onClose, resenas, onVerResenas }) => {
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Contactar al guía</p>
                 {servicio.whatsapp && (
                   <a
-                    href={`https://wa.me/${servicio.whatsapp}?text=Hola%2C+me+interesa+la+experiencia+${encodeURIComponent(getLang(servicio, "title", i18n.language))}`}
+                    href={`https://wa.me/${servicio.whatsapp}?text=Hola%2C+me+interesa+la+experiencia+${encodeURIComponent(getLang(servicio, "title", lang))}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
@@ -348,7 +347,7 @@ const ModalDetalle = ({ servicio, onClose, resenas, onVerResenas }) => {
                 )}
                 {servicio.emailContacto && (
                   <a
-                    href={`mailto:${servicio.emailContacto}?subject=Consulta%20sobre%20${encodeURIComponent(getLang(servicio, "title", i18n.language))}`}
+                    href={`mailto:${servicio.emailContacto}?subject=Consulta%20sobre%20${encodeURIComponent(getLang(servicio, "title", lang))}`}
                     onClick={(e) => e.stopPropagation()}
                     className="flex items-center justify-center gap-2 w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl text-sm transition-colors"
                   >
@@ -371,7 +370,7 @@ const ModalDetalle = ({ servicio, onClose, resenas, onVerResenas }) => {
 const PanelCarrito = ({ open, onClose }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { i18n } = useTranslation();
+  const lang = useLang();
   const { carrito, quitarItem, limpiarCarrito } = useCarrito();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -459,11 +458,11 @@ const PanelCarrito = ({ open, onClose }) => {
                 const subtotal = s.price ? Number(s.price) * personas : null;
                 return (
                   <li key={s.id} className="flex gap-3 bg-gray-50 rounded-xl p-3">
-                    <img src={s.image} alt={getLang(s, "title", i18n.language)}
+                    <img src={s.image} alt={getLang(s, "title", lang)}
                       className="w-20 h-16 object-cover rounded-lg flex-shrink-0"
                       onError={(e) => { e.target.src = "https://placehold.co/80x64?text=img"; }}/>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-gray-800 text-sm truncate">{getLang(s, "title", i18n.language)}</p>
+                      <p className="font-semibold text-gray-800 text-sm truncate">{getLang(s, "title", lang)}</p>
                       <p className="text-xs text-gray-500 mt-0.5">{personas} persona{personas > 1 ? "s" : ""}</p>
                       {subtotal && (
                         <p className="text-sm font-bold text-indigo-600 mt-0.5">${formatARS(subtotal)}</p>
@@ -514,7 +513,7 @@ const CATEGORIAS = ["Todas", "Tours", "Gastronomia", "Traslados", "Experiencias"
 
 const Catalogo = ({ onCambiarFechas }) => {
   const { user } = useAuth();
-  const { i18n } = useTranslation();
+  const lang = useLang();
   const { carrito, estaEnCarrito } = useCarrito();
   const [servicios, setServicios] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -569,8 +568,8 @@ const Catalogo = ({ onCambiarFechas }) => {
 
   const filtrados = servicios.filter((s) => {
     const q = busqueda.toLowerCase();
-    const matchQ = getLang(s, "title", i18n.language).toLowerCase().includes(q) ||
-      getLang(s, "description", i18n.language).toLowerCase().includes(q);
+    const matchQ = getLang(s, "title", lang).toLowerCase().includes(q) ||
+      getLang(s, "description", lang).toLowerCase().includes(q);
     const matchCat = catActiva === "Todas" || normCat(s.categoria) === normCat(catActiva);
     return matchQ && matchCat;
   });
@@ -670,7 +669,7 @@ const Catalogo = ({ onCambiarFechas }) => {
                     className={`group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden border-2 ${enCarrito ? "border-indigo-400" : "border-transparent"}`}
                     onClick={() => setSeleccionado(s)}>
                     <div className="relative overflow-hidden">
-                      <img src={s.image} alt={getLang(s, "title", i18n.language)}
+                      <img src={s.image} alt={getLang(s, "title", lang)}
                         className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
                         onError={(e) => { e.target.src = "https://placehold.co/400x192?text=Sin+imagen"; }}/>
                       {s.categoria && <div className="absolute top-3 left-3"><CatBadge cat={s.categoria}/></div>}
@@ -700,7 +699,7 @@ const Catalogo = ({ onCambiarFechas }) => {
                     </div>
                     <div className="p-4">
                       <h3 className="font-bold text-gray-900 mb-1 group-hover:text-indigo-600 transition-colors line-clamp-1">
-                        {getLang(s, "title", i18n.language)}
+                        {getLang(s, "title", lang)}
                       </h3>
                       <div className="flex items-center gap-3 flex-wrap">
                         <Stars rating={resenasMap[s.id]?.avg} count={resenasMap[s.id]?.count}/>
@@ -716,7 +715,7 @@ const Catalogo = ({ onCambiarFechas }) => {
                         {s.duracion && <span>⏱ {s.duracion}</span>}
                         {s.ubicacion && <span className="truncate">📍 {s.ubicacion}</span>}
                       </div>
-                      <p className="text-gray-500 text-sm mt-2 line-clamp-2">{getLang(s, "description", i18n.language)}</p>
+                      <p className="text-gray-500 text-sm mt-2 line-clamp-2">{getLang(s, "description", lang)}</p>
                       <div className="mt-3 flex items-center justify-between">
                         <span className="text-indigo-600 text-sm font-semibold group-hover:underline">
                           Ver detalles →

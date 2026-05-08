@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 const TARGET_LANGS = ["en", "fr", "pt", "it"];
 const TRANSLATABLE = ["title", "description", "incluye"];
 
@@ -36,4 +38,10 @@ export const getLang = (obj, field, lang) => {
   const code = lang?.slice(0, 2);
   if (!code || code === "es") return obj[field] ?? "";
   return obj[`${field}_${code}`] || obj[field] || "";
+};
+
+// Hook que garantiza re-render al cambiar idioma
+export const useLang = () => {
+  const { i18n } = useTranslation();
+  return i18n.language;
 };
