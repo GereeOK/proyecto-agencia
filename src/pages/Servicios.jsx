@@ -1,4 +1,4 @@
-// Servicios.jsx — Flujo TripAdvisor completo con carrito
+﻿// Servicios.jsx — Flujo TripAdvisor completo con carrito
 // Paso 1: elegir fechas → Paso 2: ver servicios → Paso 3: modal detalle + mapa
 // → Agregar al carrito → Paso 4: revisar carrito y confirmar
 
@@ -126,20 +126,20 @@ const SelectorFechas = ({ onConfirmar }) => {
             <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Llegada</label>
             <input type="date" min={hoy} value={checkin}
               onChange={(e) => { setCheckin(e.target.value); setError(""); }}
-              className="w-full border-2 border-gray-200 focus:border-indigo-500 rounded-xl px-4 py-3 text-gray-900 text-sm outline-none transition-colors" />
+              className="w-full border-2 border-gray-200 focus:border-primary-500 rounded-xl px-4 py-3 text-gray-900 text-sm outline-none transition-colors" />
           </div>
           <div>
             <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Salida</label>
             <input type="date" min={checkin || hoy} value={checkout}
               onChange={(e) => { setCheckout(e.target.value); setError(""); }}
-              className="w-full border-2 border-gray-200 focus:border-indigo-500 rounded-xl px-4 py-3 text-gray-900 text-sm outline-none transition-colors" />
+              className="w-full border-2 border-gray-200 focus:border-primary-500 rounded-xl px-4 py-3 text-gray-900 text-sm outline-none transition-colors" />
           </div>
         </div>
 
         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
         <button onClick={confirmar}
-          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl text-base transition-colors shadow-lg">
+          className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 rounded-xl text-base transition-colors shadow-lg">
           Ver experiencias disponibles →
         </button>
       </div>
@@ -201,7 +201,7 @@ const ModalDetalle = ({ servicio, onClose, resenas, onVerResenas }) => {
               <Stars rating={resenas?.avg} count={resenas?.count}/>
               {resenas?.count > 0 && (
                 <button type="button" onClick={onVerResenas}
-                  className="text-xs text-indigo-600 hover:underline font-medium">
+                  className="text-xs text-primary-600 hover:underline font-medium">
                   Ver {resenas.count} reseña{resenas.count !== 1 ? "s" : ""} →
                 </button>
               )}
@@ -211,19 +211,19 @@ const ModalDetalle = ({ servicio, onClose, resenas, onVerResenas }) => {
             <div className="mt-4 flex flex-wrap gap-4 text-sm text-gray-600">
               {servicio.duracion && (
                 <span className="flex items-center gap-1.5">
-                  <svg className="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  <svg className="w-4 h-4 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                   {servicio.duracion}
                 </span>
               )}
               {servicio.idioma && (
                 <span className="flex items-center gap-1.5">
-                  <svg className="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10"/></svg>
+                  <svg className="w-4 h-4 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10"/></svg>
                   {servicio.idioma}
                 </span>
               )}
               {servicio.ubicacion && (
                 <span className="flex items-center gap-1.5">
-                  <svg className="w-4 h-4 text-indigo-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+                  <svg className="w-4 h-4 text-primary-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
                   {servicio.ubicacion}
                 </span>
               )}
@@ -242,9 +242,9 @@ const ModalDetalle = ({ servicio, onClose, resenas, onVerResenas }) => {
             <p className="mt-4 text-gray-600 text-sm leading-relaxed">{getLang(servicio, "description", lang)}</p>
 
             {servicio.incluye && (
-              <div className="mt-4 bg-indigo-50 rounded-xl p-4">
-                <p className="text-sm font-semibold text-indigo-800 mb-1">✅ ¿Qué incluye?</p>
-                <p className="text-sm text-indigo-700">{getLang(servicio, "incluye", lang)}</p>
+              <div className="mt-4 bg-primary-50 rounded-xl p-4">
+                <p className="text-sm font-semibold text-primary-800 mb-1">✅ ¿Qué incluye?</p>
+                <p className="text-sm text-primary-700">{getLang(servicio, "incluye", lang)}</p>
               </div>
             )}
 
@@ -294,12 +294,12 @@ const ModalDetalle = ({ servicio, onClose, resenas, onVerResenas }) => {
 
             {/* Subtotal */}
             {subtotal && (
-              <div className="bg-indigo-50 rounded-xl p-3 text-sm">
+              <div className="bg-primary-50 rounded-xl p-3 text-sm">
                 <div className="flex justify-between text-gray-600">
                   <span>${formatARS(servicio.price)} × {personasModal}</span>
                   <span>${formatARS(subtotal)}</span>
                 </div>
-                <div className="border-t border-indigo-100 mt-2 pt-2 flex justify-between font-bold text-gray-900">
+                <div className="border-t border-primary-100 mt-2 pt-2 flex justify-between font-bold text-gray-900">
                   <span>Subtotal</span>
                   <span>${formatARS(subtotal)}</span>
                 </div>
@@ -309,7 +309,7 @@ const ModalDetalle = ({ servicio, onClose, resenas, onVerResenas }) => {
             {/* Botón agregar / quitar */}
             {!user ? (
               <Link to="/login"
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-sm text-center transition-colors">
+                className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 rounded-xl text-sm text-center transition-colors">
                 Iniciá sesión para reservar
               </Link>
             ) : enCarrito ? (
@@ -324,7 +324,7 @@ const ModalDetalle = ({ servicio, onClose, resenas, onVerResenas }) => {
               </div>
             ) : (
               <button onClick={handleAgregar}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-sm transition-colors shadow-md">
+                className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 rounded-xl text-sm transition-colors shadow-md">
                 + Agregar al carrito
               </button>
             )}
@@ -426,7 +426,7 @@ const PanelCarrito = ({ open, onClose }) => {
           <h2 className="text-lg font-bold text-gray-900">
             🛒 Mi reserva
             {carrito.items.length > 0 && (
-              <span className="ml-2 bg-indigo-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+              <span className="ml-2 bg-primary-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                 {carrito.items.length}
               </span>
             )}
@@ -439,7 +439,7 @@ const PanelCarrito = ({ open, onClose }) => {
         </div>
 
         {/* Fechas */}
-        <div className="px-5 py-3 bg-indigo-50 border-b border-indigo-100 text-sm text-indigo-800">
+        <div className="px-5 py-3 bg-primary-50 border-b border-primary-100 text-sm text-primary-800">
           📅 {carrito.checkin || "—"} → {carrito.checkout || "—"}
         </div>
 
@@ -465,7 +465,7 @@ const PanelCarrito = ({ open, onClose }) => {
                       <p className="font-semibold text-gray-800 text-sm truncate">{getLang(s, "title", lang)}</p>
                       <p className="text-xs text-gray-500 mt-0.5">{personas} persona{personas > 1 ? "s" : ""}</p>
                       {subtotal && (
-                        <p className="text-sm font-bold text-indigo-600 mt-0.5">${formatARS(subtotal)}</p>
+                        <p className="text-sm font-bold text-primary-600 mt-0.5">${formatARS(subtotal)}</p>
                       )}
                     </div>
                     <button onClick={() => quitarItem(s.id)}
@@ -492,7 +492,7 @@ const PanelCarrito = ({ open, onClose }) => {
             )}
             {error && <p className="text-red-500 text-xs">{error}</p>}
             <button onClick={confirmar} disabled={loading}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold py-4 rounded-xl text-sm transition-colors shadow-md">
+              className="w-full bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white font-bold py-4 rounded-xl text-sm transition-colors shadow-md">
               {loading ? "Procesando..." : "Confirmar reserva →"}
             </button>
             <button onClick={limpiarCarrito}
@@ -585,7 +585,7 @@ const Catalogo = ({ onCambiarFechas }) => {
           <div className="flex items-center justify-center gap-3 mb-5">
             <button onClick={onCambiarFechas}
               className="flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-4 py-2 text-sm transition-colors">
-              <svg className="w-4 h-4 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              <svg className="w-4 h-4 text-primary-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
               <span className="text-white font-medium">{carrito.checkin}</span>
               <span className="text-gray-400">→</span>
               <span className="text-white font-medium">{carrito.checkout}</span>
@@ -601,7 +601,7 @@ const Catalogo = ({ onCambiarFechas }) => {
             <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
             <input type="text" placeholder="Buscar experiencias..."
               value={busqueda} onChange={(e) => setBusqueda(e.target.value)}
-              className="w-full pl-11 pr-4 py-2.5 rounded-xl text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 shadow-lg"/>
+              className="w-full pl-11 pr-4 py-2.5 rounded-xl text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 shadow-lg"/>
           </div>
         </div>
       </div>
@@ -614,8 +614,8 @@ const Catalogo = ({ onCambiarFechas }) => {
               <button key={cat} onClick={() => setCatActiva(cat)}
                 className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                   catActiva === cat
-                    ? "bg-indigo-600 text-white border-indigo-600"
-                    : "bg-white text-gray-600 border-gray-200 hover:border-indigo-400"}`}>
+                    ? "bg-primary-600 text-white border-primary-600"
+                    : "bg-white text-gray-600 border-gray-200 hover:border-primary-400"}`}>
                 {cat}
               </button>
             ))}
@@ -623,10 +623,10 @@ const Catalogo = ({ onCambiarFechas }) => {
 
           {/* Botón carrito flotante en la barra */}
           <button onClick={() => setCarritoOpen(true)}
-            className="flex-shrink-0 flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded-full text-sm font-semibold transition-colors shadow-md">
+            className="flex-shrink-0 flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-1.5 rounded-full text-sm font-semibold transition-colors shadow-md">
             🛒
             {carrito.items.length > 0 && (
-              <span className="bg-white text-indigo-700 text-xs font-bold px-1.5 py-0.5 rounded-full">
+              <span className="bg-white text-primary-700 text-xs font-bold px-1.5 py-0.5 rounded-full">
                 {carrito.items.length}
               </span>
             )}
@@ -654,7 +654,7 @@ const Catalogo = ({ onCambiarFechas }) => {
             <p className="text-gray-400 text-5xl mb-4">🔍</p>
             <p className="text-gray-500">No encontramos experiencias con ese filtro.</p>
             <button onClick={() => { setBusqueda(""); setCatActiva("Todas"); }}
-              className="mt-3 text-indigo-600 hover:underline text-sm">Limpiar filtros</button>
+              className="mt-3 text-primary-600 hover:underline text-sm">Limpiar filtros</button>
           </div>
         ) : (
           <>
@@ -666,7 +666,7 @@ const Catalogo = ({ onCambiarFechas }) => {
                 const enCarrito = estaEnCarrito(s.id);
                 return (
                   <div key={s.id}
-                    className={`group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden border-2 ${enCarrito ? "border-indigo-400" : "border-transparent"}`}
+                    className={`group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden border-2 ${enCarrito ? "border-primary-400" : "border-transparent"}`}
                     onClick={() => setSeleccionado(s)}>
                     <div className="relative overflow-hidden">
                       <img src={s.image} alt={getLang(s, "title", lang)}
@@ -674,7 +674,7 @@ const Catalogo = ({ onCambiarFechas }) => {
                         onError={(e) => { e.target.src = "https://placehold.co/400x192?text=Sin+imagen"; }}/>
                       {s.categoria && <div className="absolute top-3 left-3"><CatBadge cat={s.categoria}/></div>}
                       {s.price && (
-                        <div className="absolute top-3 right-3 bg-white/95 rounded-full px-2.5 py-1 text-xs font-bold text-indigo-700 shadow">
+                        <div className="absolute top-3 right-3 bg-white/95 rounded-full px-2.5 py-1 text-xs font-bold text-primary-700 shadow">
                           ${formatARS(s.price)}
                         </div>
                       )}
@@ -692,13 +692,13 @@ const Catalogo = ({ onCambiarFechas }) => {
                       )}
                       {/* Badge "En carrito" */}
                       {enCarrito && (
-                        <div className="absolute bottom-3 right-3 bg-indigo-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow">
+                        <div className="absolute bottom-3 right-3 bg-primary-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow">
                           ✅ Agregado
                         </div>
                       )}
                     </div>
                     <div className="p-4">
-                      <h3 className="font-bold text-gray-900 mb-1 group-hover:text-indigo-600 transition-colors line-clamp-1">
+                      <h3 className="font-bold text-gray-900 mb-1 group-hover:text-primary-600 transition-colors line-clamp-1">
                         {getLang(s, "title", lang)}
                       </h3>
                       <div className="flex items-center gap-3 flex-wrap">
@@ -706,7 +706,7 @@ const Catalogo = ({ onCambiarFechas }) => {
                         {resenasMap[s.id]?.count > 0 && (
                           <button type="button"
                             onClick={(e) => { e.stopPropagation(); setVerResenas({ servicio: s, data: resenasMap[s.id] }); }}
-                            className="text-xs text-indigo-600 hover:underline font-medium">
+                            className="text-xs text-primary-600 hover:underline font-medium">
                             Ver {resenasMap[s.id].count} reseña{resenasMap[s.id].count !== 1 ? "s" : ""} →
                           </button>
                         )}
@@ -717,7 +717,7 @@ const Catalogo = ({ onCambiarFechas }) => {
                       </div>
                       <p className="text-gray-500 text-sm mt-2 line-clamp-2">{getLang(s, "description", lang)}</p>
                       <div className="mt-3 flex items-center justify-between">
-                        <span className="text-indigo-600 text-sm font-semibold group-hover:underline">
+                        <span className="text-primary-600 text-sm font-semibold group-hover:underline">
                           Ver detalles →
                         </span>
                         {!s.price && <span className="text-xs text-gray-400">A consultar</span>}

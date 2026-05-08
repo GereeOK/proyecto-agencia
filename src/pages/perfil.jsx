@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
@@ -19,7 +19,7 @@ const Avatar = ({ name, size = "lg" }) => {
   const letra = name?.charAt(0).toUpperCase() || "U";
   const sz = size === "lg" ? "w-20 h-20 text-3xl" : "w-10 h-10 text-lg";
   return (
-    <div className={`${sz} bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0`}>
+    <div className={`${sz} bg-primary-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0`}>
       {letra}
     </div>
   );
@@ -44,7 +44,7 @@ const Field = ({ label, required, children }) => (
   </div>
 );
 
-const inputCls = "w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300";
+const inputCls = "w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300";
 
 // ── Modal para agregar / editar miembro
 const ModalMiembro = ({ miembro, onSave, onClose }) => {
@@ -92,7 +92,7 @@ const ModalMiembro = ({ miembro, onSave, onClose }) => {
               Cancelar
             </button>
             <button type="submit"
-              className="flex-1 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm transition-colors">
+              className="flex-1 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold text-sm transition-colors">
               {miembro?.id ? "Guardar" : "Agregar"}
             </button>
           </div>
@@ -165,7 +165,7 @@ const GrupoFamiliar = ({ userId }) => {
         </div>
         <button
           onClick={() => { setEditando(null); setModalOpen(true); }}
-          className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors"
+          className="flex items-center gap-1.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -190,7 +190,7 @@ const GrupoFamiliar = ({ userId }) => {
             const edad = calcularEdad(m.fechaNacimiento);
             return (
               <div key={m.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex items-center gap-3">
-                <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center font-bold text-base flex-shrink-0">
+                <div className="w-10 h-10 bg-primary-50 text-primary-600 rounded-full flex items-center justify-center font-bold text-base flex-shrink-0">
                   {m.nombre.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -202,7 +202,7 @@ const GrupoFamiliar = ({ userId }) => {
                 <div className="flex gap-1 flex-shrink-0">
                   <button
                     onClick={() => { setEditando(m); setModalOpen(true); }}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-indigo-50 text-gray-400 hover:text-indigo-600 transition-colors"
+                    className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-primary-50 text-gray-400 hover:text-primary-600 transition-colors"
                     title="Editar"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -280,7 +280,7 @@ const Perfil = () => {
             <span className={`inline-block mt-2 text-xs font-semibold px-2.5 py-0.5 rounded-full ${
               isAdmin  ? "bg-red-500 text-white"    :
               isSeller ? "bg-blue-500 text-white"   :
-                         "bg-indigo-500 text-white"
+                         "bg-primary-500 text-white"
             }`}>
               {isAdmin ? "Administrador" : isSeller ? "Seller / Agencia" : "Turista"}
             </span>
@@ -354,7 +354,7 @@ const Perfil = () => {
               <div className="flex items-start justify-between mb-4">
                 <h2 className="text-lg font-bold text-gray-900">Mi Empresa</h2>
                 <button onClick={openModal}
-                  className="text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded-xl transition-colors">
+                  className="text-sm bg-primary-600 hover:bg-primary-700 text-white px-4 py-1.5 rounded-xl transition-colors">
                   Editar
                 </button>
               </div>
@@ -370,14 +370,14 @@ const Perfil = () => {
                     <img src={companyData.logo} alt="Logo"
                       className="w-20 h-20 object-contain rounded-xl border border-gray-200" />
                   ) : (
-                    <div className="w-20 h-20 bg-indigo-50 rounded-xl flex items-center justify-center text-3xl">🏢</div>
+                    <div className="w-20 h-20 bg-primary-50 rounded-xl flex items-center justify-center text-3xl">🏢</div>
                   )}
                   <div className="space-y-1">
                     <p className="text-xl font-bold text-gray-900">{companyData.name}</p>
                     {companyData.telefono && <p className="text-sm text-gray-600">📞 {companyData.telefono}</p>}
                     {companyData.social && (
                       <a href={companyData.social} target="_blank" rel="noopener noreferrer"
-                        className="text-sm text-indigo-600 hover:underline block">
+                        className="text-sm text-primary-600 hover:underline block">
                         🔗 {companyData.social}
                       </a>
                     )}
@@ -430,7 +430,7 @@ const Perfil = () => {
               Accedé al panel completo para gestionar usuarios, servicios y reservas.
             </p>
             <a href="/admin"
-              className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2.5 rounded-xl transition-colors">
+              className="inline-block bg-primary-600 hover:bg-primary-700 text-white font-semibold px-6 py-2.5 rounded-xl transition-colors">
               Ir al panel admin →
             </a>
           </section>
@@ -454,7 +454,7 @@ const Perfil = () => {
                 <div key={label}>
                   <label className="block text-xs font-semibold text-gray-600 mb-1">{label}</label>
                   <input type={type} value={val} onChange={e => set(e.target.value)}
-                    className="w-full border-2 border-gray-200 focus:border-indigo-400 rounded-xl px-3 py-2 text-sm outline-none transition-colors" />
+                    className="w-full border-2 border-gray-200 focus:border-primary-400 rounded-xl px-3 py-2 text-sm outline-none transition-colors" />
                 </div>
               ))}
             </div>
@@ -464,7 +464,7 @@ const Perfil = () => {
                 Cancelar
               </button>
               <button onClick={handleSaveChanges}
-                className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm">
+                className="flex-1 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold text-sm">
                 Guardar
               </button>
             </div>

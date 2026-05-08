@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { getResenasRecientes } from "../firebase/firestore";
 import { useTranslation } from "react-i18next";
 
@@ -10,8 +10,8 @@ const Estrellas = ({ n }) => (
 );
 
 const Avatar = ({ nombre }) => (
-  <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
-    <span className="text-indigo-600 font-bold text-lg">
+  <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+    <span className="text-primary-600 font-bold text-lg">
       {(nombre || "?")[0].toUpperCase()}
     </span>
   </div>
@@ -46,7 +46,7 @@ const Testimonials = () => {
             {t("testimonios.titulo")}
           </h2>
           <p className="text-gray-500 text-sm">{t("testimonios.subtitulo")}</p>
-          <div className="h-1 w-20 bg-indigo-500 rounded mx-auto mt-4" />
+          <div className="h-1 w-20 bg-primary-500 rounded mx-auto mt-4" />
         </div>
 
         {loading ? (
@@ -75,7 +75,7 @@ const Testimonials = () => {
                   <p className="leading-relaxed text-gray-700 text-sm flex-1">
                     "{r.texto || t("testimonios.sinComentario")}"
                   </p>
-                  <span className="block h-px w-10 bg-indigo-400 rounded" />
+                  <span className="block h-px w-10 bg-primary-400 rounded" />
                   <div className="flex items-center gap-3">
                     <Avatar nombre={r.userName} />
                     <div>

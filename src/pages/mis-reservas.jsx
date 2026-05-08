@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, lazy, Suspense } from "react";
+﻿import React, { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { toast } from "sonner";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
@@ -84,11 +84,11 @@ const CalendarioEventos = ({ servicios, checkin, checkout }) => {
       {eventos.map((s, i) => {
         const { dia, mes, dow } = fmtFecha(s.fecha);
         return (
-          <div key={i} className="flex items-center gap-4 bg-indigo-50 border border-indigo-100 rounded-xl p-3">
+          <div key={i} className="flex items-center gap-4 bg-primary-50 border border-primary-100 rounded-xl p-3">
             <div className="flex-shrink-0 w-12 text-center">
-              <p className="text-xs font-semibold text-indigo-400">{mes}</p>
-              <p className="text-2xl font-bold text-indigo-700 leading-none">{dia}</p>
-              <p className="text-xs text-indigo-400">{dow}</p>
+              <p className="text-xs font-semibold text-primary-400">{mes}</p>
+              <p className="text-2xl font-bold text-primary-700 leading-none">{dia}</p>
+              <p className="text-xs text-primary-400">{dow}</p>
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-gray-900 text-sm truncate">{s.title}</p>
@@ -156,15 +156,15 @@ const TabConsultas = ({ reservaId, user }) => {
               <div key={m.id} className={`flex ${esPropio ? "justify-end" : "justify-start"}`}>
                 <div className={`max-w-[78%] rounded-2xl px-4 py-2.5 text-sm ${
                   esPropio
-                    ? "bg-indigo-600 text-white rounded-br-sm"
+                    ? "bg-primary-600 text-white rounded-br-sm"
                     : "bg-gray-100 text-gray-800 rounded-bl-sm"
                 }`}>
                   {!esPropio && (
-                    <p className="text-xs font-semibold text-indigo-500 mb-0.5">{m.autorNombre}</p>
+                    <p className="text-xs font-semibold text-primary-500 mb-0.5">{m.autorNombre}</p>
                   )}
                   <p className="leading-snug">{m.texto}</p>
                   {fecha && (
-                    <p className={`text-xs mt-1 ${esPropio ? "text-indigo-200" : "text-gray-400"}`}>
+                    <p className={`text-xs mt-1 ${esPropio ? "text-primary-200" : "text-gray-400"}`}>
                       {fecha.toLocaleString("es", { hour: "2-digit", minute: "2-digit", day: "numeric", month: "short" })}
                     </p>
                   )}
@@ -181,12 +181,12 @@ const TabConsultas = ({ reservaId, user }) => {
           value={texto}
           onChange={e => setTexto(e.target.value)}
           placeholder="Escribí tu consulta..."
-          className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+          className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
         />
         <button
           type="submit"
           disabled={enviando || !texto.trim()}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold disabled:opacity-40 transition-colors"
+          className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-xl text-sm font-semibold disabled:opacity-40 transition-colors"
         >
           {enviando ? "..." : "Enviar"}
         </button>
@@ -248,7 +248,7 @@ const TabPasajeros = ({ pasajeros, onChange, bloqueado, userId }) => {
         <div>
           <button
             onClick={() => setMostrarGrupo(v => !v)}
-            className="flex items-center gap-2 text-sm text-indigo-600 font-semibold hover:underline"
+            className="flex items-center gap-2 text-sm text-primary-600 font-semibold hover:underline"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0" />
@@ -256,7 +256,7 @@ const TabPasajeros = ({ pasajeros, onChange, bloqueado, userId }) => {
             Cargar del grupo familiar
           </button>
           {mostrarGrupo && (
-            <div className="mt-2 bg-indigo-50 rounded-xl p-3 space-y-1.5">
+            <div className="mt-2 bg-primary-50 rounded-xl p-3 space-y-1.5">
               {disponiblesEnFamiliar.length === 0 ? (
                 <p className="text-xs text-gray-400">Todos los integrantes ya están en la lista.</p>
               ) : (
@@ -264,7 +264,7 @@ const TabPasajeros = ({ pasajeros, onChange, bloqueado, userId }) => {
                   <button
                     key={m.id}
                     onClick={() => cargarDesdeFamiliar(m)}
-                    className="w-full flex items-center justify-between bg-white rounded-lg px-3 py-2 text-sm hover:bg-indigo-100 transition-colors"
+                    className="w-full flex items-center justify-between bg-white rounded-lg px-3 py-2 text-sm hover:bg-primary-100 transition-colors"
                   >
                     <span className="font-medium text-gray-800">{m.nombre}</span>
                     <span className="text-xs text-gray-400">{m.relacion || (m.dni ? `DNI ${m.dni}` : "")}</span>
@@ -279,18 +279,18 @@ const TabPasajeros = ({ pasajeros, onChange, bloqueado, userId }) => {
       {/* Lista de pasajeros */}
       <div className="space-y-3">
         {pasajeros.map((p, i) => (
-          <div key={i} className={`rounded-xl border p-3 ${i === 0 ? "border-indigo-200 bg-indigo-50/40" : "border-gray-200 bg-gray-50"}`}>
+          <div key={i} className={`rounded-xl border p-3 ${i === 0 ? "border-primary-200 bg-primary-50/40" : "border-gray-200 bg-gray-50"}`}>
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-gray-500">Pasajero {i + 1}</span>
-                {i === 0 && <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">Titular</span>}
+                {i === 0 && <span className="text-xs bg-primary-100 text-primary-700 px-2 py-0.5 rounded-full">Titular</span>}
               </div>
               <div className="flex gap-1">
                 {!bloqueado && p.nombre && (
                   <button
                     onClick={() => guardarEnFamiliar(p)}
                     title="Guardar en grupo familiar"
-                    className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-indigo-100 text-gray-400 hover:text-indigo-600 transition-colors"
+                    className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-primary-100 text-gray-400 hover:text-primary-600 transition-colors"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0" />
@@ -317,7 +317,7 @@ const TabPasajeros = ({ pasajeros, onChange, bloqueado, userId }) => {
                   onChange={e => setPasajero(i, "nombre", e.target.value)}
                   disabled={bloqueado}
                   placeholder="Juan García"
-                  className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-300 outline-none disabled:bg-gray-100 disabled:text-gray-400"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-primary-300 outline-none disabled:bg-gray-100 disabled:text-gray-400"
                 />
               </div>
               <div>
@@ -327,7 +327,7 @@ const TabPasajeros = ({ pasajeros, onChange, bloqueado, userId }) => {
                   onChange={e => setPasajero(i, "dni", e.target.value)}
                   disabled={bloqueado}
                   placeholder="30.123.456"
-                  className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-300 outline-none disabled:bg-gray-100 disabled:text-gray-400"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-primary-300 outline-none disabled:bg-gray-100 disabled:text-gray-400"
                 />
               </div>
               <div className="col-span-2">
@@ -337,7 +337,7 @@ const TabPasajeros = ({ pasajeros, onChange, bloqueado, userId }) => {
                   value={p.fechaNacimiento || ""}
                   onChange={e => setPasajero(i, "fechaNacimiento", e.target.value)}
                   disabled={bloqueado}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-300 outline-none disabled:bg-gray-100 disabled:text-gray-400"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-primary-300 outline-none disabled:bg-gray-100 disabled:text-gray-400"
                 />
               </div>
             </div>
@@ -348,7 +348,7 @@ const TabPasajeros = ({ pasajeros, onChange, bloqueado, userId }) => {
       {!bloqueado && (
         <button
           onClick={agregarPasajero}
-          className="w-full border-2 border-dashed border-gray-200 hover:border-indigo-300 text-gray-400 hover:text-indigo-500 rounded-xl py-2.5 text-sm font-medium transition-colors"
+          className="w-full border-2 border-dashed border-gray-200 hover:border-primary-300 text-gray-400 hover:text-primary-500 rounded-xl py-2.5 text-sm font-medium transition-colors"
         >
           + Agregar pasajero
         </button>
@@ -459,7 +459,7 @@ const ModalDetalleReserva = ({ reserva: inicial, onClose, onUpdate }) => {
               onClick={() => setTab(t.id)}
               className={`flex-1 py-3 text-xs font-semibold transition-colors ${
                 tab === t.id
-                  ? "text-indigo-600 border-b-2 border-indigo-600"
+                  ? "text-primary-600 border-b-2 border-primary-600"
                   : "text-gray-400 hover:text-gray-700"
               }`}
             >
@@ -493,7 +493,7 @@ const ModalDetalleReserva = ({ reserva: inicial, onClose, onUpdate }) => {
                       <p className="font-semibold text-gray-900 truncate">{s.title}</p>
                       {s.ubicacion && <p className="text-xs text-gray-500 mt-0.5">📍 {s.ubicacion}</p>}
                       {s.price && (
-                        <p className="text-sm font-bold text-indigo-600 mt-1">
+                        <p className="text-sm font-bold text-primary-600 mt-1">
                           ${formatARS(s.price)} × {s.personas || 1} = ${formatARS(Number(s.price) * (s.personas || 1))}
                         </p>
                       )}
@@ -519,7 +519,7 @@ const ModalDetalleReserva = ({ reserva: inicial, onClose, onUpdate }) => {
                         value={s.fecha || ""}
                         onChange={e => setServicioField(idx, "fecha", e.target.value)}
                         disabled={bloqueado}
-                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-300 outline-none disabled:bg-gray-50 disabled:text-gray-400"
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-300 outline-none disabled:bg-gray-50 disabled:text-gray-400"
                       />
                     </div>
                     <div>
@@ -529,7 +529,7 @@ const ModalDetalleReserva = ({ reserva: inicial, onClose, onUpdate }) => {
                         value={s.horario || ""}
                         onChange={e => setServicioField(idx, "horario", e.target.value)}
                         disabled={bloqueado}
-                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-300 outline-none disabled:bg-gray-50 disabled:text-gray-400"
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-300 outline-none disabled:bg-gray-50 disabled:text-gray-400"
                       />
                     </div>
                   </div>
@@ -628,7 +628,7 @@ const ModalDetalleReserva = ({ reserva: inicial, onClose, onUpdate }) => {
             <button
               onClick={handleConfirmar}
               disabled={confirmando}
-              className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm transition-colors disabled:opacity-50"
+              className="flex-1 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold text-sm transition-colors disabled:opacity-50"
             >
               {confirmando ? "Confirmando..." : "✅ Confirmar mi parte"}
             </button>
@@ -797,7 +797,7 @@ const ModalResena = ({ reserva, user, onClose }) => {
                           placeholder="Contá tu experiencia (opcional)..."
                           value={r.texto || ""}
                           onChange={(e) => setRating(sec.key, "texto", e.target.value)}
-                          className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400 transition-colors resize-none"
+                          className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary-400 transition-colors resize-none"
                         />
                         <span className="absolute bottom-2 right-3 text-xs text-gray-300">
                           {(r.texto || "").length}/140
@@ -818,7 +818,7 @@ const ModalResena = ({ reserva, user, onClose }) => {
               type="button"
               onClick={handleEnviar}
               disabled={enviando}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-sm disabled:opacity-50 transition-colors"
+              className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 rounded-xl text-sm disabled:opacity-50 transition-colors"
             >
               {enviando ? "Enviando..." : "Enviar reseñas"}
             </button>
@@ -859,7 +859,7 @@ const MisReservas = () => {
             <p className="text-gray-400 text-5xl mb-4">🧳</p>
             <p className="text-gray-600 text-lg font-medium mb-2">No hay reservas todavía</p>
             <p className="text-gray-400 text-sm mb-6">Explorá nuestras experiencias y armá tu viaje</p>
-            <Link to="/servicios" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-xl transition-colors">
+            <Link to="/servicios" className="bg-primary-600 hover:bg-primary-700 text-white font-semibold px-6 py-3 rounded-xl transition-colors">
               Ver experiencias →
             </Link>
           </div>
@@ -892,19 +892,19 @@ const MisReservas = () => {
                           )}
                           <span className="text-xs text-gray-700 font-medium">{s.title || "Experiencia"}</span>
                           <span className="text-xs text-gray-400">× {s.personas || reserva.personas || 1}</span>
-                          {s.fecha && <span className="text-xs text-indigo-500 font-medium">{s.fecha}</span>}
+                          {s.fecha && <span className="text-xs text-primary-500 font-medium">{s.fecha}</span>}
                         </div>
                       ))}
                     </div>
 
                     {total > 0 && (
-                      <p className="text-sm font-bold text-indigo-600 mb-4">Total: ${formatARS(total)}</p>
+                      <p className="text-sm font-bold text-primary-600 mb-4">Total: ${formatARS(total)}</p>
                     )}
 
                     <div className="flex gap-2">
                       <button
                         onClick={() => setReservaAbierta(reserva)}
-                        className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-2 rounded-xl transition-colors"
+                        className="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold py-2 rounded-xl transition-colors"
                       >
                         Ver detalle →
                       </button>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
@@ -58,7 +58,7 @@ const Login = () => {
   }, [pendingRedirect, user, navigate]);
 
   const inputCls =
-    "w-full border-2 border-gray-200 focus:border-indigo-400 rounded-xl px-3 py-2.5 text-sm outline-none transition-colors bg-white";
+    "w-full border-2 border-gray-200 focus:border-primary-400 rounded-xl px-3 py-2.5 text-sm outline-none transition-colors bg-white";
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -68,10 +68,10 @@ const Login = () => {
         <div className="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden">
 
           {/* Card header */}
-          <div className="bg-indigo-600 px-8 py-7 text-center text-white">
+          <div className="bg-primary-600 px-8 py-7 text-center text-white">
             <p className="text-4xl mb-2">🌆</p>
             <h1 className="text-2xl font-bold">Bienvenido de vuelta</h1>
-            <p className="text-indigo-200 text-sm mt-1">Iniciá sesión en tu cuenta</p>
+            <p className="text-primary-200 text-sm mt-1">Iniciá sesión en tu cuenta</p>
           </div>
 
           {/* Form */}
@@ -109,7 +109,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm disabled:opacity-50 transition-colors"
+              className="w-full py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold text-sm disabled:opacity-50 transition-colors"
             >
               {loading ? "Entrando..." : "Iniciar sesión"}
             </button>
@@ -136,7 +136,7 @@ const Login = () => {
 
             <p className="text-center text-sm text-gray-500">
               ¿No tenés cuenta?{" "}
-              <Link to="/register" className="text-indigo-600 hover:text-indigo-700 font-semibold">
+              <Link to="/register" className="text-primary-600 hover:text-primary-700 font-semibold">
                 Registrate
               </Link>
             </p>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useAuth } from "../context/authContext";
 import { useNavigate } from "react-router-dom";
 import { fetchServiciosActivos } from "../firebase/firestore";
@@ -33,7 +33,7 @@ const Cards = () => {
             {t("cards.titulo")}
           </h1>
           <p className="text-gray-500">{t("cards.subtitulo")}</p>
-          <div className="h-1 w-20 bg-indigo-500 rounded mx-auto mt-4"></div>
+          <div className="h-1 w-20 bg-primary-500 rounded mx-auto mt-4"></div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {cards.map((card) => (
@@ -44,7 +44,7 @@ const Cards = () => {
               <div className="flex justify-end">
                 <button
                   onClick={handleReservarClick}
-                  className="text-white bg-indigo-500 hover:bg-indigo-600 py-2 px-4 rounded text-sm"
+                  className="text-white bg-primary-500 hover:bg-primary-600 py-2 px-4 rounded text-sm"
                 >
                   {t("cards.reservar")}
                 </button>

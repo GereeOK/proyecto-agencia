@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+﻿import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
@@ -107,7 +107,7 @@ const Header = () => {
                      md:static md:left-auto md:translate-x-0"
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-            className="w-9 h-9 text-white p-2 bg-indigo-500 rounded-full flex-shrink-0" viewBox="0 0 24 24">
+            className="w-9 h-9 text-white p-2 bg-primary-500 rounded-full flex-shrink-0" viewBox="0 0 24 24">
             <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
             <circle cx="12" cy="9" r="2.5" />
           </svg>
@@ -147,7 +147,7 @@ const Header = () => {
                   <button
                     key={lang.code}
                     onClick={() => { i18n.changeLanguage(lang.code); setShowLangMenu(false); }}
-                    className={`w-full text-left flex items-center gap-2 px-3 py-2 hover:bg-indigo-50 hover:text-indigo-600 transition-colors ${currentLang.code === lang.code ? "font-bold text-indigo-600 bg-indigo-50" : ""}`}
+                    className={`w-full text-left flex items-center gap-2 px-3 py-2 hover:bg-primary-50 hover:text-primary-600 transition-colors ${currentLang.code === lang.code ? "font-bold text-primary-600 bg-primary-50" : ""}`}
                   >
                     <span>{lang.flag}</span>
                     <span>{lang.label}</span>
@@ -159,10 +159,10 @@ const Header = () => {
 
           {!user ? (
             <>
-              <Link to="/login" className="hidden md:inline-flex items-center bg-indigo-500 hover:bg-indigo-600 text-white py-1.5 px-4 rounded text-sm transition-colors">
+              <Link to="/login" className="hidden md:inline-flex items-center bg-primary-500 hover:bg-primary-600 text-white py-1.5 px-4 rounded text-sm transition-colors">
                 {t("nav.iniciarSesion")}
               </Link>
-              <Link to="/login" className="md:hidden w-9 h-9 flex items-center justify-center bg-indigo-500 rounded-full text-white" aria-label={t("nav.iniciarSesion")}>
+              <Link to="/login" className="md:hidden w-9 h-9 flex items-center justify-center bg-primary-500 rounded-full text-white" aria-label={t("nav.iniciarSesion")}>
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
@@ -172,23 +172,23 @@ const Header = () => {
             <>
               {/* Desktop: botones inline */}
               <div className="hidden md:flex items-center gap-2">
-                <Link to="/servicios" className="bg-indigo-500 hover:bg-indigo-600 text-white py-1.5 px-3 rounded text-sm transition-colors">
+                <Link to="/servicios" className="bg-primary-500 hover:bg-primary-600 text-white py-1.5 px-3 rounded text-sm transition-colors">
                   {t("nav.reservar")}
                 </Link>
-                <Link to="/mis-reservas" className="bg-indigo-500 hover:bg-indigo-600 text-white py-1.5 px-3 rounded text-sm transition-colors">
+                <Link to="/mis-reservas" className="bg-primary-500 hover:bg-primary-600 text-white py-1.5 px-3 rounded text-sm transition-colors">
                   {t("nav.misReservas")}
                 </Link>
                 {user.role === "seller" && (
-                  <Link to="/seller" className="bg-indigo-500 hover:bg-indigo-600 text-white py-1.5 px-3 rounded text-sm transition-colors">
+                  <Link to="/seller" className="bg-primary-500 hover:bg-primary-600 text-white py-1.5 px-3 rounded text-sm transition-colors">
                     {t("nav.panelVendedor")}
                   </Link>
                 )}
                 {user.role === "admin" && (
                   <>
-                    <Link to="/seller" className="bg-indigo-500 hover:bg-indigo-600 text-white py-1.5 px-3 rounded text-sm transition-colors">
+                    <Link to="/seller" className="bg-primary-500 hover:bg-primary-600 text-white py-1.5 px-3 rounded text-sm transition-colors">
                       {t("nav.panelSeller")}
                     </Link>
-                    <Link to="/admin" className="bg-indigo-500 hover:bg-indigo-600 text-white py-1.5 px-3 rounded text-sm transition-colors">
+                    <Link to="/admin" className="bg-primary-500 hover:bg-primary-600 text-white py-1.5 px-3 rounded text-sm transition-colors">
                       {t("nav.panelAdmin")}
                     </Link>
                   </>
@@ -199,17 +199,17 @@ const Header = () => {
               <div className="relative hidden md:block" ref={dropdownRef}>
                 <button
                   onClick={() => setShowDropdown((v) => !v)}
-                  className="w-9 h-9 bg-white text-indigo-600 rounded-full flex items-center justify-center font-semibold hover:ring-2 hover:ring-indigo-400 transition text-sm"
+                  className="w-9 h-9 bg-white text-primary-600 rounded-full flex items-center justify-center font-semibold hover:ring-2 hover:ring-primary-400 transition text-sm"
                   aria-label="Menú de usuario"
                 >
                   {avatarLetter}
                 </button>
                 {showDropdown && (
                   <div className="absolute right-0 mt-2 w-44 bg-white rounded-md shadow-lg py-1 text-sm text-gray-700">
-                    <Link to="/perfil" className="block px-4 py-2 hover:bg-gray-100 hover:text-indigo-600 transition-colors">
+                    <Link to="/perfil" className="block px-4 py-2 hover:bg-gray-100 hover:text-primary-600 transition-colors">
                       {t("nav.miPerfil")}
                     </Link>
-                    <Link to="/favoritos" className="block px-4 py-2 hover:bg-gray-100 hover:text-indigo-600 transition-colors">
+                    <Link to="/favoritos" className="block px-4 py-2 hover:bg-gray-100 hover:text-primary-600 transition-colors">
                       {t("nav.misFavoritos")}
                     </Link>
                     <button onClick={handleLogout} className="block w-full text-left px-4 py-2 hover:bg-red-500 hover:text-white transition-colors">
@@ -220,7 +220,7 @@ const Header = () => {
               </div>
 
               {/* Mobile: avatar letra */}
-              <div className="md:hidden w-9 h-9 bg-white text-indigo-600 rounded-full flex items-center justify-center font-semibold text-sm flex-shrink-0">
+              <div className="md:hidden w-9 h-9 bg-white text-primary-600 rounded-full flex items-center justify-center font-semibold text-sm flex-shrink-0">
                 {avatarLetter}
               </div>
             </>
@@ -291,7 +291,7 @@ const Header = () => {
                 <button
                   key={lang.code}
                   onClick={() => { i18n.changeLanguage(lang.code); setMobileOpen(false); }}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${currentLang.code === lang.code ? "bg-indigo-500 text-white" : "bg-gray-700 text-gray-300 hover:bg-gray-600"}`}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${currentLang.code === lang.code ? "bg-primary-500 text-white" : "bg-gray-700 text-gray-300 hover:bg-gray-600"}`}
                 >
                   <span>{lang.flag}</span>
                   <span>{lang.label}</span>

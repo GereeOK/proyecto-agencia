@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
@@ -19,7 +19,7 @@ const Register = () => {
   const handleRegister = () => register({ isSeller, agencia, logoAgencia });
 
   const inputCls =
-    "w-full border-2 border-gray-200 focus:border-indigo-400 rounded-xl px-3 py-2.5 text-sm outline-none transition-colors bg-white";
+    "w-full border-2 border-gray-200 focus:border-primary-400 rounded-xl px-3 py-2.5 text-sm outline-none transition-colors bg-white";
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -29,10 +29,10 @@ const Register = () => {
         <div className="bg-white w-full max-w-lg rounded-2xl shadow-xl overflow-hidden">
 
           {/* Card header */}
-          <div className="bg-indigo-600 px-8 py-7 text-center text-white">
+          <div className="bg-primary-600 px-8 py-7 text-center text-white">
             <p className="text-4xl mb-2">✈️</p>
             <h1 className="text-2xl font-bold">Crear una cuenta</h1>
-            <p className="text-indigo-200 text-sm mt-1">Descubrí experiencias únicas en Buenos Aires</p>
+            <p className="text-primary-200 text-sm mt-1">Descubrí experiencias únicas en Buenos Aires</p>
           </div>
 
           <div className="px-8 py-7 space-y-4">
@@ -46,7 +46,7 @@ const Register = () => {
                   onClick={() => setIsSeller(false)}
                   className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
                     !isSeller
-                      ? "bg-indigo-600 text-white"
+                      ? "bg-primary-600 text-white"
                       : "text-gray-500 hover:bg-gray-50"
                   }`}
                 >
@@ -57,7 +57,7 @@ const Register = () => {
                   onClick={() => setIsSeller(true)}
                   className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
                     isSeller
-                      ? "bg-indigo-600 text-white"
+                      ? "bg-primary-600 text-white"
                       : "text-gray-500 hover:bg-gray-50"
                   }`}
                 >
@@ -103,8 +103,8 @@ const Register = () => {
 
             {/* Seller-specific fields */}
             {isSeller && (
-              <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 space-y-3">
-                <p className="text-xs font-bold text-indigo-700 uppercase tracking-wide">
+              <div className="bg-primary-50 border border-primary-100 rounded-xl p-4 space-y-3">
+                <p className="text-xs font-bold text-primary-700 uppercase tracking-wide">
                   Datos de la empresa
                 </p>
                 <div>
@@ -150,14 +150,14 @@ const Register = () => {
             <button
               onClick={handleRegister}
               disabled={loading}
-              className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm disabled:opacity-50 transition-colors"
+              className="w-full py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold text-sm disabled:opacity-50 transition-colors"
             >
               {loading ? "Creando cuenta..." : "Crear cuenta"}
             </button>
 
             <p className="text-center text-sm text-gray-500">
               ¿Ya tenés cuenta?{" "}
-              <Link to="/login" className="text-indigo-600 hover:text-indigo-700 font-semibold">
+              <Link to="/login" className="text-primary-600 hover:text-primary-700 font-semibold">
                 Iniciá sesión
               </Link>
             </p>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, lazy, Suspense, useRef, useCallback } from "react";
+﻿import React, { useEffect, useState, lazy, Suspense, useRef, useCallback } from "react";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { es } from "date-fns/locale";
@@ -118,7 +118,7 @@ const TabChatSeller = ({ reserva, user }) => {
           <div key={msg.id} className={`flex ${msg.autorRol === "seller" ? "justify-end" : "justify-start"}`}>
             <div className={`max-w-xs px-3 py-2 rounded-2xl text-sm shadow-sm ${
               msg.autorRol === "seller"
-                ? "bg-indigo-600 text-white"
+                ? "bg-primary-600 text-white"
                 : "bg-white border border-gray-200 text-gray-800"
             }`}>
               <p className="text-xs font-semibold mb-0.5 opacity-70">{msg.autorNombre}</p>
@@ -133,12 +133,12 @@ const TabChatSeller = ({ reserva, user }) => {
           value={texto}
           onChange={(e) => setTexto(e.target.value)}
           placeholder="Escribí tu respuesta..."
-          className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400 transition-colors"
+          className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary-400 transition-colors"
         />
         <button
           type="submit"
           disabled={!texto.trim() || enviando}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold disabled:opacity-50 transition-colors"
+          className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-xl text-sm font-semibold disabled:opacity-50 transition-colors"
         >
           Enviar
         </button>
@@ -230,7 +230,7 @@ const ModalGestionReserva = ({ reserva, onClose, initialTab = "detalle" }) => {
               onClick={() => setTab(t.id)}
               className={`px-4 py-3 text-sm font-semibold transition-colors border-b-2 -mb-px ${
                 tab === t.id
-                  ? "text-indigo-700 border-indigo-600"
+                  ? "text-primary-700 border-primary-600"
                   : "text-gray-500 border-transparent hover:text-gray-700"
               }`}
             >
@@ -250,11 +250,11 @@ const ModalGestionReserva = ({ reserva, onClose, initialTab = "detalle" }) => {
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Actividades</p>
                 {(reserva.servicios || []).map((s, i) => (
                   <div key={i} className="flex items-center gap-2 text-sm">
-                    <span className="w-2 h-2 bg-indigo-400 rounded-full flex-shrink-0" />
+                    <span className="w-2 h-2 bg-primary-400 rounded-full flex-shrink-0" />
                     <span className="flex-1 font-medium text-gray-800">{s.title || s}</span>
                     {s.fecha && <span className="text-xs text-gray-400">📅 {s.fecha}</span>}
                     {s.horario && <span className="text-xs text-gray-400">🕐 {s.horario}</span>}
-                    <span className="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full">
+                    <span className="text-xs bg-primary-50 text-primary-700 px-2 py-0.5 rounded-full">
                       {s.personas || 1} pax
                     </span>
                   </div>
@@ -353,7 +353,7 @@ const ModalGestionReserva = ({ reserva, onClose, initialTab = "detalle" }) => {
                     {p.fechaNacimiento && (
                       <p className="text-gray-500 text-xs mt-0.5">Nacimiento: {p.fechaNacimiento}</p>
                     )}
-                    {i === 0 && <span className="inline-block mt-1 text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">Titular</span>}
+                    {i === 0 && <span className="inline-block mt-1 text-xs bg-primary-100 text-primary-700 px-2 py-0.5 rounded-full">Titular</span>}
                   </div>
                 ))
               )}
@@ -414,7 +414,7 @@ const ModalServicio = ({ servicio, onClose, onSave }) => {
     return "";
   };
 
-  const inputCls = "w-full border-2 border-gray-200 focus:border-indigo-400 rounded-xl px-3 py-2 text-sm outline-none transition-colors";
+  const inputCls = "w-full border-2 border-gray-200 focus:border-primary-400 rounded-xl px-3 py-2 text-sm outline-none transition-colors";
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={onClose}>
@@ -542,7 +542,7 @@ const ModalServicio = ({ servicio, onClose, onSave }) => {
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={form.activo !== false}
                 onChange={(e) => set("activo", e.target.checked)}
-                className="w-4 h-4 accent-indigo-600" />
+                className="w-4 h-4 accent-primary-600" />
               <span className="text-sm text-gray-700">Servicio activo (visible para turistas)</span>
             </label>
           )}
@@ -556,7 +556,7 @@ const ModalServicio = ({ servicio, onClose, onSave }) => {
             Cancelar
           </button>
           <button type="submit" disabled={guardando}
-            className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm disabled:opacity-50">
+            className="flex-1 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold text-sm disabled:opacity-50">
             {traduciendo ? "Traduciendo..." : guardando ? "Guardando..." : form.id ? "Guardar cambios" : "Crear experiencia"}
           </button>
         </div>
@@ -754,7 +754,7 @@ const HomeSeller = () => {
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm text-gray-500">{servicios.length} experiencia{servicios.length !== 1 ? "s" : ""}</p>
               <button onClick={() => setModalServicio({})}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors">
+                className="bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors">
                 + Nueva experiencia
               </button>
             </div>
@@ -769,7 +769,7 @@ const HomeSeller = () => {
                 <p className="text-gray-600 font-medium mb-1">Todavía no cargaste experiencias</p>
                 <p className="text-gray-400 text-sm mb-4">Creá tu primera experiencia para comenzar a recibir reservas</p>
                 <button onClick={() => setModalServicio({})}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold">
+                  className="bg-primary-600 hover:bg-primary-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold">
                   Crear experiencia
                 </button>
               </div>
@@ -785,7 +785,7 @@ const HomeSeller = () => {
                         onError={(e) => { e.target.src = "https://placehold.co/400x160?text=Sin+imagen"; }} />
                       <div className="absolute top-2 right-2"><EstadoBadge activo={s.activo} /></div>
                       {s.price && (
-                        <div className="absolute bottom-2 left-2 bg-white/90 rounded-full px-2.5 py-0.5 text-xs font-bold text-indigo-700">
+                        <div className="absolute bottom-2 left-2 bg-white/90 rounded-full px-2.5 py-0.5 text-xs font-bold text-primary-700">
                           ${formatARS(s.price)}
                         </div>
                       )}
@@ -796,7 +796,7 @@ const HomeSeller = () => {
                       <p className="text-xs text-gray-500 line-clamp-2 mb-3">{s.description}</p>
                       <div className="flex gap-2">
                         <button onClick={() => setModalServicio(s)}
-                          className="flex-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold py-2 rounded-xl transition-colors">
+                          className="flex-1 bg-primary-50 hover:bg-primary-100 text-primary-700 text-xs font-semibold py-2 rounded-xl transition-colors">
                           Editar
                         </button>
                         <button onClick={() => handleToggle(s)}
@@ -870,7 +870,7 @@ const HomeSeller = () => {
                           <p className="text-sm text-gray-500">{r.email}</p>
                           <div className="mt-2 flex flex-wrap gap-1">
                             {(r.servicios || []).map((s, i) => (
-                              <span key={i} className="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full">
+                              <span key={i} className="text-xs bg-primary-50 text-primary-700 px-2 py-0.5 rounded-full">
                                 {s.title || s} × {s.personas || r.personas || 1}
                                 {s.fecha ? ` · ${s.fecha}` : ""}
                               </span>
@@ -897,7 +897,7 @@ const HomeSeller = () => {
                             {r.estado !== "cancelada" && r.estado !== "pagada" && (
                               <button
                                 onClick={() => openModal(r, "detalle")}
-                                className="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-3 py-1.5 rounded-xl transition-colors"
+                                className="text-xs bg-primary-600 hover:bg-primary-700 text-white font-semibold px-3 py-1.5 rounded-xl transition-colors"
                               >
                                 Gestionar →
                               </button>
@@ -931,7 +931,7 @@ const HomeSeller = () => {
                     <button
                       key={r.id}
                       onClick={() => openModal(r, "chat")}
-                      className="w-full text-left bg-white rounded-2xl border border-gray-100 p-4 shadow-sm hover:border-indigo-200 hover:shadow-md transition-all"
+                      className="w-full text-left bg-white rounded-2xl border border-gray-100 p-4 shadow-sm hover:border-primary-200 hover:shadow-md transition-all"
                     >
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex-1 min-w-0">
@@ -942,7 +942,7 @@ const HomeSeller = () => {
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
                           <ReservaEstadoBadge estado={r.estado} />
-                          <span className="text-indigo-600 text-sm">→</span>
+                          <span className="text-primary-600 text-sm">→</span>
                         </div>
                       </div>
                     </button>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { sendConsulta } from "../firebase/firestore";
 import { useTranslation } from "react-i18next";
 
@@ -24,7 +24,7 @@ const ContactUs = () => {
     }
   };
 
-  const inputCls = "w-full bg-gray-800 bg-opacity-40 rounded border border-gray-700 focus:border-indigo-500 focus:bg-gray-900 focus:ring-2 focus:ring-indigo-900 text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out";
+  const inputCls = "w-full bg-gray-800 bg-opacity-40 rounded border border-gray-700 focus:border-primary-500 focus:bg-gray-900 focus:ring-2 focus:ring-primary-900 text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out";
 
   return (
     <section id="contacto" className="text-gray-400 bg-gray-900 body-font relative">
@@ -51,12 +51,12 @@ const ContactUs = () => {
               <div className="relative">
                 <label htmlFor="message" className="leading-7 text-sm text-gray-400">{t("contacto.mensaje")}</label>
                 <textarea id="message" name="message" value={formData.message} onChange={handleChange} required
-                  className="w-full bg-gray-800 bg-opacity-40 rounded border border-gray-700 focus:border-indigo-500 focus:bg-gray-900 focus:ring-2 focus:ring-indigo-900 h-32 text-base outline-none text-gray-100 py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"
+                  className="w-full bg-gray-800 bg-opacity-40 rounded border border-gray-700 focus:border-primary-500 focus:bg-gray-900 focus:ring-2 focus:ring-primary-900 h-32 text-base outline-none text-gray-100 py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"
                 />
               </div>
             </div>
             <div className="p-2 w-full">
-              <button type="submit" className="flex mx-auto text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">
+              <button type="submit" className="flex mx-auto text-white bg-primary-500 border-0 py-2 px-8 focus:outline-none hover:bg-primary-600 rounded text-lg">
                 {t("contacto.enviar")}
               </button>
             </div>

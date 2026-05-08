@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense } from "react";
+﻿import React, { useState, useEffect, lazy, Suspense } from "react";
 import {
   fetchServicios,
   createServicio,
@@ -176,12 +176,12 @@ const Servicios = () => {
           <input
             type="text"
             placeholder="Buscar por título..."
-            className="border rounded-lg px-3 py-2 text-sm flex-1 min-w-[200px] focus:outline-none focus:ring-2 focus:ring-indigo-300"
+            className="border rounded-lg px-3 py-2 text-sm flex-1 min-w-[200px] focus:outline-none focus:ring-2 focus:ring-primary-300"
             value={busqueda}
             onChange={e => setBusqueda(e.target.value)}
           />
           <select
-            className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+            className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
             value={filtroCategoria}
             onChange={e => setFiltroCategoria(e.target.value)}
           >
@@ -189,7 +189,7 @@ const Servicios = () => {
             {CATEGORIAS.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
           <select
-            className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+            className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
             value={filtroActivo}
             onChange={e => setFiltroActivo(e.target.value)}
           >
@@ -202,7 +202,7 @@ const Servicios = () => {
           </span>
           {(busqueda || filtroCategoria !== "todas" || filtroActivo !== "todos") && (
             <button
-              className="text-sm text-indigo-600 hover:underline"
+              className="text-sm text-primary-600 hover:underline"
               onClick={() => { setBusqueda(""); setFiltroCategoria("todas"); setFiltroActivo("todos"); }}
             >
               Limpiar filtros
@@ -247,7 +247,7 @@ const Servicios = () => {
                   </td>
                   <td className="px-4 py-2 text-sm">
                     {s.categoria
-                      ? <span className="bg-indigo-50 text-indigo-700 text-xs px-2 py-0.5 rounded-full">{s.categoria}</span>
+                      ? <span className="bg-primary-50 text-primary-700 text-xs px-2 py-0.5 rounded-full">{s.categoria}</span>
                       : <span className="text-gray-400 text-xs">—</span>
                     }
                   </td>
@@ -336,7 +336,7 @@ const Servicios = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-1">Título <span className="text-red-500">*</span></label>
                     <input
                       type="text"
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
                       value={currentService.title}
                       onChange={e => setCurrentService({ ...currentService, title: e.target.value })}
                       required
@@ -346,7 +346,7 @@ const Servicios = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-1">Descripción <span className="text-red-500">*</span></label>
                     <textarea
                       rows={3}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-none"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300 resize-none"
                       value={currentService.description}
                       onChange={e => setCurrentService({ ...currentService, description: e.target.value })}
                       required
@@ -360,7 +360,7 @@ const Servicios = () => {
                         <input
                           type="number"
                           min="0"
-                          className="w-full border border-gray-200 rounded-lg pl-7 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                          className="w-full border border-gray-200 rounded-lg pl-7 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
                           value={currentService.price}
                           onChange={e => setCurrentService({ ...currentService, price: e.target.value })}
                           placeholder="0"
@@ -371,7 +371,7 @@ const Servicios = () => {
                       <label className="block text-sm font-medium text-gray-700 mb-1">URL de imagen</label>
                       <input
                         type="text"
-                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
                         value={currentService.image}
                         onChange={e => setCurrentService({ ...currentService, image: e.target.value })}
                         placeholder="https://..."
@@ -397,7 +397,7 @@ const Servicios = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
                     <select
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
                       value={currentService.categoria || ""}
                       onChange={e => setCurrentService({ ...currentService, categoria: e.target.value })}
                     >
@@ -410,7 +410,7 @@ const Servicios = () => {
                     <input
                       type="text"
                       placeholder="Ej: 3 horas"
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
                       value={currentService.duracion || ""}
                       onChange={e => setCurrentService({ ...currentService, duracion: e.target.value })}
                     />
@@ -420,7 +420,7 @@ const Servicios = () => {
                     <input
                       type="text"
                       placeholder="Ej: Español, Inglés"
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
                       value={currentService.idioma || ""}
                       onChange={e => setCurrentService({ ...currentService, idioma: e.target.value })}
                     />
@@ -430,7 +430,7 @@ const Servicios = () => {
                     <input
                       type="text"
                       placeholder="Ej: Barracas, CABA"
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
                       value={currentService.ubicacion || ""}
                       onChange={e => setCurrentService({ ...currentService, ubicacion: e.target.value })}
                     />
@@ -441,7 +441,7 @@ const Servicios = () => {
                   <textarea
                     rows={2}
                     placeholder="Ej: Guía local, traslado, entrada..."
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-none"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300 resize-none"
                     value={currentService.incluye || ""}
                     onChange={e => setCurrentService({ ...currentService, incluye: e.target.value })}
                   />
@@ -460,7 +460,7 @@ const Servicios = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-1">Desde</label>
                     <input
                       type="date"
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
                       value={currentService.from?.toDate ? currentService.from.toDate().toISOString().split("T")[0] : currentService.from instanceof Date ? currentService.from.toISOString().split("T")[0] : ""}
                       onChange={e => setCurrentService({ ...currentService, from: e.target.value ? Timestamp.fromDate(new Date(e.target.value)) : null })}
                     />
@@ -469,7 +469,7 @@ const Servicios = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-1">Hasta</label>
                     <input
                       type="date"
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
                       value={currentService.until?.toDate ? currentService.until.toDate().toISOString().split("T")[0] : currentService.until instanceof Date ? currentService.until.toISOString().split("T")[0] : ""}
                       onChange={e => setCurrentService({ ...currentService, until: e.target.value ? Timestamp.fromDate(new Date(e.target.value)) : null })}
                     />
@@ -491,7 +491,7 @@ const Servicios = () => {
                       type="number"
                       step="any"
                       placeholder="-34.6037"
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
                       value={currentService.lat || ""}
                       onChange={e => setCurrentService({ ...currentService, lat: e.target.value })}
                     />
@@ -502,7 +502,7 @@ const Servicios = () => {
                       type="number"
                       step="any"
                       placeholder="-58.3816"
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
                       value={currentService.lng || ""}
                       onChange={e => setCurrentService({ ...currentService, lng: e.target.value })}
                     />
@@ -542,7 +542,7 @@ const Servicios = () => {
                           checked={currentService.activo !== false}
                           onChange={e => setCurrentService({ ...currentService, activo: e.target.checked })}
                         />
-                        <div className={`w-10 h-6 rounded-full transition-colors ${currentService.activo !== false ? "bg-indigo-500" : "bg-gray-300"}`} />
+                        <div className={`w-10 h-6 rounded-full transition-colors ${currentService.activo !== false ? "bg-primary-500" : "bg-gray-300"}`} />
                         <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${currentService.activo !== false ? "translate-x-5" : "translate-x-1"}`} />
                       </div>
                       <div>
@@ -571,7 +571,7 @@ const Servicios = () => {
               <button
                 type="submit"
                 form="form-servicio"
-                className="px-5 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors"
+                className="px-5 py-2 text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
               >
                 {showAddModal ? "Crear servicio" : "Guardar cambios"}
               </button>

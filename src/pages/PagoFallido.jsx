@@ -1,4 +1,4 @@
-// PagoFallido.jsx
+﻿// PagoFallido.jsx
 // Página de retorno cuando el pago fue rechazado o cancelado.
 
 import { Link, useSearchParams } from "react-router-dom";
@@ -33,7 +33,7 @@ const PagoFallido = () => {
         </p>
         <div className="flex flex-col sm:flex-row gap-4">
           <Link to="/mis-reservas"
-            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 py-4 rounded-xl transition-colors shadow-lg">
+            className="bg-primary-600 hover:bg-primary-700 text-white font-bold px-8 py-4 rounded-xl transition-colors shadow-lg">
             Intentar de nuevo
           </Link>
           <Link to="/"
