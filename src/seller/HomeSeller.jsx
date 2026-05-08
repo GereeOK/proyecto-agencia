@@ -28,6 +28,7 @@ import { app } from "../firebase/config";
 import { Timestamp } from "firebase/firestore";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
+import { translateServicio } from "../utils/translate";
 
 const db = getFirestore(app);
 const MapaServicio = lazy(() => import("../components/MapaServicio"));
@@ -376,6 +377,7 @@ const ModalServicio = ({ servicio, onClose, onSave }) => {
     ...servicio,
   });
   const [guardando, setGuardando] = useState(false);
+  const [traduciendo, setTraduciendo] = useState(false);
   const [error, setError] = useState(null);
 
   const set = (k, v) => setForm((prev) => ({ ...prev, [k]: v }));
@@ -384,14 +386,18 @@ const ModalServicio = ({ servicio, onClose, onSave }) => {
     e.preventDefault();
     if (!form.title.trim()) { setError("El título es obligatorio."); return; }
     setGuardando(true);
+    setTraduciendo(true);
     setError(null);
     try {
+      const traducciones = await translateServicio(form);
+      setTraduciendo(false);
+      const dataToSave = { ...form, ...traducciones };
       if (form.id) {
-        await updateServicio(form.id, { ...form });
-        onSave({ ...form });
+        await updateServicio(form.id, dataToSave);
+        onSave(dataToSave);
       } else {
-        const id = await createServicio({ ...form, companyId: user.companyId });
-        onSave({ ...form, id });
+        const id = await createServicio({ ...dataToSave, companyId: user.companyId });
+        onSave({ ...dataToSave, id });
       }
       onClose();
     } catch {
@@ -551,7 +557,7 @@ const ModalServicio = ({ servicio, onClose, onSave }) => {
           </button>
           <button type="submit" disabled={guardando}
             className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm disabled:opacity-50">
-            {guardando ? "Guardando..." : form.id ? "Guardar cambios" : "Crear experiencia"}
+            {traduciendo ? "Traduciendo..." : guardando ? "Guardando..." : form.id ? "Guardar cambios" : "Crear experiencia"}
           </button>
         </div>
       </form>
