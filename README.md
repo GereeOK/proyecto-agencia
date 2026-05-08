@@ -1,80 +1,98 @@
-# Baires Essence — Plataforma Web de Turismo en Buenos Aires
+# 🌆 Baires Essence
 
-Plataforma web completa para gestión de experiencias turísticas en Buenos Aires. Permite a turistas explorar y reservar actividades, a vendedores (guías/agencias) gestionar sus experiencias, y a administradores supervisar toda la operación.
+> Plataforma de turismo en Buenos Aires — reservá experiencias auténticas, gestionadas por guías locales.
+
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white&style=flat-square)
+![Firebase](https://img.shields.io/badge/Firebase-Firestore-FFCA28?logo=firebase&logoColor=black&style=flat-square)
+![Tailwind](https://img.shields.io/badge/Tailwind-CSS-38BDF8?logo=tailwindcss&logoColor=white&style=flat-square)
+![i18n](https://img.shields.io/badge/i18n-ES/EN/FR/PT/IT-6366F1?style=flat-square)
+![Deploy](https://img.shields.io/badge/Deploy-Vercel-black?logo=vercel&style=flat-square)
 
 ---
 
-## Características
+## ¿Qué es?
 
-### Para turistas
-- Catálogo de experiencias con filtros por categoría, precio y disponibilidad
-- Reserva con selección de fecha y horario por actividad
-- Lista de pasajeros con integración al grupo familiar del perfil
-- Chat en tiempo real con el vendedor dentro de cada reserva
-- Estado de reserva con máquina de estados dual (usuario + seller confirman)
+Baires Essence conecta a turistas con guías y agencias porteñas. El turista elige experiencias (city tours, gastronomía, tango, polo, kayak…), las arma en un carrito, reserva y paga. El guía las gestiona desde su panel. El admin supervisa todo.
+
+---
+
+## ✨ Funcionalidades
+
+### 🧳 Turistas
+- Catálogo con filtros por categoría y búsqueda en tiempo real
+- Modal de detalle con mapa (Leaflet), reseñas y contacto directo al guía (WhatsApp / email)
+- Carrito multi-experiencia con selección de personas
+- Reserva con lista de pasajeros, fechas y horarios por actividad
 - Pago online con MercadoPago
-- Sección de favoritos (guardados)
-- Historial de reservas con calendario de actividades
+- Historial de reservas + calificación post-experiencia
+- Favoritos guardados
+- Interfaz en 5 idiomas: ES / EN / FR / PT / IT
 
-### Para vendedores (panel seller)
-- Alta y gestión de experiencias con mapa interactivo (Leaflet)
-- Reservas en tiempo real con `onSnapshot` (actualizaciones automáticas)
+### 🏪 Vendedores (panel seller)
+- CRUD de experiencias con mapa interactivo
+- Auto-traducción al guardar: el contenido en español se traduce automáticamente a EN/FR/PT/IT
+- Reservas en tiempo real (`onSnapshot`)
 - Chat con turistas por reserva
-- Confirmación de reservas tras la confirmación del turista
-- Calendario mensual de todas las actividades reservadas
-- Exportación CSV de reservas con métricas
+- Calendario mensual de actividades
+- Exportación CSV
 
-### Para administradores (panel admin)
-- Dashboard con KPIs, gráficos de barras, torta y área (Recharts)
-- CRUD completo: usuarios, experiencias, reservas, consultas
-- Filtros y búsqueda en todos los listados
-- Exportación CSV desde el panel de reservas
+### 🛠️ Administradores (panel admin)
+- Dashboard con KPIs: reservas, ingresos, tasa de conversión, reseñas promedio
+- Gráficos de barras, torta y área (Recharts)
+- Panel de reseñas: filtros, ocultar, respuesta por email
+- Panel de consultas: respuesta con EmailJS
+- CRUD completo: usuarios, experiencias, reservas
 - Gestión de roles y activación/desactivación de cuentas
 
 ---
 
-## Stack Tecnológico
+## 🧱 Stack
 
 | Capa | Tecnología |
-|------|------------|
+|---|---|
 | Frontend | React 19 + Vite |
 | Estilos | Tailwind CSS |
-| Backend / DB | Firebase Firestore (plan Spark) |
-| Auth | Firebase Auth (email + Google OAuth) |
+| Base de datos | Firebase Firestore (plan Spark) |
+| Auth | Firebase Auth — email + Google OAuth |
 | Mapas | Leaflet + React-Leaflet |
 | Gráficos | Recharts |
 | Calendario | React Big Calendar + date-fns |
-| Pagos | MercadoPago SDK (serverless en Vercel) |
+| Internacionalización | react-i18next + i18next-browser-languagedetector |
+| Auto-traducción | MyMemory API (gratuita, sin API key) |
+| Pagos | MercadoPago SDK (Vercel Serverless Functions) |
 | Email | EmailJS |
-| Toasts | Sonner |
-| Deploy | Vercel (pendiente) |
+| Notificaciones | Sonner |
+| Deploy | Vercel |
 
 ---
 
-## Estructura del Proyecto
+## 📁 Estructura
 
 ```
-/src
- ├── admin/          # Panel administrador (Dashboard, CRUDs)
- ├── seller/         # Panel vendedor (HomeSeller)
- ├── pages/          # Vistas públicas y de usuario
- ├── components/     # Componentes reutilizables (Navbar, Footer, Mapa, etc.)
- ├── firebase/       # Config Firebase + todas las funciones Firestore
- ├── context/        # AuthContext (usuario autenticado global)
- └── routes/         # AppRoutes + ProtectedRoute + PublicRoute
-/api
- ├── crearPreferenciaMp.js   # Serverless: crear preferencia MercadoPago
- └── webhookMp.js            # Serverless: recibir notificaciones de pago
+src/
+├── admin/          # Panel administrador (Dashboard, CRUDs, reseñas, consultas)
+├── seller/         # Panel vendedor (HomeSeller)
+├── pages/          # Vistas públicas y de usuario
+├── components/     # Navbar, Footer, MapaServicio, Testimonials, Cards…
+├── firebase/       # Config + todas las funciones Firestore
+├── i18n/           # Traducciones: es.json, en.json, fr.json, pt.json, it.json
+├── utils/          # translate.js — getLang(), useLang(), translateServicio()
+├── context/        # AuthContext, CarritoContext
+└── routes/         # AppRoutes, ProtectedRoute, PublicRoute
+api/
+├── crearPreferenciaMp.js   # Serverless: crear preferencia MercadoPago
+└── webhookMp.js            # Serverless: webhook de notificaciones
 ```
 
 ---
 
-## Instalación
+## 🚀 Instalación
 
 ```bash
 git clone https://github.com/GereeOK/proyecto-agencia
 cd proyecto-agencia
 npm install
+npm run dev
 ```
 
 ### Variables de entorno
@@ -88,73 +106,68 @@ VITE_FIREBASE_PROJECT_ID=
 VITE_FIREBASE_STORAGE_BUCKET=
 VITE_FIREBASE_MESSAGING_SENDER_ID=
 VITE_FIREBASE_APP_ID=
-```
 
-Para MercadoPago (solo necesario en producción / Vercel):
-```env
+# Solo para producción (Vercel)
 MP_ACCESS_TOKEN=
-```
-
-### Desarrollo local
-
-```bash
-npm run dev
 ```
 
 ---
 
-## Roles y Permisos
+## 👥 Roles y permisos
 
-| Rol | Acceso |
-|-----|--------|
-| `user` | `/servicios`, `/mis-reservas`, `/favoritos`, `/perfil` |
+| Rol | Rutas |
+|---|---|
+| `user` | `/servicios` `/mis-reservas` `/favoritos` `/perfil` |
 | `seller` | Todo lo anterior + `/seller` |
-| `admin` | Todo lo anterior + `/admin` (también puede acceder a `/seller`) |
+| `admin` | Todo lo anterior + `/admin` |
 
 Los usuarios con `activo: false` son redirigidos al login automáticamente.
 
 ---
 
-## Colecciones Firestore
+## 🗄️ Colecciones Firestore
 
 | Colección | Descripción |
-|-----------|-------------|
+|---|---|
 | `users` | Perfiles, roles, grupo familiar |
-| `servicios` | Experiencias turísticas |
-| `reservas` | Reservas con pasajeros, estados y fechas por actividad |
-| `reservas/{id}/mensajes` | Chat en tiempo real por reserva |
+| `servicios` | Experiencias + traducciones automáticas (`title_en`, `title_fr`…) |
+| `reservas` | Estado, pasajeros, fechas y horarios por actividad |
+| `reservas/{id}/mensajes` | Chat en tiempo real |
 | `messages` | Consultas del formulario de contacto |
 | `companies` | Datos de empresa para sellers |
+| `resenas` | Reseñas post-experiencia (experiencia / empresa / plataforma) |
 | `favoritos/{uid}/items` | Experiencias guardadas por usuario |
 
 ---
 
-## Estados de Reserva
+## 🔄 Flujo de estados de una reserva
 
 ```
-pendiente → confirmada_usuario → confirmada → pagada
-                                     ↓
+pendiente → confirmada_usuario → confirmada → pagada → finalizada
+                                      ↓
                                   cancelada
 ```
 
-- `pendiente`: reserva creada, turista completando datos
-- `confirmada_usuario`: turista confirmó su parte (datos + pasajeros)
-- `confirmada`: seller confirmó → lista para pagar
-- `pagada`: pago acreditado por MercadoPago
-- `cancelada`: cancelada por seller (con motivo)
+---
+
+## 🌐 Internacionalización
+
+La UI está disponible en 5 idiomas (ES / EN / FR / PT / IT).
+
+El contenido dinámico (título, descripción e incluye de cada experiencia) **se traduce automáticamente al guardar** desde el panel seller, usando la API gratuita de MyMemory. La interfaz usa `getLang(servicio, campo, idioma)` con fallback al español.
 
 ---
 
-## Deploy (Vercel)
+## ☁️ Deploy (Vercel)
 
 1. Importar repo en [vercel.com](https://vercel.com) → Framework: **Vite**
 2. Agregar variables de entorno (`VITE_FIREBASE_*` + `MP_ACCESS_TOKEN`)
-3. Deploy automático
-4. Configurar webhook MercadoPago → `https://tu-app.vercel.app/api/webhookMp`
+3. Deploy automático en cada push a `main`
+4. Configurar webhook: `https://tu-app.vercel.app/api/webhookMp`
 5. Deployar reglas Firestore: `firebase deploy --only firestore:rules`
 
 ---
 
-## Licencia
+## 📄 Licencia
 
-Proyecto académico — uso libre para fines educativos.
+Proyecto académico — uso libre con fines educativos.
