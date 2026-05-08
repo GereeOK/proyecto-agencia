@@ -53,6 +53,9 @@ Thumbs.db
 desktop.ini
 
 src/scripts/serviceAccountKey.json
+sellers.txt
+users.txt
+credenciales-testing.txt
 
 # Claude Code settings (local only)
 .claude/
