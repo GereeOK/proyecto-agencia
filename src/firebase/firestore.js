@@ -461,11 +461,13 @@ export const getResenasRecientes = async (n = 50) => {
     .slice(0, n);
 };
 
-// Todas las reseñas de tipo "experiencia" para calcular promedios por servicio
+// Todas las reseñas de tipo "experiencia" visibles para calcular promedios por servicio
 export const fetchResenasExperiencias = async () => {
   const q = query(collection(db, "resenas"), where("tipo", "==", "experiencia"));
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  return snap.docs
+    .map((d) => ({ id: d.id, ...d.data() }))
+    .filter((r) => !r.oculto);
 };
 
 // Admin: traer TODAS las reseñas sin filtro (incluyendo ocultas)
