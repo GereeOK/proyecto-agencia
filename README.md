@@ -191,7 +191,6 @@ El contenido dinámico (título, descripción e incluye de cada experiencia) **s
 | Florencia Benítez 🇦🇷 | florenciabenitez@gmail.com | reserva pagada (familia de 4) |
 | Gonzalo Mendoza 🇦🇷 | gonzalomendoza@gmail.com | power user — 3 reservas en distintos estados |
 
-> Las credenciales completas (18 users + 6 sellers) están en `credenciales-testing.txt` (ignorado por git).
 
 ---
 
