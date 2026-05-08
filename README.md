@@ -168,6 +168,33 @@ El contenido dinámico (título, descripción e incluye de cada experiencia) **s
 
 ---
 
+## 🧪 Usuarios de prueba
+
+### Admin
+| Email | Password |
+|-------|----------|
+| admin@admin.com | Admin123 |
+
+### Sellers
+| Nombre | Empresa | Email | Password |
+|--------|---------|-------|----------|
+| María González | BA Tango Experience | tangobaires@seller.com | Tango2026! |
+| Carlos Pérez | Sabores Buenos Aires | saboresba@seller.com | Sabores2026! |
+| Laura Fernández | Verde y Movimiento BA | verdeymba@seller.com | Verde2026! |
+
+### Users (password común: `User2026!`)
+| Nombre | Email | Estado |
+|--------|-------|--------|
+| Sophie Anderson 🇺🇸 | sofiamtz@gmail.com | reserva finalizada + reseñas |
+| Lucas Herreira 🇧🇷 | lucasherrera.ba@gmail.com | reserva finalizada + reseñas |
+| Facundo Morales 🇦🇷 | facundomorales@gmail.com | reserva confirmada + chat con seller |
+| Florencia Benítez 🇦🇷 | florenciabenitez@gmail.com | reserva pagada (familia de 4) |
+| Gonzalo Mendoza 🇦🇷 | gonzalomendoza@gmail.com | power user — 3 reservas en distintos estados |
+
+> Las credenciales completas (18 users + 6 sellers) están en `credenciales-testing.txt` (ignorado por git).
+
+---
+
 ## 📄 Licencia
 
 Proyecto académico — uso libre con fines educativos.
