@@ -1,4 +1,4 @@
-// PantallaPago.jsx
+﻿// PantallaPago.jsx
 // Pantalla de selección de método de pago.
 // Se accede desde el botón "Pagar" en Mis Reservas.
 // Recibe la reserva via location.state (React Router).
@@ -28,16 +28,16 @@ const MetodoPagoCard = ({ id, logo, titulo, descripcion, seleccionado, onSelect 
     onClick={() => onSelect(id)}
     className={`w-full text-left p-5 rounded-2xl border-2 transition-all duration-200 ${
       seleccionado
-        ? "border-indigo-500 bg-indigo-50 shadow-md"
-        : "border-gray-200 bg-white hover:border-indigo-300 hover:shadow-sm"
+        ? "border-primary-500 bg-primary-50 shadow-md"
+        : "border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm"
     }`}
   >
     <div className="flex items-center gap-4">
       {/* Radio visual */}
       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-        seleccionado ? "border-indigo-500" : "border-gray-300"
+        seleccionado ? "border-primary-500" : "border-gray-300"
       }`}>
-        {seleccionado && <div className="w-2.5 h-2.5 rounded-full bg-indigo-500" />}
+        {seleccionado && <div className="w-2.5 h-2.5 rounded-full bg-primary-500" />}
       </div>
 
       {/* Logo */}
@@ -92,7 +92,7 @@ const PantallaPago = () => {
           <div>
             <p className="text-gray-500 text-lg mb-4">No se encontró la reserva.</p>
             <Link to="/mis-reservas"
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-semibold">
+              className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-xl font-semibold">
               Volver a Mis Reservas
             </Link>
           </div>

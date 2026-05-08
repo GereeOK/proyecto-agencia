@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { fetchConsultas } from "../firebase/firestore";
 import emailjs from "@emailjs/browser";
 import { toast } from "sonner";
@@ -55,12 +55,12 @@ const ModalResponder = ({ consulta, onClose }) => {
           placeholder="Escribí tu respuesta..."
           value={mensaje}
           onChange={(e) => setMensaje(e.target.value)}
-          className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-300"
+          className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary-300"
         />
 
         <div className="flex gap-2 mt-4">
           <button type="button" onClick={handleEnviar} disabled={enviando}
-            className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold py-2.5 rounded-xl text-sm transition-colors">
+            className="flex-1 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white font-bold py-2.5 rounded-xl text-sm transition-colors">
             {enviando ? "Enviando..." : "Enviar respuesta"}
           </button>
           <button type="button" onClick={onClose}
@@ -110,7 +110,7 @@ const Consultas = () => {
           <input
             type="text"
             placeholder="Buscar por nombre, email o mensaje..."
-            className="border rounded-lg px-3 py-2 text-sm flex-1 min-w-[250px] focus:outline-none focus:ring-2 focus:ring-indigo-300"
+            className="border rounded-lg px-3 py-2 text-sm flex-1 min-w-[250px] focus:outline-none focus:ring-2 focus:ring-primary-300"
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
           />
@@ -118,7 +118,7 @@ const Consultas = () => {
             {consultasFiltradas.length} resultado/s
           </span>
           {busqueda && (
-            <button className="text-sm text-indigo-600 hover:underline" onClick={() => setBusqueda("")}>
+            <button className="text-sm text-primary-600 hover:underline" onClick={() => setBusqueda("")}>
               Limpiar
             </button>
           )}
@@ -151,7 +151,7 @@ const Consultas = () => {
                     <button
                       type="button"
                       onClick={() => setRespondiendo(c)}
-                      className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm px-4 py-1.5 rounded-lg transition-colors">
+                      className="bg-primary-500 hover:bg-primary-600 text-white text-sm px-4 py-1.5 rounded-lg transition-colors">
                       Responder
                     </button>
                   </td>

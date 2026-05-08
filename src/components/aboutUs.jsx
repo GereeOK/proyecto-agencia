@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+﻿import { useTranslation } from "react-i18next";
 
 const AboutUs = () => {
   const { t } = useTranslation();
@@ -12,7 +12,7 @@ const AboutUs = () => {
           <h1 className="title-font sm:text-4xl text-3xl mb-2 font-medium text-gray-900">
             {t("nosotros.titulo")}
           </h1><br />
-          <div className="h-1 w-24 bg-indigo-500 rounded self-start mb-6"></div>
+          <div className="h-1 w-24 bg-primary-500 rounded self-start mb-6"></div>
           <p className="mb-8 leading-relaxed">{t("nosotros.descripcion")}</p>
         </div>
       </div>

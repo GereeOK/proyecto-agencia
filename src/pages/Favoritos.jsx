@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
@@ -55,7 +55,7 @@ const Favoritos = () => {
             <p className="text-gray-400 text-sm mb-6">Tocá el corazón en cualquier experiencia para guardarla aquí</p>
             <Link
               to="/servicios"
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
+              className="bg-primary-600 hover:bg-primary-700 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
             >
               Explorar experiencias →
             </Link>
@@ -88,13 +88,13 @@ const Favoritos = () => {
                     {s.ubicacion && <span className="truncate">📍 {s.ubicacion}</span>}
                   </div>
                   {s.price && (
-                    <p className="text-sm font-bold text-indigo-600 mb-3">
+                    <p className="text-sm font-bold text-primary-600 mb-3">
                       Desde ${formatARS(s.price)} <span className="font-normal text-gray-400">/ persona</span>
                     </p>
                   )}
                   <button
                     onClick={() => navigate("/servicios")}
-                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-2 rounded-xl transition-colors"
+                    className="w-full bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold py-2 rounded-xl transition-colors"
                   >
                     Reservar →
                   </button>

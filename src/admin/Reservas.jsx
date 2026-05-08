@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import {
   fetchReservas,
   deleteReserva,
@@ -186,12 +186,12 @@ const ReservasAdmin = () => {
           <input
             type="text"
             placeholder="Buscar por nombre o email..."
-            className="border rounded-lg px-3 py-2 text-sm flex-1 min-w-[180px] focus:outline-none focus:ring-2 focus:ring-indigo-300"
+            className="border rounded-lg px-3 py-2 text-sm flex-1 min-w-[180px] focus:outline-none focus:ring-2 focus:ring-primary-300"
             value={busqueda}
             onChange={e => setBusqueda(e.target.value)}
           />
           <select
-            className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+            className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
             value={filtroEstado}
             onChange={e => setFiltroEstado(e.target.value)}
           >
@@ -207,7 +207,7 @@ const ReservasAdmin = () => {
             <label className="text-sm text-gray-600 whitespace-nowrap">Check-in desde:</label>
             <input
               type="date"
-              className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+              className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
               value={filtroDesde}
               onChange={e => setFiltroDesde(e.target.value)}
             />
@@ -216,7 +216,7 @@ const ReservasAdmin = () => {
             <label className="text-sm text-gray-600 whitespace-nowrap">hasta:</label>
             <input
               type="date"
-              className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+              className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
               value={filtroHasta}
               onChange={e => setFiltroHasta(e.target.value)}
             />
@@ -225,7 +225,7 @@ const ReservasAdmin = () => {
             {reservasFiltradas.length} resultado/s
           </span>
           {hayFiltros && (
-            <button className="text-sm text-indigo-600 hover:underline" onClick={limpiarFiltros}>
+            <button className="text-sm text-primary-600 hover:underline" onClick={limpiarFiltros}>
               Limpiar filtros
             </button>
           )}
@@ -265,7 +265,7 @@ const ReservasAdmin = () => {
                       <select
                         value={res.estado || "pendiente"}
                         onChange={(e) => handleCambiarEstado(res.id, e.target.value)}
-                        className="border rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white"
+                        className="border rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-primary-300 bg-white"
                       >
                         <option value="pendiente">Pendiente</option>
                         <option value="confirmada_usuario">Esp. seller</option>

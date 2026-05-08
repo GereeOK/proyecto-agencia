@@ -1,4 +1,4 @@
-import Navbar from "../components/navbar";
+﻿import Navbar from "../components/navbar";
 import Footer from "../components/footer";
 import { Link } from "react-router-dom";
 
@@ -19,7 +19,7 @@ const ReservaExitosa = () => {
           ¡Reserva confirmada!
         </h1>
         <p className="text-gray-400 text-lg max-w-xl mb-3">
-          Gracias por elegir <span className="text-indigo-400 font-semibold">Baires Essence</span>.
+          Gracias por elegir <span className="text-primary-400 font-semibold">Baires Essence</span>.
           Recibiste un email de confirmación con todos los detalles.
         </p>
         <p className="text-gray-500 text-sm mb-10">
@@ -30,7 +30,7 @@ const ReservaExitosa = () => {
         <div className="flex flex-col sm:flex-row gap-4">
           <Link
             to="/mis-reservas"
-            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 py-4 rounded-xl transition-colors shadow-lg text-base"
+            className="bg-primary-600 hover:bg-primary-700 text-white font-bold px-8 py-4 rounded-xl transition-colors shadow-lg text-base"
           >
             Ver mis reservas →
           </Link>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { fetchResenasAdmin, updateResena } from "../firebase/firestore";
 import emailjs from "@emailjs/browser";
 import { toast } from "sonner";
@@ -81,12 +81,12 @@ const ModalResponder = ({ resena, onClose, onEnviado }) => {
           placeholder="Escribí tu respuesta al usuario (podés ofrecer una bonificación, pedir más detalles, etc.)..."
           value={mensaje}
           onChange={(e) => setMensaje(e.target.value)}
-          className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-300"
+          className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary-300"
         />
 
         <div className="flex gap-2 mt-4">
           <button type="button" onClick={handleEnviar} disabled={enviando}
-            className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold py-2.5 rounded-xl text-sm transition-colors">
+            className="flex-1 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white font-bold py-2.5 rounded-xl text-sm transition-colors">
             {enviando ? "Enviando..." : "Enviar respuesta"}
           </button>
           <button type="button" onClick={onClose}
@@ -176,7 +176,7 @@ const ResenasAdmin = () => {
         {/* Filtros */}
         <div className="flex flex-wrap gap-3 mb-6">
           <select value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)}
-            className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
+            className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300">
             <option value="todas">Todos los tipos</option>
             <option value="experiencia">Experiencia</option>
             <option value="empresa">Empresa</option>
@@ -184,7 +184,7 @@ const ResenasAdmin = () => {
           </select>
 
           <select value={filtroEstrellas} onChange={(e) => setFiltroEstrellas(e.target.value)}
-            className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
+            className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300">
             <option value="todas">Todas las estrellas</option>
             {[5, 4, 3, 2, 1].map((n) => (
               <option key={n} value={n}>{n} ⭐</option>
@@ -192,7 +192,7 @@ const ResenasAdmin = () => {
           </select>
 
           <select value={filtroVisibilidad} onChange={(e) => setFiltroVisibilidad(e.target.value)}
-            className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
+            className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300">
             <option value="todas">Visibles y ocultas</option>
             <option value="visibles">Solo visibles</option>
             <option value="ocultas">Solo ocultas</option>
@@ -215,7 +215,7 @@ const ResenasAdmin = () => {
                 {/* Info de la reseña */}
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <span className="text-xs font-semibold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full">
+                    <span className="text-xs font-semibold bg-primary-50 text-primary-700 px-2 py-0.5 rounded-full">
                       {TIPO_LABEL[r.tipo] || r.tipo}
                     </span>
                     {r.oculto && (
@@ -244,7 +244,7 @@ const ResenasAdmin = () => {
                   )}
 
                   {r.respuesta && (
-                    <div className="mt-2 bg-indigo-50 border border-indigo-100 rounded-lg px-3 py-2 text-xs text-indigo-800">
+                    <div className="mt-2 bg-primary-50 border border-primary-100 rounded-lg px-3 py-2 text-xs text-primary-800">
                       <span className="font-semibold">Respuesta enviada: </span>{r.respuesta}
                     </div>
                   )}
@@ -265,7 +265,7 @@ const ResenasAdmin = () => {
                   <button
                     type="button"
                     onClick={() => setRespondiendo(r)}
-                    className="text-xs px-3 py-1.5 rounded-lg font-medium bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors">
+                    className="text-xs px-3 py-1.5 rounded-lg font-medium bg-primary-100 text-primary-700 hover:bg-primary-200 transition-colors">
                     {r.respuesta ? "Re-responder" : "Responder"}
                   </button>
                 </div>

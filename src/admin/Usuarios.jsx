@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { fetchUsuarios, updateUsuarioRol, desactivarUsuario } from "../firebase/firestore";
 
 const ROLES = ["user", "seller", "admin"];
@@ -101,12 +101,12 @@ const UsuariosTable = () => {
           <input
             type="text"
             placeholder="Buscar por nombre o email..."
-            className="border rounded-lg px-3 py-2 text-sm flex-1 min-w-[200px] focus:outline-none focus:ring-2 focus:ring-indigo-300"
+            className="border rounded-lg px-3 py-2 text-sm flex-1 min-w-[200px] focus:outline-none focus:ring-2 focus:ring-primary-300"
             value={busqueda}
             onChange={e => setBusqueda(e.target.value)}
           />
           <select
-            className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+            className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
             value={filtroRol}
             onChange={e => setFiltroRol(e.target.value)}
           >
@@ -116,7 +116,7 @@ const UsuariosTable = () => {
             <option value="admin">Admin</option>
           </select>
           <select
-            className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+            className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
             value={filtroActivo}
             onChange={e => setFiltroActivo(e.target.value)}
           >
@@ -129,7 +129,7 @@ const UsuariosTable = () => {
           </span>
           {(busqueda || filtroRol !== "todos" || filtroActivo !== "todos") && (
             <button
-              className="text-sm text-indigo-600 hover:underline"
+              className="text-sm text-primary-600 hover:underline"
               onClick={() => { setBusqueda(""); setFiltroRol("todos"); setFiltroActivo("todos"); }}
             >
               Limpiar filtros
