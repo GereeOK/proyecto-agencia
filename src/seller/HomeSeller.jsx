@@ -16,6 +16,7 @@ import {
   subscribeToMensajes,
   confirmarReservaPorSeller,
   cancelarReserva,
+  createTestCompany,
 } from "../firebase/firestore";
 import {
   getFirestore,
@@ -688,13 +689,39 @@ const HomeSeller = () => {
   const confirmadas = reservas.filter((r) => r.estado === "confirmada" || r.estado === "pagada").length;
 
   if (!loading && !user?.companyId) {
+    const handleCrearEmpresaTesting = async () => {
+      try {
+        await createTestCompany(user.uid, user.email);
+        window.location.reload();
+      } catch (e) {
+        toast.error("No se pudo crear la empresa. Intentá de nuevo.");
+      }
+    };
+
     return (
       <div className="flex flex-col min-h-screen">
         <Navbar />
-        <main className="flex-grow flex items-center justify-center">
-          <p className="text-red-500 text-center px-4">
-            Tu cuenta no tiene empresa asociada. Contactá al administrador.
-          </p>
+        <main className="flex-grow flex items-center justify-center px-4">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 max-w-sm w-full text-center space-y-4">
+            <p className="text-2xl">🏪</p>
+            <h2 className="text-lg font-bold text-gray-800">Sin empresa asociada</h2>
+            <p className="text-sm text-gray-500">
+              Tu cuenta no tiene empresa asociada.{" "}
+              {user?.role === "admin" ? (
+                <span>Podés crear una empresa de testing para explorar el panel.</span>
+              ) : (
+                <span>Contactá al administrador.</span>
+              )}
+            </p>
+            {user?.role === "admin" && (
+              <button
+                onClick={handleCrearEmpresaTesting}
+                className="w-full py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold text-sm transition-colors"
+              >
+                Crear empresa de testing
+              </button>
+            )}
+          </div>
         </main>
         <Footer />
       </div>

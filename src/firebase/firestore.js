@@ -281,6 +281,23 @@ export const getCompanyByUser = async (companyId) => {
   }
 };
 
+// Crear empresa de testing para admin (genera companyId y actualiza el user)
+export const createTestCompany = async (userId, userEmail) => {
+  const companyRef = doc(collection(db, "companies"));
+  const companyData = {
+    nombre: `Testing Co. (${userEmail})`,
+    logo: "",
+    email: userEmail,
+    whatsapp: "",
+    descripcion: "Empresa de prueba creada desde el panel admin.",
+    activo: true,
+    timestamp: serverTimestamp(),
+  };
+  await setDoc(companyRef, companyData);
+  await updateDoc(doc(db, "users", userId), { companyId: companyRef.id });
+  return companyRef.id;
+};
+
 // Update empresa
 export const updateCompany = async (companyId, updates) => {
   if (!companyId || !updates) return;
