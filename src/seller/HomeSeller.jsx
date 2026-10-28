@@ -370,7 +370,7 @@ const ModalGestionReserva = ({ reserva, onClose, initialTab = "detalle" }) => {
 const ModalServicio = ({ servicio, onClose, onSave }) => {
   const { user } = useAuth();
   const [form, setForm] = useState({
-    title: "", description: "", image: "", price: "",
+    title: "", description: "", image: "", price: "", cupoMaximo: "",
     categoria: "", duracion: "", idioma: "", ubicacion: "",
     incluye: "", lat: "", lng: "",
     from: null, until: null, activo: true,
@@ -392,7 +392,11 @@ const ModalServicio = ({ servicio, onClose, onSave }) => {
     try {
       const traducciones = await translateServicio(form);
       setTraduciendo(false);
-      const dataToSave = { ...form, ...traducciones };
+      const dataToSave = {
+        ...form,
+        ...traducciones,
+        cupoMaximo: form.cupoMaximo === "" || form.cupoMaximo == null ? null : Number(form.cupoMaximo),
+      };
       if (form.id) {
         await updateServicio(form.id, dataToSave);
         onSave(dataToSave);
@@ -469,6 +473,11 @@ const ModalServicio = ({ servicio, onClose, onSave }) => {
                 {CATEGORIAS.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">Cupo máximo (personas)</label>
+            <input type="number" min="0" value={form.cupoMaximo ?? ""} onChange={(e) => set("cupoMaximo", e.target.value)}
+              placeholder="Dejalo vacío para cupo ilimitado" className={inputCls} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>

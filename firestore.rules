@@ -18,10 +18,19 @@ service cloud.firestore {
       }
     }
 
-    // Servicios (experiencias) — lectura pública; escritura solo seller/admin
+    // Servicios (experiencias) — lectura pública; escritura solo seller/admin,
+    // salvo "cupoActual": cualquier usuario autenticado puede descontarlo
+    // (nunca subirlo) como parte de la transacción que crea una reserva
+    // (saveReservaTransaccional en la web, crearReserva en el móvil).
     match /servicios/{id} {
       allow read:  if true;
-      allow write: if request.auth != null && (isSeller() || isAdmin());
+      allow create, delete: if request.auth != null && (isSeller() || isAdmin());
+      allow update: if request.auth != null && (
+        isSeller() || isAdmin() ||
+        (resource.data.diff(request.resource.data).affectedKeys().hasOnly(['cupoActual']) &&
+         request.resource.data.cupoActual < resource.data.cupoActual &&
+         request.resource.data.cupoActual >= 0)
+      );
     }
 
     // Empresas — seller gestiona la suya, admin gestiona todas

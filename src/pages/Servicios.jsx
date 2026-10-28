@@ -3,7 +3,7 @@
 // → Agregar al carrito → Paso 4: revisar carrito y confirmar
 
 import React, { useEffect, useState, lazy, Suspense } from "react";
-import { fetchServiciosActivos, saveReservaTransaccional, toggleFavorito, getFavoritos, fetchResenasExperiencias } from "../firebase/firestore";
+import { fetchServiciosActivos, saveReservaTransaccional, toggleFavorito, getFavoritos, fetchResenasExperiencias, checkServiciosYaReservados } from "../firebase/firestore";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
 import { useAuth } from "../context/authContext";
@@ -387,6 +387,13 @@ const PanelCarrito = ({ open, onClose }) => {
     setLoading(true);
     setError(null);
     try {
+      const yaReservados = await checkServiciosYaReservados(user.uid, carrito.items.map((s) => s.id));
+      if (yaReservados.length > 0) {
+        const nombres = carrito.items.filter((s) => yaReservados.includes(s.id)).map((s) => s.title).join(", ");
+        setError(`Ya tenés una reserva activa para: ${nombres}. Cancelala o esperá a que termine antes de reservarla de nuevo.`);
+        setLoading(false);
+        return;
+      }
       await saveReservaTransaccional({
         userId: user.uid,
         fullname: user.displayName || user.email,
@@ -409,7 +416,7 @@ const PanelCarrito = ({ open, onClose }) => {
       navigate("/reserva-exitosa");
     } catch (err) {
       console.error(err);
-      setError("No se pudo confirmar la reserva. Intentá de nuevo.");
+      setError(err.message?.startsWith("No hay suficiente cupo") ? err.message : "No se pudo confirmar la reserva. Intentá de nuevo.");
     } finally {
       setLoading(false);
     }

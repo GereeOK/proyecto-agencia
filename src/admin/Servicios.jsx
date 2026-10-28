@@ -44,7 +44,7 @@ const Servicios = () => {
 
   const abrirAdd = () => {
     setCurrentService({
-      title: "", description: "", image: "", price: "",
+      title: "", description: "", image: "", price: "", cupoMaximo: "",
       from: null, until: null, lat: "", lng: "", activo: true,
       categoria: "", duracion: "", idioma: "", ubicacion: "", incluye: "",
     });
@@ -58,6 +58,7 @@ const Servicios = () => {
       description: servicio.description,
       image: servicio.image,
       price: servicio.price || "",
+      cupoMaximo: servicio.cupoMaximo ?? "",
       from: servicio.from || null,
       until: servicio.until || null,
       lat: servicio.lat || "",
@@ -81,7 +82,10 @@ const Servicios = () => {
   const handleAdd = async (e) => {
     e.preventDefault();
     try {
-      await createServicio(currentService);
+      await createServicio({
+        ...currentService,
+        cupoMaximo: currentService.cupoMaximo === "" ? null : Number(currentService.cupoMaximo),
+      });
       recargar();
       cerrarModales();
     } catch (err) {
@@ -97,6 +101,7 @@ const Servicios = () => {
         description: currentService.description,
         image: currentService.image,
         price: currentService.price,
+        cupoMaximo: currentService.cupoMaximo === "" ? null : Number(currentService.cupoMaximo),
         from: currentService.from,
         until: currentService.until,
         lat: currentService.lat,
@@ -383,6 +388,17 @@ const Servicios = () => {
                       <img src={currentService.image} alt="preview" className="w-full h-32 object-cover" />
                     </div>
                   )}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Cupo máximo (personas)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
+                      value={currentService.cupoMaximo}
+                      onChange={e => setCurrentService({ ...currentService, cupoMaximo: e.target.value })}
+                      placeholder="Dejalo vacío para cupo ilimitado"
+                    />
+                  </div>
                 </div>
               </div>
 

@@ -117,21 +117,28 @@ export const deleteServicio = async (id) => {
 
 // MEJORA CRÍTICA (RF-03 – Transaccionalidad + CP8 – Concurrencia):
 // La función original saveReserva() no validaba cupos disponibles ni
-// prevenía duplicados. Esta nueva versión usa runTransaction() de Firestore
-// para garantizar atomicidad: se lee el cupo actual, se valida, y se escribe
-// la reserva en una sola operación. Esto evita sobre-reservas concurrentes
-// (race conditions), tal como indica el caso de prueba CP8 y el flujo básico
-// del caso de uso "Realizar Reserva" (pasos 5–8 del documento técnico).
-export const saveReservaTransaccional = async (reserva, servicioId) => {
+// prevenía duplicados. Esta usa runTransaction() de Firestore para
+// garantizar atomicidad: se leen los cupos de TODOS los servicios del
+// carrito, se validan, y se descuentan junto con la creación de la
+// reserva en una sola operación (evita sobre-reservas concurrentes).
+//
+// Reescrita para el carrito multi-servicio: la versión anterior solo
+// validaba un único "servicioId" pasado por parámetro, y el único caller
+// real (PanelCarrito en Servicios.jsx) nunca lo pasaba, así que la
+// transacción no se ejecutaba nunca. Ahora itera "reserva.servicios[]"
+// (cada item con su "id" y "personas") y no depende de ningún parámetro
+// extra.
+export const saveReservaTransaccional = async (reserva) => {
   // userId (UID de Firebase Auth) es obligatorio: es el campo que usa la
   // app móvil para encontrar las reservas del usuario en Firestore.
   if (!reserva.userId) {
     throw new Error("No se puede crear una reserva sin userId.");
   }
 
-  // Solo se aplica transacción si el servicio tiene control de cupos
-  if (!servicioId) {
-    // Sin control de cupos: guardar directamente (compatibilidad hacia atrás)
+  const items = (reserva.servicios || []).filter((s) => s.id);
+
+  if (items.length === 0) {
+    // Sin servicios identificables: no hay cupos que validar.
     return addDoc(collection(db, "reservas"), {
       ...reserva,
       estado: "pendiente",
@@ -139,29 +146,38 @@ export const saveReservaTransaccional = async (reserva, servicioId) => {
     });
   }
 
-  const servicioRef = doc(db, "servicios", servicioId);
+  const servicioRefs = items.map((s) => doc(db, "servicios", s.id));
 
   return runTransaction(db, async (transaction) => {
-    const servicioSnap = await transaction.get(servicioRef);
+    // 1. Leer TODOS los servicios antes de escribir nada (Firestore exige
+    // que todas las lecturas de una transacción ocurran antes de los writes).
+    const snaps = await Promise.all(servicioRefs.map((ref) => transaction.get(ref)));
 
-    if (!servicioSnap.exists()) {
-      throw new Error("El servicio no existe.");
-    }
+    // 2. Validar disponibilidad de cada uno.
+    snaps.forEach((snap, i) => {
+      if (!snap.exists()) return; // servicio borrado: no se controla cupo
+      const servicio = snap.data();
+      if (servicio.cupoMaximo == null) return; // sin límite de cupo
 
-    const servicio = servicioSnap.data();
-
-    // VALIDACIÓN (CP2 – Fecha sin disponibilidad):
-    // Si el servicio tiene cupos máximos definidos, verificar disponibilidad.
-    if (servicio.cupoMaximo !== undefined) {
       const cupoActual = servicio.cupoActual ?? servicio.cupoMaximo;
-      if (cupoActual <= 0) {
-        throw new Error("No hay cupos disponibles para la fecha seleccionada.");
+      const personasPedidas = Number(items[i].personas) || 1;
+      if (cupoActual < personasPedidas) {
+        throw new Error(`No hay suficiente cupo disponible para "${items[i].title || "la experiencia"}".`);
       }
-      // Descontar el cupo disponible de forma atómica
-      transaction.update(servicioRef, { cupoActual: cupoActual - 1 });
-    }
+    });
 
-    // Crear la reserva dentro de la misma transacción
+    // 3. Descontar cupos (ya validados arriba, en la misma transacción).
+    snaps.forEach((snap, i) => {
+      if (!snap.exists()) return;
+      const servicio = snap.data();
+      if (servicio.cupoMaximo == null) return;
+
+      const cupoActual = servicio.cupoActual ?? servicio.cupoMaximo;
+      const personasPedidas = Number(items[i].personas) || 1;
+      transaction.update(servicioRefs[i], { cupoActual: cupoActual - personasPedidas });
+    });
+
+    // 4. Crear la reserva dentro de la misma transacción.
     const reservaRef = doc(collection(db, "reservas"));
     transaction.set(reservaRef, {
       ...reserva,
@@ -171,6 +187,23 @@ export const saveReservaTransaccional = async (reserva, servicioId) => {
 
     return reservaRef;
   });
+};
+
+// Devuelve, de los servicioIds pasados, cuáles ya están en una reserva
+// activa (no cancelada) del usuario. Reemplaza a la vieja
+// checkReservaDuplicada, que comparaba contra un campo "servicioId" que
+// ya no existe desde que las reservas son multi-servicio (array
+// "servicios"); acá se filtra client-side contra ese array.
+export const checkServiciosYaReservados = async (userId, servicioIds) => {
+  const q = query(collection(db, "reservas"), where("userId", "==", userId));
+  const snap = await getDocs(q);
+  const reservados = new Set();
+  snap.docs.forEach((d) => {
+    const r = d.data();
+    if (r.estado === "cancelada") return;
+    (r.servicios || []).forEach((s) => { if (s.id) reservados.add(s.id); });
+  });
+  return servicioIds.filter((id) => reservados.has(id));
 };
 
 // Función original mantenida para compatibilidad con el resto del código
