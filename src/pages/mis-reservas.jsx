@@ -1,4 +1,5 @@
-﻿import React, { useState, useEffect, useRef, lazy, Suspense } from "react";
+import React, { useState, useEffect, useRef, lazy, Suspense } from "react";
+import { CalendarIcon, CircleCheckIcon, CircleXIcon, ClockIcon, CreditCardIcon, FlagIcon, HourglassIcon, LuggageIcon, MapPinIcon, MessageCircleIcon, SparklesIcon, StarIcon, Trash2Icon, UserIcon } from "lucide-react";
 import { toast } from "sonner";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
@@ -23,19 +24,19 @@ const MapaServicio = lazy(() => import("../components/MapaServicio"));
 const formatARS = (n) => Number(n || 0).toLocaleString("es-AR");
 
 const ESTADO_CFG = {
-  pendiente:          { cls: "bg-yellow-100 text-yellow-800 border-yellow-200", icon: "⏳", bar: "bg-yellow-400", label: "Pendiente" },
-  confirmada_usuario: { cls: "bg-blue-100 text-blue-700 border-blue-200",       icon: "🕐", bar: "bg-blue-400",   label: "Esperando seller" },
-  confirmada:         { cls: "bg-green-100 text-green-700 border-green-200",    icon: "✅", bar: "bg-green-400",  label: "Confirmada" },
-  cancelada:          { cls: "bg-red-100 text-red-700 border-red-200",          icon: "❌", bar: "bg-red-400",    label: "Cancelada" },
-  pagada:             { cls: "bg-purple-100 text-purple-700 border-purple-200", icon: "💳", bar: "bg-purple-400", label: "Pagada" },
-  finalizada:         { cls: "bg-gray-100 text-gray-600 border-gray-200",       icon: "🏁", bar: "bg-gray-400",   label: "Finalizada" },
+  pendiente:          { cls: "bg-yellow-100 text-yellow-800 border-yellow-200", icon: HourglassIcon, bar: "bg-yellow-400", label: "Pendiente" },
+  confirmada_usuario: { cls: "bg-blue-100 text-blue-700 border-blue-200",       icon: ClockIcon, bar: "bg-blue-400",   label: "Esperando seller" },
+  confirmada:         { cls: "bg-green-100 text-green-700 border-green-200",    icon: CircleCheckIcon, bar: "bg-green-400",  label: "Confirmada" },
+  cancelada:          { cls: "bg-red-100 text-red-700 border-red-200",          icon: CircleXIcon, bar: "bg-red-400",    label: "Cancelada" },
+  pagada:             { cls: "bg-purple-100 text-purple-700 border-purple-200", icon: CreditCardIcon, bar: "bg-purple-400", label: "Pagada" },
+  finalizada:         { cls: "bg-gray-100 text-gray-600 border-gray-200",       icon: FlagIcon, bar: "bg-gray-400",   label: "Finalizada" },
 };
 
 const EstadoBadge = ({ estado }) => {
-  const cfg = ESTADO_CFG[estado] || { cls: "bg-gray-100 text-gray-600 border-gray-200", icon: "•", label: estado || "pendiente" };
+  const cfg = ESTADO_CFG[estado] || { cls: "bg-gray-100 text-gray-600 border-gray-200", icon: null, label: estado || "pendiente" };
   return (
     <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full border ${cfg.cls}`}>
-      {cfg.icon} {cfg.label}
+      {cfg.icon && <cfg.icon className="w-3.5 h-3.5" />}{cfg.label}
     </span>
   );
 };
@@ -69,7 +70,7 @@ const CalendarioEventos = ({ servicios, checkin, checkout }) => {
   if (eventos.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-4xl mb-3">📅</p>
+        <CalendarIcon className="w-9 h-9 mx-auto mb-3 text-gray-300" />
         <p className="text-sm font-medium text-gray-600">Sin fechas asignadas</p>
         <p className="text-xs text-gray-400 mt-1">Asigná una fecha a cada actividad en la pestaña Detalle.</p>
       </div>
@@ -93,8 +94,8 @@ const CalendarioEventos = ({ servicios, checkin, checkout }) => {
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-gray-900 text-sm truncate">{s.title}</p>
               <div className="flex gap-3 mt-0.5">
-                {s.horario && <span className="text-xs text-gray-500">🕐 {s.horario}</span>}
-                {s.ubicacion && <span className="text-xs text-gray-500 truncate">📍 {s.ubicacion}</span>}
+                {s.horario && <span className="text-xs text-gray-500 inline-flex items-center gap-1"><ClockIcon className="w-3.5 h-3.5" />{s.horario}</span>}
+                {s.ubicacion && <span className="text-xs text-gray-500 inline-flex items-center gap-1 min-w-0"><MapPinIcon className="w-3.5 h-3.5 flex-shrink-0" /><span className="truncate">{s.ubicacion}</span></span>}
               </div>
             </div>
           </div>
@@ -143,7 +144,7 @@ const TabConsultas = ({ reservaId, user }) => {
     <div className="flex flex-col h-full">
       {mensajes.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center text-center py-10">
-          <p className="text-4xl mb-3">💬</p>
+          <MessageCircleIcon className="w-9 h-9 mx-auto mb-3 text-gray-300" />
           <p className="text-sm font-medium text-gray-600">Sin mensajes todavía</p>
           <p className="text-xs text-gray-400 mt-1">Hacé preguntas al seller sobre tus actividades.</p>
         </div>
@@ -475,7 +476,7 @@ const ModalDetalleReserva = ({ reserva: inicial, onClose, onUpdate }) => {
           {tab === "detalle" && (
             <div className="space-y-4">
               <div className="bg-gray-50 rounded-xl px-4 py-3 text-sm text-gray-600 flex items-center gap-2">
-                <span className="font-semibold text-gray-800">👤 {inicial.fullname}</span>
+                <span className="font-semibold text-gray-800 inline-flex items-center gap-1"><UserIcon className="w-4 h-4" />{inicial.fullname}</span>
                 <span className="text-gray-300">|</span>
                 <span>{inicial.email}</span>
               </div>
@@ -491,7 +492,7 @@ const ModalDetalleReserva = ({ reserva: inicial, onClose, onUpdate }) => {
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-gray-900 truncate">{s.title}</p>
-                      {s.ubicacion && <p className="text-xs text-gray-500 mt-0.5">📍 {s.ubicacion}</p>}
+                      {s.ubicacion && <p className="text-xs text-gray-500 mt-0.5 flex items-center gap-1"><MapPinIcon className="w-3.5 h-3.5 flex-shrink-0" />{s.ubicacion}</p>}
                       {s.price && (
                         <p className="text-sm font-bold text-primary-600 mt-1">
                           ${formatARS(s.price)} × {s.personas || 1} = ${formatARS(Number(s.price) * (s.personas || 1))}
@@ -564,7 +565,7 @@ const ModalDetalleReserva = ({ reserva: inicial, onClose, onUpdate }) => {
                   {/* Mapa */}
                   {s.lat && s.lng && (
                     <div className="px-4 pb-4">
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">📍 Punto de encuentro</p>
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Punto de encuentro</p>
                       <div style={{ isolation: "isolate" }}>
                         <Suspense fallback={<div className="w-full h-36 bg-gray-100 rounded-xl animate-pulse" />}>
                           <MapaServicio lat={s.lat} lng={s.lng} titulo={s.title} height="144px" />
@@ -584,7 +585,7 @@ const ModalDetalleReserva = ({ reserva: inicial, onClose, onUpdate }) => {
 
               {inicial.estado === "confirmada_usuario" && (
                 <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-blue-700">
-                  🕐 Confirmaste tu parte. Estamos esperando que el seller confirme para habilitar el pago.
+                  Confirmaste tu parte. Estamos esperando que el seller confirme para habilitar el pago.
                 </div>
               )}
             </div>
@@ -630,7 +631,7 @@ const ModalDetalleReserva = ({ reserva: inicial, onClose, onUpdate }) => {
               disabled={confirmando}
               className="flex-1 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold text-sm transition-colors disabled:opacity-50"
             >
-              {confirmando ? "Confirmando..." : "✅ Confirmar mi parte"}
+              {confirmando ? "Confirmando..." : "Confirmar mi parte"}
             </button>
           </div>
         )}
@@ -647,9 +648,10 @@ const StarPicker = ({ value, onChange }) => (
         key={n}
         type="button"
         onClick={() => onChange(n)}
-        className={`text-2xl transition-colors ${n <= value ? "text-yellow-400" : "text-gray-200 hover:text-yellow-300"}`}
+        className={`transition-colors ${n <= value ? "text-yellow-400" : "text-gray-200 hover:text-yellow-300"}`}
+        aria-label={`${n} estrellas`}
       >
-        ★
+        <StarIcon className="w-6 h-6" fill="currentColor" />
       </button>
     ))}
   </div>
@@ -759,7 +761,7 @@ const ModalResena = ({ reserva, user, onClose }) => {
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-5">
           {enviado ? (
             <div className="text-center py-10">
-              <p className="text-5xl mb-3">🌟</p>
+              <SparklesIcon className="w-12 h-12 mx-auto mb-3 text-yellow-400" />
               <p className="font-bold text-gray-900 text-lg">¡Gracias por tu opinión!</p>
               <p className="text-gray-400 text-sm mt-1">Tu reseña ayuda a otros viajeros</p>
             </div>
@@ -775,14 +777,15 @@ const ModalResena = ({ reserva, user, onClose }) => {
 
                   {done ? (
                     <div className="space-y-1">
-                      <div className="flex gap-0.5 text-yellow-400 text-lg">
-                        {"★".repeat(existing.estrellas)}
-                        <span className="text-gray-200">{"★".repeat(5 - existing.estrellas)}</span>
+                      <div className="flex gap-0.5">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                          <StarIcon key={i} className={`w-5 h-5 ${i <= existing.estrellas ? "text-yellow-400" : "text-gray-200"}`} fill="currentColor" />
+                        ))}
                       </div>
                       {existing.texto && (
                         <p className="text-xs text-gray-500 italic">"{existing.texto}"</p>
                       )}
-                      <p className="text-xs text-green-600 font-medium">✓ Ya calificaste esto</p>
+                      <p className="text-xs text-green-600 font-medium">Ya calificaste esto</p>
                     </div>
                   ) : (
                     <div className="space-y-2">
@@ -856,11 +859,11 @@ const MisReservas = () => {
           <div className="text-center py-20"><p className="text-red-500">{error}</p></div>
         ) : reservas.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-gray-400 text-5xl mb-4">🧳</p>
+            <LuggageIcon className="w-12 h-12 mx-auto mb-4 text-gray-300" />
             <p className="text-gray-600 text-lg font-medium mb-2">No hay reservas todavía</p>
             <p className="text-gray-400 text-sm mb-6">Explorá nuestras experiencias y armá tu viaje</p>
             <Link to="/servicios" className="bg-primary-600 hover:bg-primary-700 text-white font-semibold px-6 py-3 rounded-xl transition-colors">
-              Ver experiencias →
+              Ver experiencias
             </Link>
           </div>
         ) : (
@@ -906,14 +909,14 @@ const MisReservas = () => {
                         onClick={() => setReservaAbierta(reserva)}
                         className="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold py-2 rounded-xl transition-colors"
                       >
-                        Ver detalle →
+                        Ver detalle
                       </button>
                       {reserva.estado === "confirmada" && (
                         <button
                           onClick={() => navigate("/pagar", { state: { reserva } })}
                           className="flex-1 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-2 rounded-xl transition-colors"
                         >
-                          💳 Pagar
+                          Pagar
                         </button>
                       )}
                       {reserva.estado === "finalizada" && (
@@ -922,7 +925,7 @@ const MisReservas = () => {
                           className="px-4 py-2 bg-yellow-50 hover:bg-yellow-100 text-yellow-700 rounded-xl text-sm font-semibold transition-colors"
                           title="Dejar reseña"
                         >
-                          ⭐
+                          <StarIcon className="w-4 h-4" />
                         </button>
                       )}
                       {reserva.estado === "cancelada" && (
@@ -930,7 +933,7 @@ const MisReservas = () => {
                           onClick={() => setConfirmDelete(reserva.id)}
                           className="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-sm font-semibold"
                         >
-                          🗑
+                          <Trash2Icon className="w-4 h-4" />
                         </button>
                       )}
                     </div>

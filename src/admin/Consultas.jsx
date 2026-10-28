@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { fetchConsultas } from "../firebase/firestore";
 import emailjs from "@emailjs/browser";
 import { toast } from "sonner";

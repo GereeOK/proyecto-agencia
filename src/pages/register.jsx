@@ -1,4 +1,5 @@
-﻿import { useState } from "react";
+import { useState } from "react";
+import { PlaneIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
@@ -30,7 +31,7 @@ const Register = () => {
 
           {/* Card header */}
           <div className="bg-primary-600 px-8 py-7 text-center text-white">
-            <p className="text-4xl mb-2">✈️</p>
+            <PlaneIcon className="w-10 h-10 mx-auto mb-2 text-white" />
             <h1 className="text-2xl font-bold">Crear una cuenta</h1>
             <p className="text-primary-200 text-sm mt-1">Descubrí experiencias únicas en Buenos Aires</p>
           </div>
@@ -50,7 +51,7 @@ const Register = () => {
                       : "text-gray-500 hover:bg-gray-50"
                   }`}
                 >
-                  🧳 Turista
+                  Turista
                 </button>
                 <button
                   type="button"
@@ -61,7 +62,7 @@ const Register = () => {
                       : "text-gray-500 hover:bg-gray-50"
                   }`}
                 >
-                  🏪 Empresa / Agencia
+                  Empresa / Agencia
                 </button>
               </div>
             </div>

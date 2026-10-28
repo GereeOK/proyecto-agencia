@@ -1,11 +1,13 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { StarIcon } from "lucide-react";
 import { getResenasRecientes } from "../firebase/firestore";
 import { useTranslation } from "react-i18next";
 
 const Estrellas = ({ n }) => (
-  <span className="text-yellow-400 text-base tracking-tight">
-    {"★".repeat(n)}
-    <span className="text-gray-200">{"★".repeat(5 - n)}</span>
+  <span className="inline-flex gap-0.5">
+    {[1, 2, 3, 4, 5].map((i) => (
+      <StarIcon key={i} className={`w-4 h-4 ${i <= n ? "text-yellow-400 fill-yellow-400" : "text-gray-200 fill-gray-200"}`} />
+    ))}
   </span>
 );
 

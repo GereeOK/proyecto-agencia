@@ -1,4 +1,5 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { Building2Icon, CircleCheckIcon, HourglassIcon, LinkIcon, LuggageIcon, PhoneIcon, SettingsIcon, TargetIcon, UsersIcon } from "lucide-react";
 import { toast } from "sonner";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
@@ -27,7 +28,7 @@ const Avatar = ({ name, size = "lg" }) => {
 
 const StatCard = ({ icon, label, value, sub }) => (
   <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-    <div className="text-2xl mb-2">{icon}</div>
+    <div className="mb-2 text-primary-500">{icon}</div>
     <p className="text-2xl font-bold text-gray-900">{value}</p>
     <p className="text-sm font-medium text-gray-700 mt-0.5">{label}</p>
     {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
@@ -180,7 +181,7 @@ const GrupoFamiliar = ({ userId }) => {
         </div>
       ) : miembros.length === 0 ? (
         <div className="bg-white rounded-2xl border border-dashed border-gray-200 p-8 text-center">
-          <p className="text-3xl mb-2">👨‍👩‍👧</p>
+          <UsersIcon className="w-8 h-8 mx-auto mb-2 text-gray-300" />
           <p className="text-sm font-medium text-gray-700">No hay integrantes cargados</p>
           <p className="text-xs text-gray-400 mt-1">Podés agregarlos acá o directamente al crear una reserva.</p>
         </div>
@@ -301,10 +302,10 @@ const Perfil = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <StatCard icon="🧳" label="Reservas totales" value={reservas.length} />
-                  <StatCard icon="✅" label="Confirmadas" value={reservasConfirmadas} />
-                  <StatCard icon="⏳" label="Pendientes" value={reservasPendientes} />
-                  <StatCard icon="🎯" label="Experiencias" value={totalExperiencias}
+                  <StatCard icon={<LuggageIcon className="w-6 h-6" />} label="Reservas totales" value={reservas.length} />
+                  <StatCard icon={<CircleCheckIcon className="w-6 h-6" />} label="Confirmadas" value={reservasConfirmadas} />
+                  <StatCard icon={<HourglassIcon className="w-6 h-6" />} label="Pendientes" value={reservasPendientes} />
+                  <StatCard icon={<TargetIcon className="w-6 h-6" />} label="Experiencias" value={totalExperiencias}
                     sub={totalGastado > 0 ? `$${formatARS(totalGastado)} invertidos` : undefined} />
                 </div>
               )}
@@ -370,15 +371,15 @@ const Perfil = () => {
                     <img src={companyData.logo} alt="Logo"
                       className="w-20 h-20 object-contain rounded-xl border border-gray-200" />
                   ) : (
-                    <div className="w-20 h-20 bg-primary-50 rounded-xl flex items-center justify-center text-3xl">🏢</div>
+                    <div className="w-20 h-20 bg-primary-50 rounded-xl flex items-center justify-center"><Building2Icon className="w-8 h-8 text-primary-400" /></div>
                   )}
                   <div className="space-y-1">
                     <p className="text-xl font-bold text-gray-900">{companyData.name}</p>
-                    {companyData.telefono && <p className="text-sm text-gray-600">📞 {companyData.telefono}</p>}
+                    {companyData.telefono && <p className="text-sm text-gray-600 flex items-center gap-1.5"><PhoneIcon className="w-4 h-4" />{companyData.telefono}</p>}
                     {companyData.social && (
                       <a href={companyData.social} target="_blank" rel="noopener noreferrer"
-                        className="text-sm text-primary-600 hover:underline block">
-                        🔗 {companyData.social}
+                        className="text-sm text-primary-600 hover:underline flex items-center gap-1.5">
+                        <LinkIcon className="w-4 h-4 flex-shrink-0" />{companyData.social}
                       </a>
                     )}
                   </div>
@@ -424,14 +425,14 @@ const Perfil = () => {
         {/* ── ADMIN */}
         {isAdmin && (
           <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 text-center">
-            <p className="text-4xl mb-3">⚙️</p>
+            <SettingsIcon className="w-9 h-9 mx-auto mb-3 text-gray-400" />
             <h2 className="text-lg font-bold text-gray-900 mb-1">Panel de Administración</h2>
             <p className="text-gray-500 text-sm mb-4">
               Accedé al panel completo para gestionar usuarios, servicios y reservas.
             </p>
             <a href="/admin"
               className="inline-block bg-primary-600 hover:bg-primary-700 text-white font-semibold px-6 py-2.5 rounded-xl transition-colors">
-              Ir al panel admin →
+              Ir al panel admin
             </a>
           </section>
         )}

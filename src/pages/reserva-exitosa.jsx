@@ -1,4 +1,4 @@
-﻿import Navbar from "../components/navbar";
+import Navbar from "../components/navbar";
 import Footer from "../components/footer";
 import { Link } from "react-router-dom";
 
@@ -32,7 +32,7 @@ const ReservaExitosa = () => {
             to="/mis-reservas"
             className="bg-primary-600 hover:bg-primary-700 text-white font-bold px-8 py-4 rounded-xl transition-colors shadow-lg text-base"
           >
-            Ver mis reservas →
+            Ver mis reservas
           </Link>
           <Link
             to="/servicios"

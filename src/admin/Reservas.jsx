@@ -1,4 +1,5 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { XIcon } from "lucide-react";
 import {
   fetchReservas,
   deleteReserva,
@@ -28,7 +29,7 @@ const exportCSV = (rows, filename) => {
 const Modal = ({ children, onClose }) => (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-lg relative">
-      <button className="absolute top-2 right-3 text-xl" onClick={onClose}>✕</button>
+      <button className="absolute top-2 right-3" onClick={onClose} aria-label="Cerrar"><XIcon className="w-5 h-5" /></button>
       {children}
     </div>
   </div>

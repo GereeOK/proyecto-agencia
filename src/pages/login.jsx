@@ -1,4 +1,5 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { Building2Icon } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
@@ -69,7 +70,7 @@ const Login = () => {
 
           {/* Card header */}
           <div className="bg-primary-600 px-8 py-7 text-center text-white">
-            <p className="text-4xl mb-2">🌆</p>
+            <Building2Icon className="w-10 h-10 mx-auto mb-2 text-white" />
             <h1 className="text-2xl font-bold">Bienvenido de vuelta</h1>
             <p className="text-primary-200 text-sm mt-1">Iniciá sesión en tu cuenta</p>
           </div>

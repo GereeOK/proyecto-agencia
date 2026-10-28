@@ -1,4 +1,4 @@
-﻿// PantallaPago.jsx
+// PantallaPago.jsx
 // Pantalla de selección de método de pago.
 // Se accede desde el botón "Pagar" en Mis Reservas.
 // Recibe la reserva via location.state (React Router).
@@ -214,14 +214,14 @@ const PantallaPago = () => {
             {/* Info según método seleccionado */}
             {metodo === "mp" && (
               <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-blue-800">
-                <p className="font-semibold mb-1">💳 Pagás en pesos argentinos (ARS)</p>
+                <p className="font-semibold mb-1">Pagás en pesos argentinos (ARS)</p>
                 <p>Aceptamos todas las tarjetas de crédito y débito, cuotas sin interés, Rapipago, PagoFácil y billetera MercadoPago.</p>
               </div>
             )}
             {/* PayPal info — descomentar cuando esté habilitado
             {metodo === "paypal" && (
               <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-blue-800">
-                <p className="font-semibold mb-1">💵 Pagás en dólares estadounidenses (USD)</p>
+                <p className="font-semibold mb-1">Pagás en dólares estadounidenses (USD)</p>
                 <p>Ideal para turistas internacionales. El monto se convierte aproximadamente según el tipo de cambio actual.</p>
               </div>
             )}
@@ -229,7 +229,7 @@ const PantallaPago = () => {
 
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700">
-                ⚠️ {error}
+                {error}
               </div>
             )}
           </div>
@@ -286,14 +286,14 @@ const PantallaPago = () => {
                   ? "Redirigiendo al pago..."
                   : !metodo
                   ? "Seleccioná un método"
-                  : "Pagar con MercadoPago →"}
+                  : "Pagar con MercadoPago"}
               </button>
 
               <Link
                 to="/mis-reservas"
                 className="block text-center text-sm text-gray-400 hover:text-gray-600 mt-3 transition-colors"
               >
-                ← Volver a mis reservas
+                Volver a mis reservas
               </Link>
             </div>
           </div>

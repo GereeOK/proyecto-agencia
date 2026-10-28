@@ -1,4 +1,4 @@
-﻿// PagoExitoso.jsx
+// PagoExitoso.jsx
 // Página de retorno cuando el pago fue aprobado por MP o PayPal.
 // MP redirige aquí con ?collection_status=approved&external_reference=reservaId
 // PayPal redirige aquí con ?token=...&PayerID=...
@@ -34,7 +34,7 @@ const PagoExitoso = () => {
         <div className="flex flex-col sm:flex-row gap-4">
           <Link to="/mis-reservas"
             className="bg-primary-600 hover:bg-primary-700 text-white font-bold px-8 py-4 rounded-xl transition-colors shadow-lg">
-            Ver mis reservas →
+            Ver mis reservas
           </Link>
           <Link to="/"
             className="text-gray-500 hover:text-gray-300 font-medium px-8 py-4 rounded-xl transition-colors">

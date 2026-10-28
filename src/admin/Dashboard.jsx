@@ -1,4 +1,5 @@
-﻿import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { StarIcon } from "lucide-react";
 import {
   BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area,
   XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, CartesianGrid,
@@ -158,7 +159,7 @@ const Dashboard = () => {
 
   // Chart: distribución de estrellas (1–5)
   const dataEstrellas = [1, 2, 3, 4, 5].map((n) => ({
-    name: `${n} ⭐`,
+    name: n === 1 ? "1 estrella" : `${n} estrellas`,
     Reseñas: resenas.filter(r => r.estrellas === n).length,
   }));
 
@@ -244,7 +245,7 @@ const Dashboard = () => {
         {/* Reseñas + métricas nuevas */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
           <StatCard label="Total reseñas" value={totalResenas} sub={`${resenasOcultas} ocultas`} borderColor="border-yellow-500" />
-          <StatCard label="Promedio estrellas" value={`${promedioEstrellas} ⭐`} sub="promedio global" borderColor="border-orange-400" />
+          <StatCard label="Promedio estrellas" value={<span className="inline-flex items-center gap-1.5">{promedioEstrellas}<StarIcon className="w-6 h-6 text-yellow-400 fill-yellow-400" /></span>} sub="promedio global" borderColor="border-orange-400" />
           <StatCard label="Consultas recibidas" value={totalConsultas} sub="formulario de contacto" borderColor="border-sky-400" />
           <StatCard label="Tasa de conversión" value={`${tasaConversion}%`} sub="confirmadas + pagadas + finalizadas" borderColor="border-emerald-500" />
         </div>

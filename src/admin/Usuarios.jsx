@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { fetchUsuarios, updateUsuarioRol, desactivarUsuario } from "../firebase/firestore";
 
 const ROLES = ["user", "seller", "admin"];

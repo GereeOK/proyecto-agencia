@@ -1,4 +1,5 @@
-﻿import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { ClockIcon, HeartIcon, MapPinIcon } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
@@ -50,14 +51,14 @@ const Favoritos = () => {
           </div>
         ) : items.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-5xl mb-4">🤍</p>
+            <HeartIcon className="w-12 h-12 mx-auto mb-4 text-gray-300" />
             <p className="text-gray-600 text-lg font-medium mb-2">Todavía no guardaste nada</p>
             <p className="text-gray-400 text-sm mb-6">Tocá el corazón en cualquier experiencia para guardarla aquí</p>
             <Link
               to="/servicios"
               className="bg-primary-600 hover:bg-primary-700 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
             >
-              Explorar experiencias →
+              Explorar experiencias
             </Link>
           </div>
         ) : (
@@ -84,8 +85,8 @@ const Favoritos = () => {
                 <div className="p-4">
                   <h3 className="font-bold text-gray-900 mb-1 line-clamp-1">{s.title}</h3>
                   <div className="flex gap-3 text-xs text-gray-400 mb-3">
-                    {s.duracion && <span>⏱ {s.duracion}</span>}
-                    {s.ubicacion && <span className="truncate">📍 {s.ubicacion}</span>}
+                    {s.duracion && <span className="inline-flex items-center gap-1"><ClockIcon className="w-3.5 h-3.5" />{s.duracion}</span>}
+                    {s.ubicacion && <span className="inline-flex items-center gap-1 min-w-0"><MapPinIcon className="w-3.5 h-3.5 flex-shrink-0" /><span className="truncate">{s.ubicacion}</span></span>}
                   </div>
                   {s.price && (
                     <p className="text-sm font-bold text-primary-600 mb-3">
@@ -96,7 +97,7 @@ const Favoritos = () => {
                     onClick={() => navigate("/servicios")}
                     className="w-full bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold py-2 rounded-xl transition-colors"
                   >
-                    Reservar →
+                    Reservar
                   </button>
                 </div>
               </div>

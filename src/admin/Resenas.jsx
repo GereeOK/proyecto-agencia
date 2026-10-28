@@ -1,4 +1,5 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { StarIcon } from "lucide-react";
 import { fetchResenasAdmin, updateResena } from "../firebase/firestore";
 import emailjs from "@emailjs/browser";
 import { toast } from "sonner";
@@ -10,8 +11,10 @@ const TIPO_LABEL = {
 };
 
 const StarDisplay = ({ n }) => (
-  <span className="text-base">
-    {"⭐".repeat(n)}{"☆".repeat(5 - n)}
+  <span className="inline-flex items-center gap-0.5">
+    {[1, 2, 3, 4, 5].map((i) => (
+      <StarIcon key={i} className={`w-4 h-4 ${i <= n ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`} />
+    ))}
     <span className="ml-1 text-xs text-gray-500">{n}/5</span>
   </span>
 );
@@ -168,7 +171,7 @@ const ResenasAdmin = () => {
             <h1 className="text-3xl font-semibold text-gray-900">Reseñas</h1>
             <p className="text-gray-500 text-sm mt-1">
               {resenas.length} total · {visiblesCount} visibles · {ocultasCount} ocultas
-              <span className="ml-2 text-xs text-amber-600">Las {"<"}3 ⭐ se ocultan automáticamente</span>
+              <span className="ml-2 text-xs text-amber-600">Las de menos de 3 estrellas se ocultan automáticamente</span>
             </p>
           </div>
         </div>
@@ -187,7 +190,7 @@ const ResenasAdmin = () => {
             className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300">
             <option value="todas">Todas las estrellas</option>
             {[5, 4, 3, 2, 1].map((n) => (
-              <option key={n} value={n}>{n} ⭐</option>
+              <option key={n} value={n}>{n} {n === 1 ? "estrella" : "estrellas"}</option>
             ))}
           </select>
 

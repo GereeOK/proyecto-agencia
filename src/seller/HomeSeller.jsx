@@ -1,4 +1,5 @@
-﻿import React, { useEffect, useState, lazy, Suspense, useRef, useCallback } from "react";
+import React, { useEffect, useState, lazy, Suspense, useRef, useCallback } from "react";
+import { CalendarIcon, ChevronRightIcon, CircleCheckIcon, CircleXIcon, ClipboardListIcon, ClockIcon, CreditCardIcon, DownloadIcon, DramaIcon, FlagIcon, HourglassIcon, MessageCircleIcon, StoreIcon, TargetIcon, Trash2Icon, UserIcon } from "lucide-react";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { es } from "date-fns/locale";
@@ -41,26 +42,26 @@ const formatARS = (n) => Number(n || 0).toLocaleString("es-AR");
 const CATEGORIAS = ["Tours", "Gastronomia", "Traslados", "Experiencias"];
 
 const ESTADO_CFG = {
-  pendiente:          { cls: "bg-yellow-100 text-yellow-700", label: "Pendiente", icon: "⏳" },
-  confirmada_usuario: { cls: "bg-blue-100 text-blue-700",    label: "Esp. confirmación", icon: "👤" },
-  confirmada:         { cls: "bg-green-100 text-green-700",  label: "Confirmada", icon: "✅" },
-  cancelada:          { cls: "bg-red-100 text-red-700",      label: "Cancelada", icon: "❌" },
-  pagada:             { cls: "bg-purple-100 text-purple-700",label: "Pagada", icon: "💳" },
-  finalizada:         { cls: "bg-gray-100 text-gray-600",    label: "Finalizada", icon: "🏁" },
+  pendiente:          { cls: "bg-yellow-100 text-yellow-700", label: "Pendiente", icon: HourglassIcon },
+  confirmada_usuario: { cls: "bg-blue-100 text-blue-700",    label: "Esp. confirmación", icon: UserIcon },
+  confirmada:         { cls: "bg-green-100 text-green-700",  label: "Confirmada", icon: CircleCheckIcon },
+  cancelada:          { cls: "bg-red-100 text-red-700",      label: "Cancelada", icon: CircleXIcon },
+  pagada:             { cls: "bg-purple-100 text-purple-700",label: "Pagada", icon: CreditCardIcon },
+  finalizada:         { cls: "bg-gray-100 text-gray-600",    label: "Finalizada", icon: FlagIcon },
 };
 
 const ReservaEstadoBadge = ({ estado }) => {
   const cfg = ESTADO_CFG[estado] || ESTADO_CFG.pendiente;
   return (
-    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${cfg.cls}`}>
-      {cfg.icon} {cfg.label}
+    <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${cfg.cls}`}>
+      <cfg.icon className="w-3.5 h-3.5" />{cfg.label}
     </span>
   );
 };
 
 const StatCard = ({ icon, label, value }) => (
   <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm text-center">
-    <p className="text-3xl mb-1">{icon}</p>
+    <div className="mb-1 flex justify-center text-primary-500">{icon}</div>
     <p className="text-2xl font-bold text-gray-900">{value}</p>
     <p className="text-sm text-gray-500 mt-0.5">{label}</p>
   </div>
@@ -253,8 +254,8 @@ const ModalGestionReserva = ({ reserva, onClose, initialTab = "detalle" }) => {
                   <div key={i} className="flex items-center gap-2 text-sm">
                     <span className="w-2 h-2 bg-primary-400 rounded-full flex-shrink-0" />
                     <span className="flex-1 font-medium text-gray-800">{s.title || s}</span>
-                    {s.fecha && <span className="text-xs text-gray-400">📅 {s.fecha}</span>}
-                    {s.horario && <span className="text-xs text-gray-400">🕐 {s.horario}</span>}
+                    {s.fecha && <span className="text-xs text-gray-400 inline-flex items-center gap-1"><CalendarIcon className="w-3.5 h-3.5" />{s.fecha}</span>}
+                    {s.horario && <span className="text-xs text-gray-400 inline-flex items-center gap-1"><ClockIcon className="w-3.5 h-3.5" />{s.horario}</span>}
                     <span className="text-xs bg-primary-50 text-primary-700 px-2 py-0.5 rounded-full">
                       {s.personas || 1} pax
                     </span>
@@ -266,33 +267,33 @@ const ModalGestionReserva = ({ reserva, onClose, initialTab = "detalle" }) => {
               {canConfirm && (
                 <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 space-y-3">
                   <p className="text-sm text-blue-800 font-medium">
-                    👤 El turista ya confirmó su parte. Confirmá vos para finalizar.
+                    El turista ya confirmó su parte. Confirmá vos para finalizar.
                   </p>
                   <button
                     onClick={handleConfirmar}
                     disabled={loading}
                     className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-xl text-sm disabled:opacity-50 transition-colors"
                   >
-                    {loading ? "Confirmando..." : "✅ Confirmar reserva"}
+                    {loading ? "Confirmando..." : "Confirmar reserva"}
                   </button>
                 </div>
               )}
 
               {reserva.estado === "pendiente" && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 text-sm text-yellow-800">
-                  ⏳ Esperando que el turista complete y confirme los datos.
+                  Esperando que el turista complete y confirme los datos.
                 </div>
               )}
 
               {reserva.estado === "confirmada" && (
                 <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-sm text-green-800 font-medium">
-                  ✅ Reserva confirmada. Esperando el pago del turista.
+                  Reserva confirmada. Esperando el pago del turista.
                 </div>
               )}
 
               {reserva.estado === "pagada" && (
                 <div className="bg-purple-50 border border-purple-200 rounded-xl p-3 text-sm text-purple-800 font-medium">
-                  💳 Reserva pagada. ¡Todo listo!
+                  Reserva pagada. ¡Todo listo!
                 </div>
               )}
 
@@ -712,7 +713,7 @@ const HomeSeller = () => {
         <Navbar />
         <main className="flex-grow flex items-center justify-center px-4">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 max-w-sm w-full text-center space-y-4">
-            <p className="text-2xl">🏪</p>
+            <StoreIcon className="w-7 h-7 mx-auto text-gray-400" />
             <h2 className="text-lg font-bold text-gray-800">Sin empresa asociada</h2>
             <p className="text-sm text-gray-500">
               Tu cuenta no tiene empresa asociada.{" "}
@@ -751,10 +752,10 @@ const HomeSeller = () => {
       <main className="flex-grow container mx-auto px-4 py-8 space-y-6">
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard icon="🎯" label="Experiencias" value={servicios.length} />
-          <StatCard icon="⏳" label="Pendientes" value={pendientes} />
-          <StatCard icon="👤" label="Esperando tu OK" value={esperandoConfirmar} />
-          <StatCard icon="✅" label="Confirmadas" value={confirmadas} />
+          <StatCard icon={<TargetIcon className="w-7 h-7" />} label="Experiencias" value={servicios.length} />
+          <StatCard icon={<HourglassIcon className="w-7 h-7" />} label="Pendientes" value={pendientes} />
+          <StatCard icon={<UserIcon className="w-7 h-7" />} label="Esperando tu OK" value={esperandoConfirmar} />
+          <StatCard icon={<CircleCheckIcon className="w-7 h-7" />} label="Confirmadas" value={confirmadas} />
         </div>
 
         {/* Tabs */}
@@ -801,7 +802,7 @@ const HomeSeller = () => {
               </div>
             ) : servicios.length === 0 ? (
               <div className="text-center py-16 bg-white rounded-2xl border border-gray-100">
-                <p className="text-4xl mb-3">🎭</p>
+                <DramaIcon className="w-9 h-9 mx-auto mb-3 text-gray-300" />
                 <p className="text-gray-600 font-medium mb-1">Todavía no cargaste experiencias</p>
                 <p className="text-gray-400 text-sm mb-4">Creá tu primera experiencia para comenzar a recibir reservas</p>
                 <button onClick={() => setModalServicio({})}
@@ -844,8 +845,8 @@ const HomeSeller = () => {
                           {s.activo !== false ? "Desactivar" : "Activar"}
                         </button>
                         <button onClick={() => handleDelete(s.id)}
-                          className="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-colors text-xs">
-                          🗑
+                          className="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-colors text-xs" title="Eliminar experiencia">
+                          <Trash2Icon className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
@@ -873,7 +874,7 @@ const HomeSeller = () => {
                   onClick={exportCSV}
                   className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-semibold px-4 py-2 rounded-xl transition-colors"
                 >
-                  ⬇ Exportar CSV
+                  <DownloadIcon className="w-4 h-4 inline -mt-0.5 mr-1.5" />Exportar CSV
                 </button>
               </div>
             </div>
@@ -884,7 +885,7 @@ const HomeSeller = () => {
               </div>
             ) : reservas.length === 0 ? (
               <div className="text-center py-16 bg-white rounded-2xl border border-gray-100">
-                <p className="text-4xl mb-3">📋</p>
+                <ClipboardListIcon className="w-9 h-9 mx-auto mb-3 text-gray-300" />
                 <p className="text-gray-600 font-medium">No hay reservas todavía</p>
                 <p className="text-gray-400 text-sm mt-1">
                   Cuando los turistas reserven tus experiencias, aparecerán aquí automáticamente
@@ -914,7 +915,7 @@ const HomeSeller = () => {
                           </div>
                           {r.estado === "cancelada" && r.motivoCancelacion && (
                             <p className="text-xs text-red-500 mt-2 bg-red-50 rounded-lg px-2 py-1">
-                              ❌ {r.motivoCancelacion}
+                              {r.motivoCancelacion}
                             </p>
                           )}
                         </div>
@@ -927,7 +928,7 @@ const HomeSeller = () => {
                                 className="text-xs border border-gray-200 hover:bg-gray-50 text-gray-600 font-semibold px-2.5 py-1.5 rounded-xl transition-colors"
                                 title="Ver chat"
                               >
-                                💬
+                                <MessageCircleIcon className="w-4 h-4" />
                               </button>
                             )}
                             {r.estado !== "cancelada" && r.estado !== "pagada" && (
@@ -935,7 +936,7 @@ const HomeSeller = () => {
                                 onClick={() => openModal(r, "detalle")}
                                 className="text-xs bg-primary-600 hover:bg-primary-700 text-white font-semibold px-3 py-1.5 rounded-xl transition-colors"
                               >
-                                Gestionar →
+                                Gestionar
                               </button>
                             )}
                           </div>
@@ -956,7 +957,7 @@ const HomeSeller = () => {
             </p>
             {reservas.length === 0 ? (
               <div className="text-center py-16 bg-white rounded-2xl border border-gray-100">
-                <p className="text-4xl mb-3">💬</p>
+                <MessageCircleIcon className="w-9 h-9 mx-auto mb-3 text-gray-300" />
                 <p className="text-gray-600 font-medium">No hay conversaciones todavía</p>
               </div>
             ) : (
@@ -978,7 +979,7 @@ const HomeSeller = () => {
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
                           <ReservaEstadoBadge estado={r.estado} />
-                          <span className="text-primary-600 text-sm">→</span>
+                          <ChevronRightIcon className="w-4 h-4 text-primary-600" />
                         </div>
                       </div>
                     </button>

@@ -1,4 +1,4 @@
-﻿// PagoFallido.jsx
+// PagoFallido.jsx
 // Página de retorno cuando el pago fue rechazado o cancelado.
 
 import { Link, useSearchParams } from "react-router-dom";

@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { sendConsulta } from "../firebase/firestore";
 import { useTranslation } from "react-i18next";
 

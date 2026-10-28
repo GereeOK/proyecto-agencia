@@ -1,8 +1,9 @@
-﻿// Servicios.jsx — Flujo TripAdvisor completo con carrito
+// Servicios.jsx — Flujo TripAdvisor completo con carrito
 // Paso 1: elegir fechas → Paso 2: ver servicios → Paso 3: modal detalle + mapa
 // → Agregar al carrito → Paso 4: revisar carrito y confirmar
 
 import React, { useEffect, useState, lazy, Suspense } from "react";
+import { ClockIcon, LuggageIcon, MapPinIcon, PencilIcon, SearchIcon, ShoppingCartIcon, StarIcon } from "lucide-react";
 import { fetchServiciosActivos, saveReservaTransaccional, toggleFavorito, getFavoritos, fetchResenasExperiencias, checkServiciosYaReservados } from "../firebase/firestore";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
@@ -46,7 +47,7 @@ const ModalResenas = ({ servicio, data, onClose }) => {
         <div>
           <h3 className="font-bold text-gray-900 line-clamp-1">{getLang(servicio, "title", lang)}</h3>
           <p className="text-sm text-gray-500">
-            {data.count} reseña{data.count !== 1 ? "s" : ""} · Promedio {data.avg.toFixed(1)} ⭐
+            {data.count} reseña{data.count !== 1 ? "s" : ""} · Promedio {data.avg.toFixed(1)} <StarIcon className="inline w-3.5 h-3.5 -mt-0.5 text-yellow-400 fill-yellow-400" />
           </p>
         </div>
         <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 flex-shrink-0 ml-3">
@@ -140,7 +141,7 @@ const SelectorFechas = ({ onConfirmar }) => {
 
         <button onClick={confirmar}
           className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 rounded-xl text-base transition-colors shadow-lg">
-          Ver experiencias disponibles →
+          Ver experiencias disponibles
         </button>
       </div>
     </div>
@@ -202,7 +203,7 @@ const ModalDetalle = ({ servicio, onClose, resenas, onVerResenas }) => {
               {resenas?.count > 0 && (
                 <button type="button" onClick={onVerResenas}
                   className="text-xs text-primary-600 hover:underline font-medium">
-                  Ver {resenas.count} reseña{resenas.count !== 1 ? "s" : ""} →
+                  Ver {resenas.count} reseña{resenas.count !== 1 ? "s" : ""}
                 </button>
               )}
             </div>
@@ -232,7 +233,7 @@ const ModalDetalle = ({ servicio, onClose, resenas, onVerResenas }) => {
             {/* Disponibilidad */}
             {(servicio.from || servicio.until) && (
               <div className="mt-3 text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2">
-                📅 Disponible:{" "}
+                Disponible:{" "}
                 {servicio.from?.toDate ? servicio.from.toDate().toLocaleDateString("es-AR") : ""}
                 {servicio.from && servicio.until && " → "}
                 {servicio.until?.toDate ? servicio.until.toDate().toLocaleDateString("es-AR") : ""}
@@ -243,7 +244,7 @@ const ModalDetalle = ({ servicio, onClose, resenas, onVerResenas }) => {
 
             {servicio.incluye && (
               <div className="mt-4 bg-primary-50 rounded-xl p-4">
-                <p className="text-sm font-semibold text-primary-800 mb-1">✅ ¿Qué incluye?</p>
+                <p className="text-sm font-semibold text-primary-800 mb-1">¿Qué incluye?</p>
                 <p className="text-sm text-primary-700">{getLang(servicio, "incluye", lang)}</p>
               </div>
             )}
@@ -251,7 +252,7 @@ const ModalDetalle = ({ servicio, onClose, resenas, onVerResenas }) => {
             {/* Mapa */}
             {servicio.lat && servicio.lng && (
               <div className="mt-5">
-                <p className="text-sm font-semibold text-gray-700 mb-2">📍 Punto de encuentro</p>
+                <p className="text-sm font-semibold text-gray-700 mb-2">Punto de encuentro</p>
                 <Suspense fallback={<div className="w-full h-48 bg-gray-100 rounded-xl animate-pulse"/>}>
                   <MapaServicio lat={servicio.lat} lng={servicio.lng} titulo={servicio.title} height="200px"/>
                 </Suspense>
@@ -289,7 +290,7 @@ const ModalDetalle = ({ servicio, onClose, resenas, onVerResenas }) => {
             {/* Fechas del carrito */}
             <div className="bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-600">
               <p className="font-semibold text-gray-800 mb-1">Tu viaje</p>
-              <p>📅 {carrito.checkin} → {carrito.checkout}</p>
+              <p>{carrito.checkin} → {carrito.checkout}</p>
             </div>
 
             {/* Subtotal */}
@@ -315,7 +316,7 @@ const ModalDetalle = ({ servicio, onClose, resenas, onVerResenas }) => {
             ) : enCarrito ? (
               <div className="flex flex-col gap-2">
                 <div className="w-full bg-green-100 text-green-700 font-semibold py-3 rounded-xl text-sm text-center">
-                  ✅ Agregado al carrito
+                  Agregado al carrito
                 </div>
                 <button onClick={handleQuitar}
                   className="w-full bg-red-50 hover:bg-red-100 text-red-600 font-medium py-2 rounded-xl text-sm transition-colors">
@@ -432,7 +433,7 @@ const PanelCarrito = ({ open, onClose }) => {
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <h2 className="text-lg font-bold text-gray-900">
-            🛒 Mi reserva
+            Mi reserva
             {carrito.items.length > 0 && (
               <span className="ml-2 bg-primary-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                 {carrito.items.length}
@@ -448,14 +449,14 @@ const PanelCarrito = ({ open, onClose }) => {
 
         {/* Fechas */}
         <div className="px-5 py-3 bg-primary-50 border-b border-primary-100 text-sm text-primary-800">
-          📅 {carrito.checkin || "—"} → {carrito.checkout || "—"}
+          {carrito.checkin || "—"} → {carrito.checkout || "—"}
         </div>
 
         {/* Items */}
         <div className="flex-1 overflow-y-auto px-5 py-4">
           {carrito.items.length === 0 ? (
             <div className="text-center py-16">
-              <p className="text-gray-400 text-4xl mb-3">🧳</p>
+              <LuggageIcon className="w-9 h-9 mx-auto mb-3 text-gray-300" />
               <p className="text-gray-500">Tu carrito está vacío.</p>
               <p className="text-gray-400 text-sm mt-1">Agregá experiencias para armar tu viaje.</p>
             </div>
@@ -501,7 +502,7 @@ const PanelCarrito = ({ open, onClose }) => {
             {error && <p className="text-red-500 text-xs">{error}</p>}
             <button onClick={confirmar} disabled={loading}
               className="w-full bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white font-bold py-4 rounded-xl text-sm transition-colors shadow-md">
-              {loading ? "Procesando..." : "Confirmar reserva →"}
+              {loading ? "Procesando..." : "Confirmar reserva"}
             </button>
             <button onClick={limpiarCarrito}
               className="w-full text-gray-400 hover:text-red-500 text-xs text-center transition-colors py-1">
@@ -597,7 +598,7 @@ const Catalogo = ({ onCambiarFechas }) => {
               <span className="text-white font-medium">{carrito.checkin}</span>
               <span className="text-gray-400">→</span>
               <span className="text-white font-medium">{carrito.checkout}</span>
-              <span className="text-gray-400 text-xs ml-1">✏️ Cambiar</span>
+              <span className="text-gray-400 text-xs ml-1 inline-flex items-center gap-1"><PencilIcon className="w-3 h-3" />Cambiar</span>
             </button>
           </div>
 
@@ -632,7 +633,7 @@ const Catalogo = ({ onCambiarFechas }) => {
           {/* Botón carrito flotante en la barra */}
           <button onClick={() => setCarritoOpen(true)}
             className="flex-shrink-0 flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-1.5 rounded-full text-sm font-semibold transition-colors shadow-md">
-            🛒
+            <ShoppingCartIcon className="w-4 h-4" />
             {carrito.items.length > 0 && (
               <span className="bg-white text-primary-700 text-xs font-bold px-1.5 py-0.5 rounded-full">
                 {carrito.items.length}
@@ -659,7 +660,7 @@ const Catalogo = ({ onCambiarFechas }) => {
           </div>
         ) : filtrados.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-gray-400 text-5xl mb-4">🔍</p>
+            <SearchIcon className="w-12 h-12 mx-auto mb-4 text-gray-300" />
             <p className="text-gray-500">No encontramos experiencias con ese filtro.</p>
             <button onClick={() => { setBusqueda(""); setCatActiva("Todas"); }}
               className="mt-3 text-primary-600 hover:underline text-sm">Limpiar filtros</button>
@@ -701,7 +702,7 @@ const Catalogo = ({ onCambiarFechas }) => {
                       {/* Badge "En carrito" */}
                       {enCarrito && (
                         <div className="absolute bottom-3 right-3 bg-primary-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow">
-                          ✅ Agregado
+                          Agregado
                         </div>
                       )}
                     </div>
@@ -715,18 +716,18 @@ const Catalogo = ({ onCambiarFechas }) => {
                           <button type="button"
                             onClick={(e) => { e.stopPropagation(); setVerResenas({ servicio: s, data: resenasMap[s.id] }); }}
                             className="text-xs text-primary-600 hover:underline font-medium">
-                            Ver {resenasMap[s.id].count} reseña{resenasMap[s.id].count !== 1 ? "s" : ""} →
+                            Ver {resenasMap[s.id].count} reseña{resenasMap[s.id].count !== 1 ? "s" : ""}
                           </button>
                         )}
                       </div>
                       <div className="flex gap-3 mt-2 text-xs text-gray-400">
-                        {s.duracion && <span>⏱ {s.duracion}</span>}
-                        {s.ubicacion && <span className="truncate">📍 {s.ubicacion}</span>}
+                        {s.duracion && <span className="inline-flex items-center gap-1"><ClockIcon className="w-3.5 h-3.5" />{s.duracion}</span>}
+                        {s.ubicacion && <span className="inline-flex items-center gap-1 min-w-0"><MapPinIcon className="w-3.5 h-3.5 flex-shrink-0" /><span className="truncate">{s.ubicacion}</span></span>}
                       </div>
                       <p className="text-gray-500 text-sm mt-2 line-clamp-2">{getLang(s, "description", lang)}</p>
                       <div className="mt-3 flex items-center justify-between">
                         <span className="text-primary-600 text-sm font-semibold group-hover:underline">
-                          Ver detalles →
+                          Ver detalles
                         </span>
                         {!s.price && <span className="text-xs text-gray-400">A consultar</span>}
                       </div>

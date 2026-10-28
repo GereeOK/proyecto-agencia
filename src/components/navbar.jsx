@@ -1,4 +1,4 @@
-﻿import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
@@ -14,11 +14,11 @@ const Header = () => {
   const dropdownRef = useRef(null);
 
   const LANGS = [
-    { code: "es", label: "ES", flag: "🇦🇷" },
-    { code: "en", label: "EN", flag: "🇺🇸" },
-    { code: "fr", label: "FR", flag: "🇫🇷" },
-    { code: "pt", label: "PT", flag: "🇧🇷" },
-    { code: "it", label: "IT", flag: "🇮🇹" },
+    { code: "es", label: "ES" },
+    { code: "en", label: "EN" },
+    { code: "fr", label: "FR" },
+    { code: "pt", label: "PT" },
+    { code: "it", label: "IT" },
   ];
 
   const [showLangMenu, setShowLangMenu] = useState(false);
@@ -135,7 +135,6 @@ const Header = () => {
               className="flex items-center gap-1 text-xs font-bold px-2.5 py-1.5 rounded-md bg-white/10 hover:bg-white/20 transition-colors text-white"
               title={t("nav.idioma")}
             >
-              <span>{currentLang.flag}</span>
               <span>{currentLang.label}</span>
               <svg className="w-3 h-3 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
@@ -149,7 +148,6 @@ const Header = () => {
                     onClick={() => { i18n.changeLanguage(lang.code); setShowLangMenu(false); }}
                     className={`w-full text-left flex items-center gap-2 px-3 py-2 hover:bg-primary-50 hover:text-primary-600 transition-colors ${currentLang.code === lang.code ? "font-bold text-primary-600 bg-primary-50" : ""}`}
                   >
-                    <span>{lang.flag}</span>
                     <span>{lang.label}</span>
                   </button>
                 ))}
@@ -293,7 +291,6 @@ const Header = () => {
                   onClick={() => { i18n.changeLanguage(lang.code); setMobileOpen(false); }}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${currentLang.code === lang.code ? "bg-primary-500 text-white" : "bg-gray-700 text-gray-300 hover:bg-gray-600"}`}
                 >
-                  <span>{lang.flag}</span>
                   <span>{lang.label}</span>
                 </button>
               ))}

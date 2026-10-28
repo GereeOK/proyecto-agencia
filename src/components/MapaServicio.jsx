@@ -1,4 +1,4 @@
-﻿// MapaServicio.jsx
+// MapaServicio.jsx
 // Componente reutilizable de Leaflet + OpenStreetMap.
 // Se usa en tres lugares:
 //   1. Modal de detalle en Servicios.jsx (turista ve dónde está la experiencia)
@@ -103,7 +103,7 @@ const MapaServicio = ({
       {editable && (
         <p className="text-xs text-gray-500 mt-1 text-center">
           {coordsValidas
-            ? `📍 ${latNum.toFixed(5)}, ${lngNum.toFixed(5)} — Hacé click para mover el pin`
+            ? `${latNum.toFixed(5)}, ${lngNum.toFixed(5)} — Hacé click para mover el pin`
             : "Hacé click en el mapa para ubicar la experiencia"}
         </p>
       )}
