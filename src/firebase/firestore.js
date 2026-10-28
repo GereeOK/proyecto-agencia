@@ -173,20 +173,6 @@ export const saveReservaTransaccional = async (reserva, servicioId) => {
   });
 };
 
-// MEJORA (CP5 – Duplicación de reserva): Verifica si el usuario ya tiene
-// una reserva para la misma experiencia antes de crear una nueva.
-export const checkReservaDuplicada = async (userEmail, servicioId) => {
-  const ref = collection(db, "reservas");
-  const q = query(
-    ref,
-    where("email", "==", userEmail),
-    where("servicioId", "==", servicioId),
-    where("estado", "!=", "cancelada")
-  );
-  const snapshot = await getDocs(q);
-  return !snapshot.empty; // true = ya existe reserva
-};
-
 // Función original mantenida para compatibilidad con el resto del código
 export const saveReserva = async (reserva) => {
   // userId (UID de Firebase Auth) es obligatorio: es el campo que usa la
@@ -297,7 +283,7 @@ export const getCompanyByUser = async (companyId) => {
 export const createTestCompany = async (userId, userEmail) => {
   const companyRef = doc(collection(db, "companies"));
   const companyData = {
-    nombre: `Testing Co. (${userEmail})`,
+    name: `Testing Co. (${userEmail})`,
     logo: "",
     email: userEmail,
     whatsapp: "",

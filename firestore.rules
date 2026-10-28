@@ -4,15 +4,14 @@ service cloud.firestore {
 
     // Usuarios — cada uno lee/edita el suyo; admin edita todos; admin/seller
     // pueden leer cualquier perfil (necesario para las pantallas de gestión
-    // del lado web).
+    // del lado web). El grupo familiar ("grupofamiliar") vive como array
+    // dentro de este mismo doc — ya cubierto por el "allow write" de acá
+    // arriba, no necesita regla propia (antes el móvil usaba una
+    // subcolección "familia" separada, invisible para la web).
     match /users/{userId} {
       allow read:  if request.auth != null
                    && (request.auth.uid == userId || isAdmin() || isSeller());
       allow write: if request.auth != null && (request.auth.uid == userId || isAdmin());
-
-      match /familia/{docId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
-      }
 
       match /itinerary/{docId} {
         allow read, write, delete: if request.auth != null && request.auth.uid == userId;
@@ -52,47 +51,31 @@ service cloud.firestore {
       allow delete: if false;
 
       // Mensajes de reserva — chat entre usuario y seller.
-      // La app móvil manda el campo "senderId"; la web manda "autorId".
-      // Mismo propósito, nombre distinto — se aceptan los dos hasta
-      // unificar el campo en ambos clientes.
+      // Campo unificado "autorId" (antes el móvil usaba "senderId"; los
+      // mensajes viejos con ese campo siguen siendo legibles, solo no se
+      // vuelven a escribir con ese nombre).
       match /mensajes/{msgId} {
         allow read: if request.auth != null && (
           get(/databases/$(database)/documents/reservas/$(reservaId)).data.userId == request.auth.uid ||
           get(/databases/$(database)/documents/reservas/$(reservaId)).data.email == request.auth.token.email ||
           isAdmin() || isSeller()
         );
-        allow create: if request.auth != null && (
-          request.resource.data.senderId == request.auth.uid ||
-          request.resource.data.autorId == request.auth.uid ||
-          isAdmin() || isSeller()
-        );
+        allow create: if request.auth != null
+                      && request.resource.data.autorId == request.auth.uid;
         allow update, delete: if false;
       }
     }
 
-    // Favoritos — DOS estructuras distintas conviven hoy para la misma
-    // feature (pendiente de unificar):
-    //   - móvil: colección plana "favoritos/{docId}" con campos userId+servicioId
-    //   - web:   subcolección "favoritos/{userId}/items/{servicioId}"
-    match /favoritos/{docId} {
-      allow read, delete: if request.auth != null
-                          && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null
-                    && request.resource.data.userId == request.auth.uid;
-    }
+    // Favoritos — unificado: ambos clientes usan la misma subcolección
+    // "favoritos/{userId}/items/{servicioId}".
     match /favoritos/{userId}/items/{itemId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Reseñas — DOS colecciones distintas conviven hoy para la misma
-    // feature (pendiente de unificar):
-    //   - móvil: "reviews" (servicioId + rating + comentario)
-    //   - web:   "resenas" (tipo + referenciaId + estrellas + texto)
-    match /reviews/{docId} {
-      allow read: if true;
-      allow create: if request.auth != null;
-      allow update, delete: if false;
-    }
+    // Reseñas — unificado: ambos clientes usan "resenas" (tipo:
+    // "experiencia" | "empresa" | "plataforma"). El móvil solo crea tipo
+    // "experiencia"; "reviews" queda deprecada (ver migración en
+    // scripts/backfillUserId.js).
     match /resenas/{id} {
       allow read:   if true;
       allow create: if request.auth != null;
