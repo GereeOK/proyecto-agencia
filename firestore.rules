@@ -2,68 +2,109 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Usuarios: cada uno lee/edita el suyo; admin puede todo
+    // Usuarios — cada uno lee/edita el suyo; admin edita todos; admin/seller
+    // pueden leer cualquier perfil (necesario para las pantallas de gestión
+    // del lado web).
     match /users/{userId} {
-      allow read:  if request.auth != null && (request.auth.uid == userId || isAdmin());
+      allow read:  if request.auth != null
+                   && (request.auth.uid == userId || isAdmin() || isSeller());
       allow write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+
+      match /familia/{docId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      match /itinerary/{docId} {
+        allow read, write, delete: if request.auth != null && request.auth.uid == userId;
+      }
     }
 
-    // Servicios: lectura pública; escritura solo seller/admin
+    // Servicios (experiencias) — lectura pública; escritura solo seller/admin
     match /servicios/{id} {
       allow read:  if true;
       allow write: if request.auth != null && (isSeller() || isAdmin());
     }
 
-    // Reservas: usuario ve las suyas; seller y admin ven todas
-    match /reservas/{reservaId} {
-      allow read:   if request.auth != null &&
-                       (resource.data.email == request.auth.token.email ||
-                        isSeller() || isAdmin());
-      allow create: if request.auth != null;
-      allow update: if request.auth != null &&
-                       (isSeller() || isAdmin() ||
-                        resource.data.email == request.auth.token.email);
-      allow delete: if request.auth != null &&
-                       (resource.data.email == request.auth.token.email || isAdmin());
+    // Empresas — seller gestiona la suya, admin gestiona todas
+    match /companies/{id} {
+      allow read, write: if request.auth != null && (isSeller() || isAdmin());
+    }
 
-      // Mensajes de reserva: chat entre usuario y seller
+    // Reservas — turista ve/crea las suyas; admin y seller ven/editan todas.
+    //
+    // "userId" (UID de Firebase Auth) es el identificador canónico — tanto
+    // la app móvil como la web lo escriben al crear una reserva. El fallback
+    // por "email" en el read cubre únicamente las reservas viejas, creadas
+    // desde la web ANTES de que empezara a mandar userId (ver backfillUserId.js).
+    // Una vez corrido ese backfill en producción, se puede borrar el fallback.
+    match /reservas/{reservaId} {
+      allow read: if request.auth != null && (
+        resource.data.userId == request.auth.uid ||
+        resource.data.email == request.auth.token.email ||
+        isAdmin() || isSeller()
+      );
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null && (
+        isAdmin() || isSeller() ||
+        (resource.data.userId == request.auth.uid && resource.data.estado == 'pendiente')
+      );
+      allow delete: if false;
+
+      // Mensajes de reserva — chat entre usuario y seller.
+      // La app móvil manda el campo "senderId"; la web manda "autorId".
+      // Mismo propósito, nombre distinto — se aceptan los dos hasta
+      // unificar el campo en ambos clientes.
       match /mensajes/{msgId} {
         allow read: if request.auth != null && (
-          isAdmin() ||
-          isSeller() ||
-          get(/databases/$(database)/documents/reservas/$(reservaId)).data.email == request.auth.token.email
+          get(/databases/$(database)/documents/reservas/$(reservaId)).data.userId == request.auth.uid ||
+          get(/databases/$(database)/documents/reservas/$(reservaId)).data.email == request.auth.token.email ||
+          isAdmin() || isSeller()
         );
         allow create: if request.auth != null && (
-          isAdmin() ||
-          isSeller() ||
-          get(/databases/$(database)/documents/reservas/$(reservaId)).data.email == request.auth.token.email
+          request.resource.data.senderId == request.auth.uid ||
+          request.resource.data.autorId == request.auth.uid ||
+          isAdmin() || isSeller()
         );
         allow update, delete: if false;
       }
     }
 
-    // Mensajes de contacto: cualquiera crea, solo admin lee
-    match /messages/{id} {
-      allow create: if true;
-      allow read:   if isAdmin();
+    // Favoritos — DOS estructuras distintas conviven hoy para la misma
+    // feature (pendiente de unificar):
+    //   - móvil: colección plana "favoritos/{docId}" con campos userId+servicioId
+    //   - web:   subcolección "favoritos/{userId}/items/{servicioId}"
+    match /favoritos/{docId} {
+      allow read, delete: if request.auth != null
+                          && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid;
     }
-
-    // Empresas: seller gestiona la suya, admin gestiona todas
-    match /companies/{id} {
-      allow read, write: if request.auth != null && (isSeller() || isAdmin());
-    }
-
-    // Favoritos: solo el dueño accede a los suyos
-    match /favoritos/{userId}/{document=**} {
+    match /favoritos/{userId}/items/{itemId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Reseñas: lectura pública; usuarios autenticados crean; solo admin puede actualizar (ocultar/responder)
+    // Reseñas — DOS colecciones distintas conviven hoy para la misma
+    // feature (pendiente de unificar):
+    //   - móvil: "reviews" (servicioId + rating + comentario)
+    //   - web:   "resenas" (tipo + referenciaId + estrellas + texto)
+    match /reviews/{docId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if false;
+    }
     match /resenas/{id} {
       allow read:   if true;
       allow create: if request.auth != null;
       allow update: if isAdmin();
       allow delete: if false;
+    }
+
+    // Mensajes de contacto (formulario de la landing web) — cualquiera
+    // crea, solo admin lee
+    match /messages/{id} {
+      allow create: if true;
+      allow read:   if isAdmin();
     }
 
     function isAdmin() {

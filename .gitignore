@@ -59,3 +59,6 @@ credenciales-testing.txt
 
 # Claude Code settings (local only)
 .claude/
+
+#service account key
+serviceAccountKey.json

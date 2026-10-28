@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { saveReserva } from "../firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/authContext";
 
 // MEJORA: Se agrega validación de fechas antes de enviar la reserva.
 // El original no validaba que checkout > checkin ni que los campos fueran
@@ -16,6 +17,7 @@ import emailjs from "@emailjs/browser";
 
 export const useReservaForm = (serviciosDisponibles, initialData = {}) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [selectedServices, setSelectedServices] = useState([]);
   const [formData, setFormData] = useState({
@@ -74,6 +76,11 @@ export const useReservaForm = (serviciosDisponibles, initialData = {}) => {
       return;
     }
 
+    if (!user?.uid) {
+      setError("Debés iniciar sesión para reservar.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -81,8 +88,12 @@ export const useReservaForm = (serviciosDisponibles, initialData = {}) => {
         serviciosDisponibles.find((s) => s.id === id)
       );
 
+      // userId (UID de Firebase Auth) es lo que usa la app móvil para
+      // encontrar las reservas del usuario en Firestore; sin este campo
+      // la reserva queda invisible en el móvil aunque exista en la web.
       const data = {
         ...formData,
+        userId: user.uid,
         servicios: serviciosSeleccionados,
       };
 

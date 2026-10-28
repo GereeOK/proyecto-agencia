@@ -123,6 +123,12 @@ export const deleteServicio = async (id) => {
 // (race conditions), tal como indica el caso de prueba CP8 y el flujo básico
 // del caso de uso "Realizar Reserva" (pasos 5–8 del documento técnico).
 export const saveReservaTransaccional = async (reserva, servicioId) => {
+  // userId (UID de Firebase Auth) es obligatorio: es el campo que usa la
+  // app móvil para encontrar las reservas del usuario en Firestore.
+  if (!reserva.userId) {
+    throw new Error("No se puede crear una reserva sin userId.");
+  }
+
   // Solo se aplica transacción si el servicio tiene control de cupos
   if (!servicioId) {
     // Sin control de cupos: guardar directamente (compatibilidad hacia atrás)
@@ -183,6 +189,12 @@ export const checkReservaDuplicada = async (userEmail, servicioId) => {
 
 // Función original mantenida para compatibilidad con el resto del código
 export const saveReserva = async (reserva) => {
+  // userId (UID de Firebase Auth) es obligatorio: es el campo que usa la
+  // app móvil para encontrar las reservas del usuario en Firestore.
+  if (!reserva.userId) {
+    throw new Error("No se puede crear una reserva sin userId.");
+  }
+
   return addDoc(collection(db, "reservas"), {
     ...reserva,
     estado: reserva.estado || "pendiente",

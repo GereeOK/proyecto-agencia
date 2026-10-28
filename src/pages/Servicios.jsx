@@ -388,6 +388,7 @@ const PanelCarrito = ({ open, onClose }) => {
     setError(null);
     try {
       await saveReservaTransaccional({
+        userId: user.uid,
         fullname: user.displayName || user.email,
         email: user.email,
         checkin: carrito.checkin,
