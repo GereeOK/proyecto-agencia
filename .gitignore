@@ -64,4 +64,4 @@ credenciales-testing.txt
 serviceAccountKey.json
 
 #scripts
-.scripts/
+scripts/
