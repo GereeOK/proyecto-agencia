@@ -1,4 +1,4 @@
-# 🌆 Baires Essence
+# Baires Essence
 
 > Plataforma de turismo en Buenos Aires — reservá experiencias auténticas, gestionadas por guías locales.
 
@@ -10,25 +10,40 @@
 
 ---
 
-## ¿Qué es?
+## Qué es
 
 Baires Essence conecta a turistas con guías y agencias porteñas. El turista elige experiencias (city tours, gastronomía, tango, polo, kayak…), las arma en un carrito, reserva y paga. El guía las gestiona desde su panel. El admin supervisa todo.
 
 ---
 
-## ✨ Funcionalidades
+## Plataforma
 
-### 🧳 Turistas
+Baires Essence tiene dos clientes que comparten el mismo proyecto Firebase (`baires-essence`):
+
+| Repo | Cliente | Usuarios |
+|---|---|---|
+| [proyecto-agencia](https://github.com/GereeOK/proyecto-agencia) (este) | Web React | Turistas, sellers y admins |
+| [BairesEssence_Mobile](https://github.com/R-oyo/BairesEssence_Mobile) | App Android | Turistas |
+
+Ambos leen y escriben las mismas colecciones de Firestore. **Un cambio de esquema en uno de los dos repos tiene que replicarse en el otro.**
+
+Las reglas de Firestore (`firestore.rules`) están duplicadas en ambos repos y hoy son idénticas: si se modifican, hay que actualizar las dos copias. Firebase Hosting se despliega **solo desde el repo de la app** (ver [Deploy](#deploy)).
+
+---
+
+## Funcionalidades
+
+### Turistas
 - Catálogo con filtros por categoría y búsqueda en tiempo real
 - Modal de detalle con mapa (Leaflet), reseñas y contacto directo al guía (WhatsApp / email)
 - Carrito multi-experiencia con selección de personas
 - Reserva con lista de pasajeros, fechas y horarios por actividad
-- Pago online con MercadoPago
+- Pago online con MercadoPago (PayPal está implementado pero deshabilitado hasta tener credenciales)
 - Historial de reservas + calificación post-experiencia
 - Favoritos guardados
 - Interfaz en 5 idiomas: ES / EN / FR / PT / IT
 
-### 🏪 Vendedores (panel seller)
+### Vendedores (panel seller)
 - CRUD de experiencias con mapa interactivo
 - Auto-traducción al guardar: el contenido en español se traduce automáticamente a EN/FR/PT/IT
 - Reservas en tiempo real (`onSnapshot`)
@@ -36,7 +51,7 @@ Baires Essence conecta a turistas con guías y agencias porteñas. El turista el
 - Calendario mensual de actividades
 - Exportación CSV
 
-### 🛠️ Administradores (panel admin)
+### Administradores (panel admin)
 - Dashboard con KPIs: reservas, ingresos, tasa de conversión, reseñas promedio
 - Gráficos de barras, torta y área (Recharts)
 - Panel de reseñas: filtros, ocultar, respuesta por email
@@ -46,13 +61,14 @@ Baires Essence conecta a turistas con guías y agencias porteñas. El turista el
 
 ---
 
-## 🧱 Stack
+## Stack
 
 | Capa | Tecnología |
 |---|---|
 | Frontend | React 19 + Vite |
 | Estilos | Tailwind CSS |
-| Base de datos | Firebase Firestore (plan Spark) |
+| Íconos | lucide-react |
+| Base de datos | Firebase Firestore (proyecto compartido con la app Android) |
 | Auth | Firebase Auth — email + Google OAuth |
 | Mapas | Leaflet + React-Leaflet |
 | Gráficos | Recharts |
@@ -64,9 +80,11 @@ Baires Essence conecta a turistas con guías y agencias porteñas. El turista el
 | Notificaciones | Sonner |
 | Deploy | Vercel |
 
+> El proyecto Firebase hoy está en el plan Spark. El backend de pagos de la app Android usa Cloud Functions, que requieren el plan **Blaze**: cuando se despliegue, el proyecto compartido pasa a Blaze.
+
 ---
 
-## 📁 Estructura
+## Estructura
 
 ```
 src/
@@ -74,6 +92,7 @@ src/
 ├── seller/         # Panel vendedor (HomeSeller)
 ├── pages/          # Vistas públicas y de usuario
 ├── components/     # Navbar, Footer, MapaServicio, Testimonials, Cards…
+├── hooks/          # useMisReservas, usePerfil, useRegister, useServicios
 ├── firebase/       # Config + todas las funciones Firestore
 ├── i18n/           # Traducciones: es.json, en.json, fr.json, pt.json, it.json
 ├── utils/          # translate.js — getLang(), useLang(), translateServicio()
@@ -86,7 +105,7 @@ api/
 
 ---
 
-## 🚀 Instalación
+## Instalación
 
 ```bash
 git clone https://github.com/GereeOK/proyecto-agencia
@@ -97,7 +116,7 @@ npm run dev
 
 ### Variables de entorno
 
-Crear `.env` en la raíz:
+**Frontend (opcionales en desarrollo).** `src/firebase/config.js` trae como valores por defecto los del proyecto `baires-essence`, así que `npm run dev` funciona sin `.env`. Para apuntar a otro proyecto Firebase, crear `.env` en la raíz:
 
 ```env
 VITE_FIREBASE_API_KEY=
@@ -106,14 +125,19 @@ VITE_FIREBASE_PROJECT_ID=
 VITE_FIREBASE_STORAGE_BUCKET=
 VITE_FIREBASE_MESSAGING_SENDER_ID=
 VITE_FIREBASE_APP_ID=
-
-# Solo para producción (Vercel)
-MP_ACCESS_TOKEN=
 ```
+
+**Serverless de pagos (`api/`, se configuran en Vercel):**
+
+| Variable | Uso |
+|---|---|
+| `MP_ACCESS_TOKEN` | Access Token de MercadoPago (crea preferencias y consulta pagos) |
+| `FIREBASE_SERVICE_ACCOUNT` | JSON de la service account de Firebase; el webhook la usa para actualizar la reserva |
+| `APP_URL` | URL pública de la web, para las URLs de retorno de MercadoPago. Opcional: si falta se usa `VERCEL_URL`, y en local `http://localhost:5173` |
 
 ---
 
-## 👥 Roles y permisos
+## Roles y permisos
 
 | Rol | Rutas |
 |---|---|
@@ -125,7 +149,7 @@ Los usuarios con `activo: false` son redirigidos al login automáticamente.
 
 ---
 
-## 🗄️ Colecciones Firestore
+## Colecciones Firestore
 
 | Colección | Descripción |
 |---|---|
@@ -140,7 +164,7 @@ Los usuarios con `activo: false` son redirigidos al login automáticamente.
 
 ---
 
-## 🔄 Flujo de estados de una reserva
+## Estados de una reserva
 
 ```
 pendiente → confirmada_usuario → confirmada → pagada → finalizada
@@ -150,7 +174,7 @@ pendiente → confirmada_usuario → confirmada → pagada → finalizada
 
 ---
 
-## 🌐 Internacionalización
+## Internacionalización
 
 La UI está disponible en 5 idiomas (ES / EN / FR / PT / IT).
 
@@ -158,42 +182,36 @@ El contenido dinámico (título, descripción e incluye de cada experiencia) **s
 
 ---
 
-## ☁️ Deploy (Vercel)
+## Deploy
 
-1. Importar repo en [vercel.com](https://vercel.com) → Framework: **Vite**
-2. Agregar variables de entorno (`VITE_FIREBASE_*` + `MP_ACCESS_TOKEN`)
+1. Importar el repo en [vercel.com](https://vercel.com) → Framework: **Vite**
+2. Agregar las variables de entorno (ver [Variables de entorno](#variables-de-entorno))
 3. Deploy automático en cada push a `main`
-4. Configurar webhook: `https://tu-app.vercel.app/api/webhookMp`
-5. Deployar reglas Firestore: `firebase deploy --only firestore:rules`
+4. Configurar el webhook de MercadoPago: `https://tu-app.vercel.app/api/webhookMp`
+5. Deployar las reglas de Firestore: `firebase deploy --only firestore:rules` (mantenerlas iguales a las del repo de la app)
+
+> **Importante:** el `firebase.json` de este repo solo configura las reglas de Firestore, a propósito. El Hosting de Firebase lo despliega la app Android (`BairesEssence_Mobile`), porque expone en `https://baires-essence.web.app` las rutas de la API de pagos de la app. No agregar un bloque `hosting` acá: un deploy desde este repo pisaría esas rutas.
 
 ---
 
-## 🧪 Usuarios de prueba
+## Cuentas de prueba
 
-### Admin
-| Email | Password |
-|-------|----------|
-| admin@admin.com | Admin123 |
+Las contraseñas **no se publican** en el repo; pedirlas al equipo.
 
-### Sellers
-| Nombre | Empresa | Email | Password |
-|--------|---------|-------|----------|
-| María González | BA Tango Experience | tangobaires@seller.com | Tango2026! |
-| Carlos Pérez | Sabores Buenos Aires | saboresba@seller.com | Sabores2026! |
-| Laura Fernández | Verde y Movimiento BA | verdeymba@seller.com | Verde2026! |
-
-### Users (password común: `User2026!`)
-| Nombre | Email | Estado |
-|--------|-------|--------|
-| Sophie Anderson 🇺🇸 | sofiamtz@gmail.com | reserva finalizada + reseñas |
-| Lucas Herreira 🇧🇷 | lucasherrera.ba@gmail.com | reserva finalizada + reseñas |
-| Facundo Morales 🇦🇷 | facundomorales@gmail.com | reserva confirmada + chat con seller |
-| Florencia Benítez 🇦🇷 | florenciabenitez@gmail.com | reserva pagada (familia de 4) |
-| Gonzalo Mendoza 🇦🇷 | gonzalomendoza@gmail.com | power user — 3 reservas en distintos estados |
-
+| Rol | Nombre | Email | Datos de prueba |
+|---|---|---|---|
+| Admin | — | admin@admin.com | — |
+| Seller | María González (BA Tango Experience) | tangobaires@seller.com | — |
+| Seller | Carlos Pérez (Sabores Buenos Aires) | saboresba@seller.com | — |
+| Seller | Laura Fernández (Verde y Movimiento BA) | verdeymba@seller.com | — |
+| User | Sophie Anderson (EE. UU.) | sofiamtz@gmail.com | Reserva finalizada + reseñas |
+| User | Lucas Herrera (Brasil) | lucasherrera.ba@gmail.com | Reserva finalizada + reseñas |
+| User | Facundo Morales (Argentina) | facundomorales@gmail.com | Reserva confirmada + chat con seller |
+| User | Florencia Benítez (Argentina) | florenciabenitez@gmail.com | Reserva pagada (familia de 4) |
+| User | Gonzalo Mendoza (Argentina) | gonzalomendoza@gmail.com | Power user — 3 reservas en distintos estados |
 
 ---
 
-## 📄 Licencia
+## Licencia
 
 Proyecto académico — uso libre con fines educativos.
